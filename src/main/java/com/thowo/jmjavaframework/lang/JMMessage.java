@@ -28,5 +28,6 @@ public class JMMessage {
     }
     public String getMsg(){
         return this.msg;
+        //
     }
 }
