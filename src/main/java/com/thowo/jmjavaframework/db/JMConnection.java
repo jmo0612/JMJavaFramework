@@ -78,7 +78,7 @@ public class JMConnection {
                 }
             };
             
-            new JMAsyncTask((JMAsyncListener) JMFunctions.getCurrentPlatformDisplay(),c,JMConnection.JM_ASYNC_CONNECT);
+            new JMAsyncTask(JMFunctions.getCurrentAsyncListener(),c,JMConnection.JM_ASYNC_CONNECT);
             
         }
         if(!this.errMsg.equals(""))JMFunctions.traceAndShow(this.errMsg);
@@ -101,7 +101,7 @@ public class JMConnection {
                 }
             };
             
-            new JMAsyncTask((JMAsyncListener) JMFunctions.getCurrentPlatformDisplay(),c,JMConnection.JM_ASYNC_CONNECT);
+            new JMAsyncTask(JMFunctions.getCurrentAsyncListener(),c,JMConnection.JM_ASYNC_CONNECT);
             
         }
         if(!this.errMsg.equals(""))JMFunctions.traceAndShow(this.errMsg);
@@ -131,7 +131,7 @@ public class JMConnection {
                 }
                 
             };
-            ret= (ResultSet) new JMAsyncTask((JMAsyncListener) JMFunctions.getCurrentPlatformDisplay(),c,JMConnection.JM_ASYNC_FETCH);
+            ret= (ResultSet) new JMAsyncTask(JMFunctions.getCurrentAsyncListener(),c,JMConnection.JM_ASYNC_FETCH);
             
         }
         
@@ -155,7 +155,7 @@ public class JMConnection {
                 }
                 
             };
-            ret=(ResultSet) new JMAsyncTask((JMAsyncListener) JMFunctions.getCurrentPlatformDisplay(),c,JMConnection.JM_ASYNC_FETCH);
+            ret=(ResultSet) new JMAsyncTask(JMFunctions.getCurrentAsyncListener(),c,JMConnection.JM_ASYNC_FETCH);
             
         }
         

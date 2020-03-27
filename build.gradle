@@ -16,23 +16,13 @@ dependencies {
     //implementation 'androidx.legacy:legacy-support-v13:1.0.0'
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'jp.wasabeef:picasso-transformations:2.1.0'
-    implementation group: 'org.apache.poi', name: 'poi', version: '3.9'
-    //implementation 'com.obsez.android.lib.filechooser:filechooser:1.1.10'
     
     // https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
     compile group:'org.xerial', name:'sqlite-jdbc', version:'3.8.11.2'
     // https://mvnrepository.com/artifact/mysql/mysql-connector-java
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.13'
     
-    //implementation 'androidx.appcompat:appcompat:1.0.0'
-    //compile group: 'org.apache.poi', name: 'poi-ooxml-schemas', version: '3.9'
-    /*
-    compile (group: 'org.apache.poi', name: 'poi-ooxml', version: '3.17'){
-        exclude group: 'stax', module: 'stax-api'
-        exclude group: 'org.apache.xmlbeans'
-        //exclude group: 'xml-apis', module: 'xml-apis'
-        //exclude group: 'poi-ooxml-schemas', module: 'poi-ooxml-schemas'
-
-    }*/
+    // https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml
+    compile group: 'org.apache.poi', name: 'poi-ooxml', version: '4.0.0'
 
 }

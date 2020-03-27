@@ -5,6 +5,9 @@
  */
 package com.thowo.jmjavaframework;
 
+import com.thowo.jmjavaframework.lang.JMLanguage;
+import java.util.List;
+
 /**
  *
  * @author jimi

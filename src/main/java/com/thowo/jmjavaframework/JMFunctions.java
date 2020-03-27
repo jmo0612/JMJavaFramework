@@ -4,6 +4,8 @@ package com.thowo.jmjavaframework;
 //import com.thowo.jmjavaframework.db.JMServerConnectionSetting;
 //import com.thowo.jmjavaframework.db.JMServerConnectionSetting;
 import com.thowo.jmjavaframework.db.JMConnection;
+import com.thowo.jmjavaframework.lang.JMLanguage;
+import com.thowo.jmjavaframework.lang.JMMessage;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -12,12 +14,21 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 //import static android.content.ContentValues.TAG;
 
@@ -26,16 +37,108 @@ import java.util.List;
  */
 
 public class JMFunctions {
-    //private static Context currentContext;
-    //private static JMActivity currentActivity;
-    //private static JMServerConnectionSetting serverConnectionSetting;
+    private static List<JMLanguage> languages;
+    private static List<JMMessage> messages;
     private static JMAsyncListener asyncL;
     private static JMUIListener uiL;
     private static JMConnection mDBConnection;
     private static String tes="jimix";
 
     public static void init(File languageExcelFile){
-        JMStringMessages.init();
+        //JMStringMessages.init();
+        JMFunctions.languages=new ArrayList();
+        JMFunctions.messages=new ArrayList();
+        if(JMFunctions.fileExist(languageExcelFile))JMFunctions.readExcelLang(languageExcelFile);
+    }
+    
+    private static void readExcelLang(File excel){
+        try {
+            InputStream inp= new FileInputStream(excel.getAbsolutePath());
+            try {
+                Workbook wb=WorkbookFactory.create(inp);
+                Sheet sheet=wb.getSheet("lang");
+                Row row=sheet.getRow(1);
+                if(row==null)return;
+                Cell cell=row.getCell(0);
+                int r=1;
+                while(cell!=null){
+                    String idLang=cell.getStringCellValue();
+                    cell=row.getCell(1);
+                    if(cell==null)return;
+                    String lang=cell.getStringCellValue();
+                    cell=row.getCell(2);
+                    Boolean def=false;
+                    if(cell!=null){
+                       if(cell.getNumericCellValue()==1)def=true; 
+                    }
+                    JMFunctions.languages.add(new JMLanguage(idLang,lang,def));
+                    row=sheet.getRow(++r);
+                    if(row==null)break;
+                    cell=row.getCell(0);
+                }
+                for(JMLanguage lang:JMFunctions.languages){
+                    sheet=wb.getSheet(lang.getLangId());
+                    r=1;
+                    if(sheet!=null){
+                        row=sheet.getRow(r);
+                        if(row==null)break;
+                        cell=row.getCell(0);
+                        if(cell==null)break;
+                        while(cell!=null){
+                            String idMsg=cell.getStringCellValue();
+                            cell=row.getCell(1);
+                            if(cell==null)break;
+                            String msg=cell.getStringCellValue();
+                            JMFunctions.messages.add(new JMMessage(lang.getLangId(),idMsg,msg));
+                            row=sheet.getRow(++r);
+                            if(row==null)break;
+                            cell=row.getCell(0);
+                        }
+                    }
+                }
+                
+            } catch (IOException ex) {
+                Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);
+                JMFunctions.traceAndShow(ex.getMessage());
+            } catch (EncryptedDocumentException ex) {
+                Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);
+                JMFunctions.traceAndShow(ex.getMessage());
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
+        }
+    }
+    
+    public static String getMessege(String idMsg){
+        String ret="";
+        JMLanguage defLang=JMFunctions.getDefaultLanguage();
+        if(defLang==null)return "";
+        for(JMMessage tmp:JMFunctions.messages){
+            if(tmp.getLangId().equals(defLang.getLangId()) && tmp.getMsgId().equals(idMsg)){
+                ret=tmp.getMsg();
+                break;
+            }
+        }
+        return ret;
+    }
+    
+    public static void setDefaultLanguage(int listIndex){
+        for(int i=0;i<languages.size();i++){
+            JMLanguage tmp=languages.get(i);
+            if(i==listIndex){
+                tmp.setDefault(true);
+            }else{
+                tmp.setDefault(false);
+            }
+        }
+    }
+    
+    public static JMLanguage getDefaultLanguage(){
+        for(JMLanguage tmp:languages){
+            if(tmp.getDefault())return tmp;
+        }
+        return null;
     }
 
     public static String getStringMessage(String msgType){
@@ -83,11 +186,11 @@ public class JMFunctions {
     }
 
 
-    public static Object getCurrentPlatformDisplay(){
+    public static JMAsyncListener getCurrentAsyncListener(){
         return asyncL;
     }
     
-    public static Object getCurrentUIListener(){
+    public static JMUIListener getCurrentUIListener(){
         return uiL;
     }
     
