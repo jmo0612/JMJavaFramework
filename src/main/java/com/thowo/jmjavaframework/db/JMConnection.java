@@ -122,6 +122,7 @@ public class JMConnection {
                 try {
                     Statement stmt=this.conSQLite.createStatement();
                     ResultSet rs=stmt.executeQuery(sql);
+                    if(rs!=null)rs.first();
                     this.errMsg="";
                     return rs; 
                 } catch (SQLException ex) {
@@ -131,7 +132,7 @@ public class JMConnection {
                 }
                 
             };
-            ret= (ResultSet) new JMAsyncTask(JMFunctions.getCurrentAsyncListener(),c,JMConnection.JM_ASYNC_FETCH);
+            ret= (ResultSet) new JMAsyncTask(JMFunctions.getCurrentAsyncListener(),c,JMConnection.JM_ASYNC_FETCH).getResult();
             
         }
         
@@ -146,6 +147,7 @@ public class JMConnection {
                 try {
                     Statement stmt=this.conMySQL.createStatement();
                     ResultSet rs=stmt.executeQuery(sql);
+                    if(rs!=null)rs.first();
                     this.errMsg="";
                     return rs; 
                 } catch (SQLException ex) {
@@ -155,8 +157,7 @@ public class JMConnection {
                 }
                 
             };
-            ret=(ResultSet) new JMAsyncTask(JMFunctions.getCurrentAsyncListener(),c,JMConnection.JM_ASYNC_FETCH);
-            
+            ret=(ResultSet) new JMAsyncTask(JMFunctions.getCurrentAsyncListener(),c,JMConnection.JM_ASYNC_FETCH).getResult();
         }
         
         if(!this.errMsg.equals(""))JMFunctions.traceAndShow(this.errMsg);

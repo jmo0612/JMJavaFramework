@@ -61,5 +61,9 @@ public class JMAsyncTask {
             this.el.onJMError(this.errorMessage, this.id);
         }
     }
+    
+    public Object getResult(){
+        return this.result;
+    }
 
 }
