@@ -32,7 +32,7 @@ public class JMFunctions {
     private static JMAsyncListener asyncL;
     private static JMUIListener uiL;
     private static JMConnection mDBConnection;
-    private static String tes="jimi";
+    private static String tes="jimix";
 
     public static void init(File languageExcelFile){
         JMStringMessages.init();
