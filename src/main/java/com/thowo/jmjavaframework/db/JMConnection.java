@@ -115,8 +115,8 @@ public class JMConnection {
         if(dbMySQL!=null)connectMySQL(dbMySQL);
     }
 
-    public ResultSet querySQLite(String sql){
-        ResultSet ret=null;
+    public JMResultSet querySQLite(String sql, Boolean showNullError){
+        JMResultSet ret=null;
         if(this.connectedSQLite){
             Callable<ResultSet> c=()->{
                 try {
@@ -132,7 +132,8 @@ public class JMConnection {
                 }
                 
             };
-            ret= (ResultSet) new JMAsyncTask(JMFunctions.getCurrentAsyncListener(),c,JMConnection.JM_ASYNC_FETCH).getResult();
+            ResultSet r=(ResultSet) new JMAsyncTask(JMFunctions.getCurrentAsyncListener(),c,JMConnection.JM_ASYNC_FETCH).getResult();
+            ret=new JMResultSet(r,showNullError);
             
         }
         
@@ -140,8 +141,8 @@ public class JMConnection {
         return ret;
     }
     
-    public ResultSet queryMySQL(String sql){
-        ResultSet ret=null;
+    public JMResultSet queryMySQL(String sql, Boolean showNullError){
+        JMResultSet ret=null;
         if(this.connectedMySQL){
             Callable<ResultSet> c=()->{
                 try {
@@ -157,7 +158,9 @@ public class JMConnection {
                 }
                 
             };
-            ret=(ResultSet) new JMAsyncTask(JMFunctions.getCurrentAsyncListener(),c,JMConnection.JM_ASYNC_FETCH).getResult();
+            ResultSet r=(ResultSet) new JMAsyncTask(JMFunctions.getCurrentAsyncListener(),c,JMConnection.JM_ASYNC_FETCH).getResult();
+            
+            ret=new JMResultSet(r,showNullError);
         }
         
         if(!this.errMsg.equals(""))JMFunctions.traceAndShow(this.errMsg);

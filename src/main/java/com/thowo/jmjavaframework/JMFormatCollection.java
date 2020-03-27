@@ -373,5 +373,12 @@ public class JMFormatCollection {
         }
         return fT+" " + nm + ((!lT.equals("")) ? ", " + lT:"");
     }
+    
+    public static String leadingZero(Integer number, int numOfZero){
+        String ret="";
+        if(number<0)ret="-";
+        ret=String.format("%0"+numOfZero+"d", number);
+        return ret;
+    }
 
 }

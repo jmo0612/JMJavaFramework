@@ -15,6 +15,7 @@ public class JMConstMessage {
     public static final String MSG_ASYNC="002";
     public static final String MSG_DB="003";
     public static final String MSG_DATE="004";
+    public static final String MSG_ELSE="005";
     
     //==============================MSG_UI_TYPES============================
     public static final String MSG_UI_OK="001";
@@ -44,12 +45,17 @@ public class JMConstMessage {
     public static final String MSG_DB_CONNECT_TIMED_OUT="002";
     public static final String MSG_DB_FETCH_TIMED_OUT="003";
     public static final String MSG_DB_FETCHED="004";
+    public static final String MSG_DB_FETCHED_NULL="005";
     
     //==============================MSG_DATE_TYPES========================
     public static final String MSG_DATE_DAY="001";
     public static final String MSG_DATE_MONTH="002";
+    public static final String MSG_DATE_HOUR="003";
     
     //=============================MSG_DATE_TYPE__DISPLAYS===================
     public static final String MSG_DATE_TYPE_COMPLETE="001";
     public static final String MSG_DATE_TYPE_SHORT="002";
+    
+    //=============================MSG_ELSE================================
+    public static final String MSG_ELSE_DATE_EMPTY="001";
 }

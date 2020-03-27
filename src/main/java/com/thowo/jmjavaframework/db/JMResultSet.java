@@ -1,0 +1,174 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.thowo.jmjavaframework.db;
+
+import com.thowo.jmjavaframework.JMDate;
+import com.thowo.jmjavaframework.JMFunctions;
+import com.thowo.jmjavaframework.lang.JMConstMessage;
+import java.sql.Blob;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ *
+ * @author jimi
+ */
+public class JMResultSet {
+    private ResultSet rs;
+    
+    public JMResultSet(ResultSet rs){
+        this.rs=rs;
+    }
+    public JMResultSet(ResultSet rs, Boolean showNullError){
+        this.rs=rs;
+        if(showNullError && this.rs==null)JMFunctions.traceAndShow(JMFunctions.getMessege(JMConstMessage.MSG_DB+JMConstMessage.MSG_DB_FETCHED_NULL));
+    }
+    
+    public String getString(String fieldName){
+        if(this.rs==null)return "";
+        try {
+            this.rs.first();
+            return this.rs.getString(fieldName);
+        } catch (SQLException ex) {
+            Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
+            return "";
+        }
+    }
+    
+    public String getString(int field){
+        if(this.rs==null)return "";
+        try {
+            this.rs.first();
+            return this.rs.getString(field);
+        } catch (SQLException ex) {
+            Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
+            return "";
+        }
+    }
+    
+    public Double getDouble(String fieldName){
+        if(this.rs==null)return 0.0;
+        try {
+            this.rs.first();
+            return this.rs.getDouble(fieldName);
+        } catch (SQLException ex) {
+            Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
+            return 0.0;
+        }
+    }
+    public Double getDouble(int field){
+        if(this.rs==null)return 0.0;
+        try {
+            this.rs.first();
+            return this.rs.getDouble(field);
+        } catch (SQLException ex) {
+            Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
+            return 0.0;
+        }
+    }
+    public int getInt(String fieldName){
+        if(this.rs==null)return 0;
+        try {
+            this.rs.first();
+            return this.rs.getInt(fieldName);
+        } catch (SQLException ex) {
+            Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
+            return 0;
+        }
+    }
+    public int getInt(int field){
+        if(this.rs==null)return 0;
+        try {
+            this.rs.first();
+            return this.rs.getInt(field);
+        } catch (SQLException ex) {
+            Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
+            return 0;
+        }
+    }
+    
+    public boolean getBool(String fieldName){
+        if(this.rs==null)return false;
+        try {
+            this.rs.first();
+            return this.rs.getBoolean(fieldName);
+        } catch (SQLException ex) {
+            Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
+            return false;
+        }
+    }
+    public boolean getBool(int field){
+        if(this.rs==null)return false;
+        try {
+            this.rs.first();
+            return this.rs.getBoolean(field);
+        } catch (SQLException ex) {
+            Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
+            return false;
+        }
+    }
+    public Blob getBlob(String fieldName){
+        if(this.rs==null)return null;
+        try {
+            this.rs.first();
+            return this.rs.getBlob(fieldName);
+        } catch (SQLException ex) {
+            Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
+            return null;
+        }
+    }
+    
+    public Blob getBlob(int field){
+        if(this.rs==null)return null;
+        try {
+            this.rs.first();
+            return this.rs.getBlob(field);
+        } catch (SQLException ex) {
+            Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
+            return null;
+        }
+    }
+    
+    public JMDate getDate(String fieldName, Boolean showDateError){
+        if(this.rs==null)return null;
+        try {
+            this.rs.first();
+            JMDate ret=new JMDate(rs.getDate(fieldName),showDateError);
+            if(ret==null)return null;
+            return ret;
+        } catch (SQLException ex) {
+            Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
+            return null;
+        }
+    }
+    public JMDate getDate(int field, Boolean showDateError){
+        if(this.rs==null)return null;
+        try {
+            this.rs.first();
+            JMDate ret=new JMDate(rs.getDate(field),showDateError);
+            if(ret==null)return null;
+            return ret;
+        } catch (SQLException ex) {
+            Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
+            return null;
+        }
+    }
+}
