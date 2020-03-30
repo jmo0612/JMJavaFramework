@@ -6,8 +6,11 @@
 package com.thowo.jmjavaframework;
 
 import com.thowo.jmjavaframework.lang.JMConstMessage;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -179,6 +182,23 @@ public class JMDate {
         }
         return ret;
     }
+
+    public String dateTimeShort24(){
+        String ret="";
+        if(this.dt!=null){
+            ret=this.dateShort();
+            ret+=" "+this.getHMS24();
+        }
+        return ret;
+    }
+    public String dateTimeShort12(){
+        String ret="";
+        if(this.dt!=null){
+            ret=this.dateShort();
+            ret+=" "+this.getHMS12();
+        }
+        return ret;
+    }
     public String dateTimeShortHM24(){
         String ret="";
         if(this.dt!=null){
@@ -210,5 +230,77 @@ public class JMDate {
             ret+=" "+this.getHour12()+" "+this.getAmPmShort();
         }
         return ret;
+    }
+
+    public static String toStringYMDhms(String dt){
+        final String dateInputFormat=JMFunctions.getMessege(JMConstMessage.MSG_DATE+JMConstMessage.MSG_DATE_INPUTFORMAT);
+        final String timeInputFormat=JMFunctions.getMessege(JMConstMessage.MSG_DATE+JMConstMessage.MSG_DATE_TIME_INPUTFORMAT);
+        final char dateSep='/';
+        final char timeSep=':';
+        final char dtSep=' ';
+        final char DDSymbol='D';
+        final char MMSymbol='M';
+        final char YYSymbol='Y';
+        final char hhSymbol='h';
+        final char mmSymbol='m';
+        final char ssSymbol='s';
+
+        int DD=0;
+        int MM=0;
+        int YY=0;
+        int hh=0;
+        int mm=0;
+        int ss=0;
+
+        String[] myDt=dt.split(String.valueOf(dtSep));
+        if(myDt.length==0)return dt;
+        String[] d=myDt[0].split(String.valueOf(dateSep));
+        if(d.length==0)return dt;
+
+        List<Character> dOrder=new ArrayList();
+        List<Character> tOrder=new ArrayList();
+        for(int i=0;i<dateInputFormat.length();i++){
+            dOrder.add(dateInputFormat.charAt(i));
+        }
+        for(int i=0;i<timeInputFormat.length();i++){
+            tOrder.add(timeInputFormat.charAt(i));
+        }
+
+        int tmpInd=dOrder.indexOf(DDSymbol);
+        if(d.length>tmpInd)DD=Integer.valueOf(d[tmpInd]);
+        tmpInd=dOrder.indexOf(MMSymbol);
+        if(d.length>tmpInd)MM=Integer.valueOf(d[tmpInd]);
+        tmpInd=dOrder.indexOf(YYSymbol);
+        if(d.length>tmpInd)YY=Integer.valueOf(d[tmpInd]);
+
+        String defDateFormat=""+YYSymbol+MMSymbol+DDSymbol;
+        String defTimeFormat=""+hhSymbol+mmSymbol+ssSymbol;
+        String tmpDate=defDateFormat.replaceAll(String.valueOf(DDSymbol),dateSep+JMFormatCollection.leadingZero(DD,2));
+        tmpDate=tmpDate.replaceAll(String.valueOf(MMSymbol),dateSep+JMFormatCollection.leadingZero(MM,2));
+        tmpDate=tmpDate.replaceAll(String.valueOf(YYSymbol), String.valueOf(dateSep)+YY);
+        tmpDate=tmpDate.substring(1);
+
+
+        if(myDt.length>1){
+            String[] t=myDt[1].split(String.valueOf(timeSep));
+            if(t.length==0)return tmpDate;
+
+            tmpInd=dOrder.indexOf(hhSymbol);
+            if(t.length>tmpInd)hh=Integer.valueOf(t[tmpInd]);
+            tmpInd=dOrder.indexOf(mmSymbol);
+            if(t.length>tmpInd)mm=Integer.valueOf(t[tmpInd]);
+            tmpInd=dOrder.indexOf(ssSymbol);
+            if(t.length>tmpInd)ss=Integer.valueOf(t[tmpInd]);
+
+            String tmpTime=defTimeFormat.replaceAll(String.valueOf(hhSymbol),timeSep+JMFormatCollection.leadingZero(hh,2));
+            tmpTime=tmpTime.replaceAll(String.valueOf(mmSymbol),timeSep+JMFormatCollection.leadingZero(mm,2));
+            tmpTime=tmpTime.replaceAll(String.valueOf(ssSymbol),timeSep+JMFormatCollection.leadingZero(ss,2));
+            tmpTime=tmpTime.substring(1);
+            tmpDate+=dtSep+tmpTime;
+        }
+
+
+
+        return tmpDate;
     }
 }

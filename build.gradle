@@ -1,10 +1,43 @@
-apply plugin: 'java'
-apply plugin: 'jacoco'
-//apply plugin: 'application'
+def sysprops = System.getProperties()
+if (sysprops['idea.platform.prefix'] != null) {
+    apply plugin: 'com.android.library'
 
-repositories {
-    jcenter()
+    android {
+        compileSdkVersion 29
+        buildToolsVersion "29.0.3"
+        //
+
+        defaultConfig {
+            minSdkVersion 16
+            targetSdkVersion 29
+            versionCode 1
+            versionName "1.0"
+
+
+            testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        }
+        buildTypes {
+            release {
+                minifyEnabled false
+                proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            }
+        }
+        compileOptions{
+            sourceCompatibility JavaVersion.current();
+            targetCompatibility JavaVersion.current();
+        }
+    }
+} else {
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
+
+
+    repositories {
+        jcenter()
+    }
 }
+
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -18,11 +51,11 @@ dependencies {
     implementation 'jp.wasabeef:picasso-transformations:2.1.0'
     
     // https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
-    compile group:'org.xerial', name:'sqlite-jdbc', version:'3.8.11.2'
+    implementation group:'org.xerial', name:'sqlite-jdbc', version:'3.8.11.2'
     // https://mvnrepository.com/artifact/mysql/mysql-connector-java
-    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.13'
+    implementation group: 'mysql', name: 'mysql-connector-java', version: '5.1.13'
     
     // https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml
-    compile group: 'org.apache.poi', name: 'poi-ooxml', version: '4.0.0'
+    implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '4.0.0'
 
 }

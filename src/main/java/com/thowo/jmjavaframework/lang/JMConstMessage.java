@@ -15,7 +15,8 @@ public class JMConstMessage {
     public static final String MSG_ASYNC="002";
     public static final String MSG_DB="003";
     public static final String MSG_DATE="004";
-    public static final String MSG_ELSE="005";
+    public static final String MSG_CURRENCY="005";
+    public static final String MSG_ELSE="006";
     
     //==============================MSG_UI_TYPES============================
     public static final String MSG_UI_OK="001";
@@ -51,11 +52,20 @@ public class JMConstMessage {
     public static final String MSG_DATE_DAY="001";
     public static final String MSG_DATE_MONTH="002";
     public static final String MSG_DATE_HOUR="003";
+    public static final String MSG_DATE_INPUTFORMAT="004";
+    public static final String MSG_DATE_TIME_INPUTFORMAT="005";
     
     //=============================MSG_DATE_TYPE__DISPLAYS===================
     public static final String MSG_DATE_TYPE_COMPLETE="001";
     public static final String MSG_DATE_TYPE_SHORT="002";
-    
+
+    //=============================MSG_CURRENCY_TYPE================================
+    public static final String MSG_CURRENCY_NAME="001";
+    public static final String MSG_CURRENCY_SYMBOL="002";
+    public static final String MSG_CURRENCY_COMMA="003";
+    public static final String MSG_CURRENCY_SEPARATOR="004";
+
     //=============================MSG_ELSE================================
     public static final String MSG_ELSE_DATE_EMPTY="001";
+    public static final String MSG_ELSE_DATE_INVALID="002";
 }

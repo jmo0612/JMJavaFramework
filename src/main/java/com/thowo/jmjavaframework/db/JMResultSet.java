@@ -29,6 +29,65 @@ public class JMResultSet {
         this.rs=rs;
         if(showNullError && this.rs==null)JMFunctions.traceAndShow(JMFunctions.getMessege(JMConstMessage.MSG_DB+JMConstMessage.MSG_DB_FETCHED_NULL));
     }
+
+    public boolean first(){
+        try {
+            return this.rs.first();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JMFunctions.trace(e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean next(){
+        try {
+            return this.rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JMFunctions.trace(e.getMessage());
+            return false;
+        }
+    }
+    public boolean last(){
+        try {
+            return this.rs.last();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JMFunctions.trace(e.getMessage());
+            return false;
+        }
+    }
+    public boolean isLast(){
+        try {
+            return this.rs.isLast();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JMFunctions.trace(e.getMessage());
+            return false;
+        }
+    }
+
+    public int getCount(){
+        try {
+            this.rs.last();
+            return this.rs.getRow();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JMFunctions.trace(e.getMessage());
+            return 0;
+        }
+    }
+
+    public int getColCount(){
+        try {
+            return this.rs.getMetaData().getColumnCount();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JMFunctions.trace(e.getMessage());
+            return 0;
+        }
+    }
     
     public String getString(String fieldName){
         if(this.rs==null)return "";

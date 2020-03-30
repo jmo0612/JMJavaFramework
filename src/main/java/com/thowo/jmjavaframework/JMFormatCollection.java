@@ -1,7 +1,11 @@
 package com.thowo.jmjavaframework;
 
 
+import com.thowo.jmjavaframework.lang.JMConstMessage;
+
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -377,8 +381,41 @@ public class JMFormatCollection {
     public static String leadingZero(Integer number, int numOfZero){
         String ret="";
         if(number<0)ret="-";
-        ret=String.format("%0"+numOfZero+"d", number);
+        ret+=String.format("%0"+numOfZero+"d", number);
         return ret;
+    }
+
+    public static String currency(Double number){
+        NumberFormat df = NumberFormat.getCurrencyInstance();
+        DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+        dfs.setCurrencySymbol(JMFunctions.getMessege(JMConstMessage.MSG_CURRENCY+JMConstMessage.MSG_CURRENCY_SYMBOL));
+        dfs.setGroupingSeparator(JMFunctions.getMessege(JMConstMessage.MSG_CURRENCY+JMConstMessage.MSG_CURRENCY_SEPARATOR).charAt(0));
+        dfs.setMonetaryDecimalSeparator(JMFunctions.getMessege(JMConstMessage.MSG_CURRENCY+JMConstMessage.MSG_CURRENCY_COMMA).charAt(0));
+        ((DecimalFormat) df).setDecimalFormatSymbols(dfs);
+        return df.format(number);
+    }
+
+    public static boolean isThisDateValid(String dateToValidate, String dateFromat){
+
+        if(dateToValidate == null){
+            return false;
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFromat);
+        sdf.setLenient(false);
+
+        try {
+
+            //if not valid, it will throw ParseException
+            Date date = sdf.parse(dateToValidate);
+
+        } catch (ParseException e) {
+
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 
 }
