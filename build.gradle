@@ -47,8 +47,8 @@ dependencies {
     //implementation 'me.dm7.barcodescanner:zxing:1.9.7'
     testImplementation 'junit:junit:4.12'
     //implementation 'androidx.legacy:legacy-support-v13:1.0.0'
-    implementation 'com.squareup.picasso:picasso:2.5.2'
-    implementation 'jp.wasabeef:picasso-transformations:2.1.0'
+    //implementation 'com.squareup.picasso:picasso:2.5.2'
+    //implementation 'jp.wasabeef:picasso-transformations:2.1.0'
     
     // https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
     implementation group:'org.xerial', name:'sqlite-jdbc', version:'3.8.11.2'
