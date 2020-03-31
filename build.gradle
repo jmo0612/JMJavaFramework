@@ -14,7 +14,8 @@ if (sysprops['idea.platform.prefix'] != null) {
             versionName "1.0"
 
 
-            testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+            //testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
 
         }
         buildTypes {
@@ -45,7 +46,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })*/
     //implementation 'me.dm7.barcodescanner:zxing:1.9.7'
-    testImplementation 'junit:junit:4.12'
+    //testImplementation 'junit:junit:4.12'
     //implementation 'androidx.legacy:legacy-support-v13:1.0.0'
     //implementation 'com.squareup.picasso:picasso:2.5.2'
     //implementation 'jp.wasabeef:picasso-transformations:2.1.0'
@@ -56,6 +57,8 @@ dependencies {
     implementation group: 'mysql', name: 'mysql-connector-java', version: '5.1.13'
     
     // https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml
-    implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '4.0.0'
+    //implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '4.0.0'
+
+    implementation group: 'net.sourceforge.jexcelapi', name: 'jxl', version: '2.6'
 
 }

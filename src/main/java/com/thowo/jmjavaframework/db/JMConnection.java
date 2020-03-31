@@ -90,6 +90,7 @@ public class JMConnection {
             
             Callable<Boolean> c=()->{
                 try {
+                    Class.forName("com.mysql.jdbc.Driver");
                     this.conMySQL=DriverManager.getConnection(this.dbMySQL.getConnectionString(),this.dbMySQL.getUser(),this.dbMySQL.getPass());
                     this.connectedMySQL=true;
                     return true;
