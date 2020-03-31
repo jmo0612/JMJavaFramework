@@ -35,11 +35,12 @@ public class JMConstMessage {
     public static final String MSG_ASYNC_COMPLETED="003";
     public static final String MSG_ASYNC_ERROR="004";
     
-    //==============================MSG_ASYNC_STATE_DB======================
+    //==============================MSG_ASYNC_STATE_JOB======================
     public static final String MSG_ASYNC_STATE_CONNECT_DB="001";
     public static final String MSG_ASYNC_STATE_FETCH="002";
     public static final String MSG_ASYNC_STATE_UPDATE="003";
     public static final String MSG_ASYNC_STATE_DELETE="004";
+    public static final String MSG_ASYNC_STATE_LOAD_CONFIG="005";
     
     //==============================MSG_DB_TYPES==========================
     public static final String MSG_DB_CONNECTED="001";

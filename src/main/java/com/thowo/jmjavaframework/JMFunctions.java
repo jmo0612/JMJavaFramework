@@ -333,7 +333,40 @@ public class JMFunctions {
             return false;
         }
     }
+    public static final int SCALE_FIT=0;
+    public static final int SCALE_STRETCH=1;
+    public static final int SCALE_CENTER=2;
+    public static List<JMVec2> scaledSize(JMVec2 size, JMVec2 parentSize, int JMFunctionsConstScale){
+        List<JMVec2> ret=null;
+        if(size==null)return null;
+        if(parentSize==null)return null;
+        ret=new ArrayList();
+        double x,y;
+        double scale=size.getDoubleX()/size.getDoubleY();
+        if(JMFunctionsConstScale==SCALE_STRETCH){
+            ret.add(parentSize);
+            ret.add(new JMVec2(0,0));
+            return ret;
+        }else if(JMFunctionsConstScale==SCALE_CENTER){
+            size=new JMVec2(parentSize.getDoubleX(),getYScaledValue(scale,parentSize.getDoubleX()));
+            if(size.getDoubleY()>parentSize.getDoubleY())size=new JMVec2(getXScaledValue(scale,parentSize.getDoubleY()),parentSize.getDoubleY());
+        }else{
+            size=new JMVec2(parentSize.getDoubleX(),getYScaledValue(scale,parentSize.getDoubleX()));
+            if(size.getDoubleY()<parentSize.getDoubleY())size=new JMVec2(getXScaledValue(scale,parentSize.getDoubleY()),parentSize.getDoubleY());
+        }
+        x=(parentSize.getDoubleX()-size.getDoubleX())/2;
+        y=(parentSize.getDoubleY()-size.getDoubleY())/2;
+        ret.add(size);
+        ret.add(new JMVec2(x,y));
+        return ret;
+    }
     
+    private static double getYScaledValue(double scale, double topValue){
+        return topValue/scale;
+    }
+    private static double getXScaledValue(double scale, double bottomValue){
+        return bottomValue*scale;
+    }
     
 
 }
