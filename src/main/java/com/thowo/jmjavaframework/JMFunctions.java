@@ -21,11 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Workbook;
 
 
 
@@ -49,7 +44,7 @@ public class JMFunctions {
     }
     
     private static void readExcelLang(File excel){
-        try {
+        /*try {
             FileInputStream inp=new FileInputStream(excel);
             HSSFWorkbook wb=new HSSFWorkbook(inp);
             HSSFSheet sheet=wb.getSheet("lang");
@@ -100,7 +95,7 @@ public class JMFunctions {
         } catch (IOException ex) {
             Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);
             JMFunctions.traceAndShow(ex.getMessage());
-        }
+        }*/
         
         
         

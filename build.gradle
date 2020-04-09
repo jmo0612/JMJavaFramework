@@ -59,10 +59,26 @@ dependencies {
     implementation group: 'mysql', name: 'mysql-connector-java', version: '5.1.13'
 
     // https://mvnrepository.com/artifact/org.apache.poi/poi
-    implementation group: 'org.apache.poi', name: 'poi', version: '3.9'
+    //implementation group: 'org.apache.poi', name: 'poi', version: '3.9'
+
+    // https://mvnrepository.com/artifact/org.wickedsource/docx-stamper
+    // group: 'org.wickedsource', name: 'docx-stamper', version: '1.2.2'
 
 
+    implementation group: 'net.sourceforge.jexcelapi', name: 'jxl', version: '2.6'
 
-    //implementation group: 'net.sourceforge.jexcelapi', name: 'jxl', version: '2.6'
+    // https://mvnrepository.com/artifact/org.docx4j/docx4j
+    //implementation group: 'org.docx4j', name: 'docx4j', version: '6.1.2'
+
+    // https://mvnrepository.com/artifact/org.docx4j/docx4j
+    //implementation group: 'org.docx4j', name: 'docx4j', version: '2.8.0'
+
+    // https://mvnrepository.com/artifact/org.odftoolkit/odfdom-java
+    //implementation group: 'org.odftoolkit', name: 'odfdom-java', version: '0.8.7'
+
+    // https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml
+    implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '4.0.0'
+
+
 
 }
