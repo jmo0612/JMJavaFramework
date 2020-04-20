@@ -65,7 +65,7 @@ dependencies {
     // group: 'org.wickedsource', name: 'docx-stamper', version: '1.2.2'
 
 
-    implementation group: 'net.sourceforge.jexcelapi', name: 'jxl', version: '2.6'
+    //implementation group: 'net.sourceforge.jexcelapi', name: 'jxl', version: '2.6'
 
     // https://mvnrepository.com/artifact/org.docx4j/docx4j
     //implementation group: 'org.docx4j', name: 'docx4j', version: '6.1.2'

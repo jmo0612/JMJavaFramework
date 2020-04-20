@@ -21,6 +21,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 
 
@@ -35,114 +41,72 @@ public class JMFunctions {
     private static JMUIListener uiL;
     private static JMConnection mDBConnection;
     private static String tes="jimix";
+    private static String cacheDir;
 
-    public static void init(File languageExcelFile){
+    public static void init(File languageExcelFile, String cacheDirPath){
         //JMStringMessages.init();
         JMFunctions.languages=new ArrayList();
         JMFunctions.messages=new ArrayList();
-        if(JMFunctions.fileExist(languageExcelFile))JMFunctions.readExcelLang(languageExcelFile);
+        if(JMFunctions.fileExist(languageExcelFile)){
+            JMFunctions.readExcelLang(languageExcelFile);
+            cacheDir=cacheDirPath;
+        }
+    }
+    
+    public static String getCacheDir(){
+        return cacheDir;
     }
     
     private static void readExcelLang(File excel){
-        /*try {
-            FileInputStream inp=new FileInputStream(excel);
-            HSSFWorkbook wb=new HSSFWorkbook(inp);
-            HSSFSheet sheet=wb.getSheet("lang");
+        try {
+            InputStream inp=new FileInputStream(excel);
+            Workbook wb=WorkbookFactory.create(inp);
+            Sheet sheet=wb.getSheet("lang");
             if(sheet==null)return;
-            Iterator<Row> rowIterator=sheet.iterator();
-            while(rowIterator.hasNext()){
-                Row row=rowIterator.next();
-                if(row.getRowNum()!=0){
-                    Iterator<Cell> cellIterator=row.cellIterator();
-                    String idLang="";
-                    String lang="";
-                    Boolean isDef=false;
-                    while(cellIterator.hasNext()){
-                        Cell cell=cellIterator.next();
-                        long def=0;
-                        if(cell.getColumnIndex()==0)idLang=cell.getStringCellValue();
-                        if(cell.getColumnIndex()==1)lang=cell.getStringCellValue();
-                        if(cell.getColumnIndex()==2)def=Math.round(cell.getNumericCellValue());
-                        isDef=(def!=0);
-                    }
-                    JMFunctions.languages.add(new JMLanguage(idLang,lang,isDef));
-                }
+            int r=1;
+            Row row=sheet.getRow(r);
+            while(row!=null){
+                String idLang="";
+                String lang="";
+                int def=0;
+                Boolean isDef=false;
+                Cell cell=row.getCell(0);
+                if(cell!=null)idLang=cell.getStringCellValue();
+                cell=row.getCell(1);
+                if(cell!=null)lang=cell.getStringCellValue();
+                cell=row.getCell(2);
+                if(cell!=null)def=(int) cell.getNumericCellValue();
+                isDef=(def==1);
+                JMFunctions.languages.add(new JMLanguage(idLang,lang,isDef));
+                row=sheet.getRow(++r);
             }
+            r=1;
             for(JMLanguage lang:JMFunctions.languages){
                 sheet=wb.getSheet(lang.getLangId());
                 if(sheet!=null){
-                    rowIterator=sheet.iterator();
-                    while(rowIterator.hasNext()){
-                        Row row=rowIterator.next();
-                        if(row.getRowNum()!=0){
-                            Iterator<Cell> cellIterator=row.cellIterator();
-                            String idMsg="";
-                            String msg="";
-                            while(cellIterator.hasNext()){
-                                Cell cell=cellIterator.next();
-                                if(cell.getColumnIndex()==0)idMsg=cell.getStringCellValue();
-                                if(cell.getColumnIndex()==1)msg=cell.getStringCellValue();
-                            }
-                            JMFunctions.messages.add(new JMMessage(lang.getLangId(),idMsg,msg));
-                        }
+                    row=sheet.getRow(r);
+                    while(row!=null){
+                        String idMsg="";
+                        String msg="";
+                        Cell cell=row.getCell(0);
+                        if(cell!=null)idMsg=cell.getStringCellValue();
+                        cell=row.getCell(1);
+                        if(cell!=null)msg=cell.getStringCellValue();
+                        JMFunctions.messages.add(new JMMessage(lang.getLangId(),idMsg,msg));
+                        row=sheet.getRow(++r);
                     }
                 }
             }
-            
         } catch (FileNotFoundException ex) {
             Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);
             JMFunctions.traceAndShow(ex.getMessage());
         } catch (IOException ex) {
             Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);
             JMFunctions.traceAndShow(ex.getMessage());
-        }*/
-        
-        
-        
-        /*Workbook wb=null;
-        try {
-            wb = Workbook.getWorkbook(excel);
-            if(wb==null)return;
-            Sheet sheet=wb.getSheet("lang");
-            if(sheet==null)return;
-            for(int r=0;r<sheet.getRows();r++){
-                Cell[] cells=sheet.getRow(r);
-                if(cells==null)return;
-                String idLang="";
-                String lang="";
-                String def="";
-                boolean isDef=false;
-                if(cells.length>0)idLang=cells[0].getContents();
-                if(cells.length>1)lang=cells[1].getContents();
-                if(cells.length>2)def=cells[2].getContents();
-                if(def.equals("1"))isDef=true;
-                JMFunctions.languages.add(new JMLanguage(idLang,lang,isDef));
-            }
-            for(JMLanguage lang:JMFunctions.languages){
-                sheet=wb.getSheet(lang.getLangId());
-                if(sheet!=null){
-                    for(int r=0;r<sheet.getRows();r++){
-                        Cell[] cells=sheet.getRow(r);
-                        if(cells==null)break;
-                        String idMsg="";
-                        String msg="";
-                        if(cells.length>0)idMsg=cells[0].getContents();
-                        if(cells.length>1)msg=cells[1].getContents();
-                        JMFunctions.messages.add(new JMMessage(lang.getLangId(),idMsg,msg));
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            JMFunctions.traceAndShow(e.getMessage());
-        } catch (BiffException e) {
-            e.printStackTrace();
-            JMFunctions.traceAndShow(e.getMessage());
-        } finally {
-            if(wb!=null){
-                wb.close();
-            }
-        }*/
+        } catch (EncryptedDocumentException ex) {
+            Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
+        }
     }
     
     public static String getMessege(String idMsg){
