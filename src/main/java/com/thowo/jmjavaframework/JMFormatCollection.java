@@ -70,6 +70,7 @@ public class JMFormatCollection {
     public static final int JMO_STRING_ALL_CAPS=1;
     public static final int JMO_STRING_FIRST_CAPS=2;
     public static final int JMO_STRING_FIRST_CAPS_ALWAYS=3;
+    
 
 
     public static String strFormat(int format){

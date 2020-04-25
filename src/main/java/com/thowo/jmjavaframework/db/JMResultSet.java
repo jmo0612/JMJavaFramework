@@ -24,10 +24,16 @@ public class JMResultSet {
     
     public JMResultSet(ResultSet rs){
         this.rs=rs;
+        this.first();
     }
     public JMResultSet(ResultSet rs, Boolean showNullError){
         this.rs=rs;
         if(showNullError && this.rs==null)JMFunctions.traceAndShow(JMFunctions.getMessege(JMConstMessage.MSG_DB+JMConstMessage.MSG_DB_FETCHED_NULL));
+        this.first();
+    }
+    
+    public ResultSet getSQLResultSet(){
+        return this.rs;
     }
 
     public boolean first(){
@@ -92,7 +98,7 @@ public class JMResultSet {
     public String getString(String fieldName){
         if(this.rs==null)return "";
         try {
-            this.rs.first();
+            //this.rs.first();
             return this.rs.getString(fieldName);
         } catch (SQLException ex) {
             Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
@@ -104,8 +110,8 @@ public class JMResultSet {
     public String getString(int field){
         if(this.rs==null)return "";
         try {
-            this.rs.first();
-            return this.rs.getString(field);
+            //this.rs.first();
+            return this.rs.getString(field+1);
         } catch (SQLException ex) {
             Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
             JMFunctions.traceAndShow(ex.getMessage());
@@ -116,7 +122,7 @@ public class JMResultSet {
     public Double getDouble(String fieldName){
         if(this.rs==null)return 0.0;
         try {
-            this.rs.first();
+            //this.rs.first();
             return this.rs.getDouble(fieldName);
         } catch (SQLException ex) {
             Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
@@ -127,8 +133,9 @@ public class JMResultSet {
     public Double getDouble(int field){
         if(this.rs==null)return 0.0;
         try {
-            this.rs.first();
-            return this.rs.getDouble(field);
+            //this.rs.first();
+            //if(this.rs.)
+            return this.rs.getDouble(field+1);
         } catch (SQLException ex) {
             Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
             JMFunctions.traceAndShow(ex.getMessage());
@@ -138,7 +145,7 @@ public class JMResultSet {
     public int getInt(String fieldName){
         if(this.rs==null)return 0;
         try {
-            this.rs.first();
+            //this.rs.first();
             return this.rs.getInt(fieldName);
         } catch (SQLException ex) {
             Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
@@ -149,8 +156,8 @@ public class JMResultSet {
     public int getInt(int field){
         if(this.rs==null)return 0;
         try {
-            this.rs.first();
-            return this.rs.getInt(field);
+            //this.rs.first();
+            return this.rs.getInt(field+1);
         } catch (SQLException ex) {
             Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
             JMFunctions.traceAndShow(ex.getMessage());
@@ -161,7 +168,7 @@ public class JMResultSet {
     public boolean getBool(String fieldName){
         if(this.rs==null)return false;
         try {
-            this.rs.first();
+            //this.rs.first();
             return this.rs.getBoolean(fieldName);
         } catch (SQLException ex) {
             Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
@@ -172,8 +179,8 @@ public class JMResultSet {
     public boolean getBool(int field){
         if(this.rs==null)return false;
         try {
-            this.rs.first();
-            return this.rs.getBoolean(field);
+            //this.rs.first();
+            return this.rs.getBoolean(field+1);
         } catch (SQLException ex) {
             Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
             JMFunctions.traceAndShow(ex.getMessage());
@@ -183,7 +190,7 @@ public class JMResultSet {
     public Blob getBlob(String fieldName){
         if(this.rs==null)return null;
         try {
-            this.rs.first();
+            //this.rs.first();
             return this.rs.getBlob(fieldName);
         } catch (SQLException ex) {
             Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
@@ -195,8 +202,8 @@ public class JMResultSet {
     public Blob getBlob(int field){
         if(this.rs==null)return null;
         try {
-            this.rs.first();
-            return this.rs.getBlob(field);
+            //this.rs.first();
+            return this.rs.getBlob(field+1);
         } catch (SQLException ex) {
             Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
             JMFunctions.traceAndShow(ex.getMessage());
@@ -207,7 +214,7 @@ public class JMResultSet {
     public JMDate getDate(String fieldName, Boolean showDateError){
         if(this.rs==null)return null;
         try {
-            this.rs.first();
+            //this.rs.first();
             JMDate ret=new JMDate(rs.getDate(fieldName),showDateError);
             if(ret==null)return null;
             return ret;
@@ -220,14 +227,36 @@ public class JMResultSet {
     public JMDate getDate(int field, Boolean showDateError){
         if(this.rs==null)return null;
         try {
-            this.rs.first();
-            JMDate ret=new JMDate(rs.getDate(field),showDateError);
+            //this.rs.first();
+            JMDate ret=new JMDate(rs.getDate(field+1),showDateError);
             if(ret==null)return null;
             return ret;
         } catch (SQLException ex) {
             Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
             JMFunctions.traceAndShow(ex.getMessage());
             return null;
+        }
+    }
+    public int getColumnType(int field){
+        if(this.rs==null)return -1;
+        try {
+            //this.rs.first();
+            return this.rs.getMetaData().getColumnType(field+1);
+        } catch (SQLException ex) {
+            Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
+            return -1;
+        }
+    }
+    public String getColumnName(int field){
+        if(this.rs==null)return "";
+        try {
+            //this.rs.first();
+            return this.rs.getMetaData().getColumnName(field+1);
+        } catch (SQLException ex) {
+            Logger.getLogger(JMResultSet.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
+            return "";
         }
     }
 }

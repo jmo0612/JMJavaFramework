@@ -48,30 +48,10 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTString;
  */
 public class JMWord {
     
-    public static XWPFDocument newBlankDoc(){
-        String url=JMFunctions.getCacheDir()+"/blankword.docx";
-        //String url="/home/jimi/Desktop/tespoi/blankword.docx";
-        JMFunctions.trace(url);
-        XWPFDocument ret= new XWPFDocument();
-        File blankWord=new File(url);
-        if(!JMFunctions.fileExist(blankWord)){
-            XWPFParagraph p=ret.createParagraph();
-            XWPFRun r=p.createRun();
-            r.setText("HOLA");
-            if(save(ret,url)){
-                blankWord=new File(url);
-            }
-        }
-        if(!JMFunctions.fileExist(blankWord))return null;
-        ret=open(url);
-        return ret;
-    }
-    
     public static XWPFDocument open(String docxPath){
         File docx=new File(docxPath);
         return open(docx);
     }
-    
     public static XWPFDocument open(File docx){
         XWPFDocument ret=null;
         if(!JMFunctions.fileExist(docx))return null;
@@ -89,7 +69,6 @@ public class JMWord {
         }
         return ret;
     }
-    
     public static List<XWPFAbstractNum> getAbstractNums(XWPFDocument doc){
         List<XWPFAbstractNum> ret=null;
         XWPFNumbering numbering=doc.getNumbering();
@@ -113,45 +92,20 @@ public class JMWord {
 
         return ret;
     }
-    
-    
-    
-    
-    
-    
-    
     public static void test(File word){
         //testTunggal();
-        testGabung();
+        //testGabung();
     }
-    
-    
     public static void testTunggal(){
         XWPFDocument doc=open("/home/jimi/Desktop/tespoi/wordtest1.docx");
         //List<XWPFParagraph> pars=doc.getParagraphs();
         JMFunctions.trace(String.valueOf(JMWord.getAbstractNums(doc).size()));
     }
-    
-    public static void testGabung(){
-        
-        List<XWPFDocument> docs=new ArrayList();
-        docs.add(open("/home/jimi/Desktop/tespoi/wordtest1.docx"));
-        docs.add(open("/home/jimi/Desktop/tespoi/wordtest1.docx"));
-        XWPFDocument res=null;
-        for(XWPFDocument doc:docs){
-            if(res==null){
-                res=doc;
-            }else{
-                res=addDoc(res,doc,true,true);
-            }
-
-        }
-        
+    private static void testGabung(XWPFDocument master, XWPFDocument toAdd){
+        XWPFDocument res=addDoc(master,toAdd,true,true);
         if(save(res,JMFunctions.getCacheDir()+"/res.docx"))JMFunctions.traceAndShow("ok");
         
     }
-    
-    
     private static List<Object> restartNumbering(XWPFDocument master,XWPFDocument toAdd){
         List<XWPFAbstractNum> abstractsMaster=JMWord.getAbstractNums(master);
         if(abstractsMaster==null){
@@ -187,7 +141,9 @@ public class JMWord {
         ret.add(absNum);
         return ret;
     }
-    
+    public static XWPFDocument addDoc(XWPFDocument master, XWPFDocument toAdd){
+        return addDoc(master, toAdd, true, true);
+    }
     public static XWPFDocument addDoc(XWPFDocument master, XWPFDocument toAdd, boolean newPage, boolean willRestartNumbering){
         
         if(newPage){
@@ -221,7 +177,6 @@ public class JMWord {
             return null;
         }
     }
-    
     public static boolean save(XWPFDocument doc, String path){
         boolean ret=false;
         OutputStream dest=null;
@@ -239,7 +194,21 @@ public class JMWord {
         }
         return ret;
     }
-    
+    public static XWPFDocument replaceInBody(XWPFDocument doc, String str, String newStr) throws Exception{
+        CTBody body=doc.getDocument().getBody();
+        XmlOptions optionsOuter = new XmlOptions();
+        optionsOuter.setSaveOuter();
+        String appendString = body.xmlText(optionsOuter);
+        String srcString = body.xmlText();
+        String prefix = srcString.substring(0, srcString.indexOf(">") + 1);
+        String sufix = srcString.substring(srcString.lastIndexOf("<"));
+        String mainPart = appendString.substring(appendString.indexOf(">") + 1,
+                        appendString.lastIndexOf("<"));
+        mainPart=mainPart.replace(str, newStr);
+        CTBody makeBody = CTBody.Factory.parse(prefix + mainPart + sufix );
+        body.set(makeBody);
+        return doc;
+    }
     private static void appendBody(CTBody src, CTBody append, Integer startId, Integer abstractNum) throws Exception {
         XmlOptions optionsOuter = new XmlOptions();
         optionsOuter.setSaveOuter();

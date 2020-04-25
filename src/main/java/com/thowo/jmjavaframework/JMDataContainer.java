@@ -1,6 +1,7 @@
 package com.thowo.jmjavaframework;
 
 import com.thowo.jmjavaframework.db.JMResultSet;
+import com.thowo.jmjavaframework.db.JMResultSetStyle;
 
 import java.util.Date;
 
@@ -30,22 +31,65 @@ public class JMDataContainer {
     private String errMsg;
     private String hint;
     private String dataType;
+    private String fieldName;
     private Object[] params;
 
+    public JMDataContainer(){
+        this.setProp(null, null, 0, "|STRING|", null);
+    }
+    
     public JMDataContainer(JMFormInterface component){
-        this.fi=component;
-        this.fi.setDataContainer(this);
-        this.dataType="|STRING|";
+        this.setProp(component, null, 0, "|STRING|", null);
+    }
+    
+    public JMDataContainer(String dataType, Object[] params){
+        this.setProp(null, null, 0, dataType, params);
+    }
+    
+    public JMDataContainer(String dataType){
+        this.setProp(null, null, 0, dataType, null);
+    }
+    
+    public JMDataContainer(JMFormInterface component, String dataType, Object[] params){
+        this.setProp(component, null, 0, dataType, params);
+    }
+    
+    public JMDataContainer(JMFormInterface component, String dataType){
+        this.setProp(component, null, 0, dataType, null);
     }
 
-    public JMDataContainer(JMFormInterface component, String dataType, Object[] params){
+    public JMDataContainer(JMResultSet resultSet,int colIndex, String dataType, Object[] params){
+        this.setProp(null, resultSet, colIndex, dataType, params);
+    }
+    
+    public JMDataContainer(JMResultSet resultSet,int colIndex, String dataType){
+        this.setProp(null, resultSet, colIndex, dataType, null);
+    }
+    
+    public JMDataContainer(JMFormInterface component, JMResultSet resultSet,int colIndex, String dataType, Object[] params){
+        this.setProp(component, resultSet, colIndex, dataType, params);
+    }
+    
+    public JMDataContainer(JMFormInterface component, JMResultSet resultSet,int colIndex, String dataType){
+        this.setProp(component, resultSet, colIndex, dataType, null);
+    }
+    
+    
+    
+    
+    
+    private void setProp(JMFormInterface component, JMResultSet resultSet,int colIndex, String dataType, Object[] params){
         this.fi=component;
-        this.fi.setDataContainer(this);
+        if(component!=null)this.fi.setDataContainer(this);
         this.dataType=dataType+"|";
         this.params=params;
+        if(resultSet!=null){
+            this.fieldName=resultSet.getColumnName(colIndex);
+            this.setValue(resultSet, colIndex);
+        }
     }
 
-    public void setValue(JMResultSet resultSet,int colIndex){
+    private void setValue(JMResultSet resultSet,int colIndex){
         Object value=null;
         if(this.dataType.contains(JMDataContainer.DATA_TYPE_STRING+"|")){
             value=resultSet.getString(colIndex);
@@ -101,6 +145,10 @@ public class JMDataContainer {
         }
     }
 
+    public String getFieldName(){
+        return this.fieldName;
+    }
+    
     public String getText(){
         return this.txt;
     }
@@ -132,85 +180,85 @@ public class JMDataContainer {
 
     public void setErrorMessage(String errorMessage){
         this.errMsg=errorMessage;
-        this.fi.displayError(this.errMsg);
+        if(this.fi!=null)this.fi.displayError(this.errMsg);
     }
     public void setHint(String hint){
         this.hint=hint;
-        this.fi.displayHint(this.hint);
+        if(this.fi!=null)this.fi.displayHint(this.hint);
     }
     public void setValueAsString(String value){
         this.txt=value;
         this.val=value;
-        this.fi.displayText(this.txt);
+        if(this.fi!=null)this.fi.displayText(this.txt);
     }
     public void setValueAsInteger(Integer value){
         this.txt=String.valueOf(value);
         this.val=value;
-        this.fi.displayText(this.txt);
+        if(this.fi!=null)this.fi.displayText(this.txt);
     }
     public void setValueAsInteger(Integer value, int numOfLeadingZeros){
         this.txt=JMFormatCollection.leadingZero(value,numOfLeadingZeros);
         this.val=value;
-        this.fi.displayText(this.txt);
+        if(this.fi!=null)this.fi.displayText(this.txt);
     }
     public void setValueAsInteger(Integer value, String format){
         this.txt=String.format(format,value);
         this.val=value;
-        this.fi.displayText(this.txt);
+        if(this.fi!=null)this.fi.displayText(this.txt);
     }
     public void setValueAsDouble(Double value){
         this.txt=String.valueOf(value);
         this.val=value;
-        this.fi.displayText(this.txt);
+        if(this.fi!=null)this.fi.displayText(this.txt);
     }
     public void setValueAsDouble(Double value, Boolean currency){
         this.txt=String.valueOf(value);
         if(currency)this.txt=JMFormatCollection.currency(value);
         this.val=value;
-        this.fi.displayText(this.txt);
+        if(this.fi!=null)this.fi.displayText(this.txt);
     }
     public void setValueAsDouble(Double value, String format){
         this.txt=String.format(format,value);
         this.val=value;
-        this.fi.displayText(this.txt);
+        if(this.fi!=null)this.fi.displayText(this.txt);
     }
     public void setValueAsBoolean(Boolean value){
         this.txt=String.valueOf(value);
         this.val=value;
-        this.fi.displayText(this.txt);
+        if(this.fi!=null)this.fi.displayText(this.txt);
     }
     public void setValueAsBoolean(Boolean value, String trueStr, String falseStr){
         if(value){
             this.txt=trueStr;
         }else this.txt=falseStr;
         this.val=value;
-        this.fi.displayText(this.txt);
+        if(this.fi!=null)this.fi.displayText(this.txt);
     }
     public void setValueAsObject(Object value){
         this.txt=String.valueOf(value);
         this.val=value;
-        this.fi.displayText(this.txt);
+        if(this.fi!=null)this.fi.displayText(this.txt);
     }
     public void setValueAsObject(Object value, String format){
         this.txt=String.format(format,value);
         this.val=value;
-        this.fi.displayText(this.txt);
+        if(this.fi!=null)this.fi.displayText(this.txt);
     }
     public void setValueAsJMDate(JMDate value){
         this.txt=value.dateDB();
         this.val=value;
-        this.fi.displayText(this.txt);
+        if(this.fi!=null)this.fi.displayText(this.txt);
     }
     public void setValueAsJMDate(JMDate value,boolean complete){
         this.txt=value.dateShort();
         if(complete)this.txt=value.dateFull();
         this.val=value;
-        this.fi.displayText(this.txt);
+        if(this.fi!=null)this.fi.displayText(this.txt);
     }
     public void setValueAsJMDateTime(JMDate value){
         this.txt=value.dateTimeDB();
         this.val=value;
-        this.fi.displayText(this.txt);
+        if(this.fi!=null)this.fi.displayText(this.txt);
     }
     public void setValueAsJMDateTime24(JMDate value, boolean shortDate, boolean showSecond, boolean showMinute){
         this.txt=value.dateTimeFull24();
@@ -224,13 +272,13 @@ public class JMDataContainer {
             }
         }
         this.val=value;
-        this.fi.displayText(this.txt);
+        if(this.fi!=null)this.fi.displayText(this.txt);
     }
     public void setValueAsJMDateTime24(JMDate value, boolean shortDate){
         this.txt=value.dateTimeFull24();
         if(shortDate)this.txt=value.dateTimeShortHM24();
         this.val=value;
-        this.fi.displayText(this.txt);
+        if(this.fi!=null)this.fi.displayText(this.txt);
     }
     public void setValueAsJMDateTime12(JMDate value, boolean shortDate, boolean showSecond, boolean showMinute){
         this.txt=value.dateTimeFull12();
@@ -244,6 +292,6 @@ public class JMDataContainer {
             }
         }
         this.val=value;
-        this.fi.displayText(this.txt);
+        if(this.fi!=null)this.fi.displayText(this.txt);
     }
 }
