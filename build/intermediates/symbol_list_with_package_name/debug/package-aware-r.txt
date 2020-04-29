@@ -1,2 +1,0 @@
-com.thowo.jmjavaframework
-string app_name

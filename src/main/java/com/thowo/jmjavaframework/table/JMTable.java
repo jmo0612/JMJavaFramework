@@ -24,6 +24,19 @@ public class JMTable {
     private List<JMCell> masterCells=new ArrayList();
     private JMRow currentRow; 
     
+    public static JMTable create(JMResultSet rs, List<Boolean> colsVisibility, List<String> colsDataType, List<Object[]> colsFormatParams){
+        return new JMTable(rs, colsVisibility, colsDataType, colsFormatParams);
+    }
+    public static JMTable create(JMResultSet rs, List<String> colsDataType, List<Object[]> colsFormatParams){
+        return new JMTable(rs, colsDataType, colsFormatParams);
+    }
+    public static JMTable create(JMResultSet rs, JMResultSetStyle style){
+        return new JMTable(rs, style);
+    }
+    public static JMTable create(JMResultSet rs){
+        return new JMTable(rs);
+    }
+    
     public JMTable(JMResultSet rs, List<Boolean> colsVisibility, List<String> colsDataType, List<Object[]> colsFormatParams){
         this.setProp(rs, colsVisibility, colsDataType, colsFormatParams);
     }
@@ -136,5 +149,15 @@ public class JMTable {
             this.currentRow=this.currentRow.getNext();
         }
         return this.currentRow;
+    }
+    public Object[] getTableData(){
+        Object[] ret={};
+        List<Object> data=new ArrayList();
+        List<JMCell> cells=this.currentRow.getCells();
+        for(JMCell cell:cells){
+            data.add(cell.getText());
+        }
+        ret=data.toArray();
+        return ret;
     }
 }

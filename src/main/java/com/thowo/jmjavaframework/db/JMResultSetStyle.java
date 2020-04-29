@@ -24,6 +24,10 @@ public class JMResultSetStyle {
     List<Boolean> hiddens=new ArrayList();
     List<String> fieldNames=new ArrayList();
     
+    public static JMResultSetStyle create(ResultSet rs){
+        return new JMResultSetStyle(rs);
+    }
+    
     public JMResultSetStyle(ResultSet rs){
         this.setResultSet(rs);
     }
