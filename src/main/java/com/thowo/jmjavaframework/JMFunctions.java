@@ -42,14 +42,17 @@ public class JMFunctions {
     private static JMConnection mDBConnection;
     private static String tes="jimix";
     private static String cacheDir;
+    private static String docDir;
 
-    public static void init(File languageExcelFile, String cacheDirPath){
+    public static void init(File languageExcelFile, String cacheDirPath, String docDirPath){
         //JMStringMessages.init();
         JMFunctions.languages=new ArrayList();
         JMFunctions.messages=new ArrayList();
+        
         if(JMFunctions.fileExist(languageExcelFile)){
             JMFunctions.readExcelLang(languageExcelFile);
             cacheDir=cacheDirPath;
+            docDir=docDirPath;
         }
     }
     
