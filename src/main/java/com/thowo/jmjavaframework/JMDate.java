@@ -161,8 +161,8 @@ public class JMDate {
         String ret="";
         if(this.dt!=null){
             ret=JMFunctions.getMessege(JMConstMessage.MSG_DATE+JMConstMessage.MSG_DATE_DAY+JMConstMessage.MSG_DATE_TYPE_SHORT+JMFormatCollection.leadingZero(this.getDayOfWeek(), 3));
-            ret+=", "+JMFormatCollection.leadingZero(this.getDayOfMonth(), 2)+" "+JMFunctions.getMessege(JMConstMessage.MSG_DATE+JMConstMessage.MSG_DATE_MONTH+JMConstMessage.MSG_DATE_TYPE_SHORT+JMFormatCollection.leadingZero(this.getMonth(), 3));
-            ret+=" "+this.getYearShort();
+            ret+=", "+JMFormatCollection.leadingZero(this.getDayOfMonth(), 2)+"-"+JMFunctions.getMessege(JMConstMessage.MSG_DATE+JMConstMessage.MSG_DATE_MONTH+JMConstMessage.MSG_DATE_TYPE_SHORT+JMFormatCollection.leadingZero(this.getMonth(), 3));
+            ret+="-"+this.getYearShort();
         }
         return ret;
     }

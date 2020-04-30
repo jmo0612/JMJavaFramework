@@ -213,7 +213,11 @@ public class JMDataContainer {
     }
     public void setValueAsDouble(Double value, Boolean currency){
         this.txt=String.valueOf(value);
-        if(currency)this.txt=JMFormatCollection.currency(value);
+        if(currency){
+            this.txt=JMFormatCollection.currency(value);
+        }else{
+            this.txt=JMFormatCollection.decimal(value);
+        }
         this.val=value;
         if(this.fi!=null)this.fi.displayText(this.txt);
     }

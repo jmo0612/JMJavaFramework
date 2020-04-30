@@ -13,6 +13,13 @@ public class JMVec2 {
     private double x=0;
     private double y=0;
     
+    public static JMVec2 create(double x, double y){
+        return new JMVec2(x, y);
+    }
+    public static JMVec2 create(int x, int y){
+        return new JMVec2(x, y);
+    }
+    
     public double getDoubleX(){
         return this.x;
     }

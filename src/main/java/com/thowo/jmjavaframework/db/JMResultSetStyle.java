@@ -147,24 +147,33 @@ public class JMResultSetStyle {
                     hids.add(false);
                     prms.add(null);
                     names.add(rs.getMetaData().getColumnName(i+1));
+                    //JMFunctions.trace("**** "+rs.getMetaData().getColumnType(i+1)+"->"+java.sql.Types.LONGVARCHAR);
                     if(rs.getMetaData().getColumnType(i+1)==java.sql.Types.BIT || rs.getMetaData().getColumnType(i+1)==java.sql.Types.BOOLEAN){
                         types.add(JMDataContainer.DATA_TYPE_BOOLEAN);
-                        JMFunctions.trace(JMDataContainer.DATA_TYPE_BOOLEAN);
-                    }else if(rs.getMetaData().getColumnType(i+1)==java.sql.Types.DATE || rs.getMetaData().getColumnType(i+1)==java.sql.Types.TIME){
-                        types.add(JMDataContainer.DATA_TYPE_DATE);
-                        JMFunctions.trace(JMDataContainer.DATA_TYPE_DATE);
+                        //JMFunctions.trace(JMDataContainer.DATA_TYPE_BOOLEAN);
+                    }else if(rs.getMetaData().getColumnType(i+1)==java.sql.Types.DATE){
+                        types.add(JMDataContainer.DATA_TYPE_DATE+JMDataContainer.DATE_SHORT);
+                        //JMFunctions.trace(JMDataContainer.DATA_TYPE_DATE);
+                    }else if(rs.getMetaData().getColumnType(i+1)==java.sql.Types.TIMESTAMP){
+                        types.add(JMDataContainer.DATA_TYPE_DATE + JMDataContainer.DATE_TIME + JMDataContainer.DATE_SHORT + JMDataContainer.DATE_12);
+                        //JMFunctions.trace(JMDataContainer.DATA_TYPE_DATE + JMDataContainer.DATE_TIME);
                     }else if(rs.getMetaData().getColumnType(i+1)==java.sql.Types.FLOAT || rs.getMetaData().getColumnType(i+1)==java.sql.Types.DOUBLE){
-                        types.add(JMDataContainer.DATA_TYPE_DOUBLE);
-                        JMFunctions.trace(JMDataContainer.DATA_TYPE_DOUBLE);
+                        types.add(JMDataContainer.DATA_TYPE_DOUBLE + JMDataContainer.DATA_DOUBLE_CURRENCY);
+                        Object[] prm={false};
+                        prms.set(i, prm);
+                        //JMFunctions.trace(JMDataContainer.DATA_TYPE_DOUBLE);
                     }else if(rs.getMetaData().getColumnType(i+1)==java.sql.Types.INTEGER){
                         types.add(JMDataContainer.DATA_TYPE_INTEGER);
-                        JMFunctions.trace(JMDataContainer.DATA_TYPE_INTEGER);
+                        //JMFunctions.trace(JMDataContainer.DATA_TYPE_INTEGER);
                     }else if(rs.getMetaData().getColumnType(i+1)==java.sql.Types.VARCHAR){
                         types.add(JMDataContainer.DATA_TYPE_STRING);
-                        JMFunctions.trace(JMDataContainer.DATA_TYPE_STRING);
+                        //JMFunctions.trace(JMDataContainer.DATA_TYPE_STRING);
+                    }else if(rs.getMetaData().getColumnType(i+1)==java.sql.Types.LONGVARCHAR){
+                        types.add(JMDataContainer.DATA_TYPE_STRING);
+                        //JMFunctions.trace(JMDataContainer.DATA_TYPE_STRING);
                     }else{
                         types.add(JMDataContainer.DATA_TYPE_OBJECT);
-                        JMFunctions.trace(JMDataContainer.DATA_TYPE_OBJECT);
+                        //JMFunctions.trace(JMDataContainer.DATA_TYPE_OBJECT);
                     }
                 }
                 this.setProp(names, types, prms, hids);

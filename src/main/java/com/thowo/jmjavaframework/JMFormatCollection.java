@@ -395,6 +395,15 @@ public class JMFormatCollection {
         ((DecimalFormat) df).setDecimalFormatSymbols(dfs);
         return df.format(number);
     }
+    public static String decimal(Double number){
+        NumberFormat df = NumberFormat.getCurrencyInstance();
+        DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+        dfs.setCurrencySymbol("");
+        dfs.setGroupingSeparator(JMFunctions.getMessege(JMConstMessage.MSG_CURRENCY+JMConstMessage.MSG_CURRENCY_SEPARATOR).charAt(0));
+        dfs.setMonetaryDecimalSeparator(JMFunctions.getMessege(JMConstMessage.MSG_CURRENCY+JMConstMessage.MSG_CURRENCY_COMMA).charAt(0));
+        ((DecimalFormat) df).setDecimalFormatSymbols(dfs);
+        return df.format(number);
+    }
 
     public static boolean isThisDateValid(String dateToValidate, String dateFromat){
 
