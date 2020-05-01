@@ -14,13 +14,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -43,16 +47,28 @@ public class JMFunctions {
     private static String tes="jimix";
     private static String cacheDir;
     private static String docDir;
+    
+    public static JMFunctions INSTANCE(){
+        return new JMFunctions();
+    }
+    
+    public JMFunctions(){
+        
+    }
 
-    public static void init(File languageExcelFile, String cacheDirPath, String docDirPath){
+    public static void init(File languageExcelFilex, String cacheDirPath, String docDirPath,String localeId){
         //JMStringMessages.init();
         JMFunctions.languages=new ArrayList();
         JMFunctions.messages=new ArrayList();
+        JMFunctions.cacheDir=cacheDirPath;
+        JMFunctions.docDir=docDirPath;
         
+        //URL excl=JMFunctions.getResourcePath("raw/jmlanguagepack.xls", this.getClass());
+        URL excl=JMFunctions.getResourcePath("raw/jmlanguagepack.xls", JMFunctions.INSTANCE().getClass());
+        //JMFunctions.trace("LASO = "+excl.getPath());
+        File languageExcelFile = JMFunctions.resourceToCache("raw/jmlanguagepack.xls", JMFunctions.class);
         if(JMFunctions.fileExist(languageExcelFile)){
-            JMFunctions.readExcelLang(languageExcelFile);
-            cacheDir=cacheDirPath;
-            docDir=docDirPath;
+            JMFunctions.readExcelLang(languageExcelFile,localeId);
         }
     }
     
@@ -60,7 +76,7 @@ public class JMFunctions {
         return cacheDir;
     }
     
-    private static void readExcelLang(File excel){
+    private static void readExcelLang(File excel,String localeId){
         try {
             InputStream inp=new FileInputStream(excel);
             Workbook wb=WorkbookFactory.create(inp);
@@ -77,14 +93,20 @@ public class JMFunctions {
                 if(cell!=null)idLang=cell.getStringCellValue();
                 cell=row.getCell(1);
                 if(cell!=null)lang=cell.getStringCellValue();
-                cell=row.getCell(2);
-                if(cell!=null)def=(int) cell.getNumericCellValue();
-                isDef=(def==1);
+                //cell=row.getCell(2);
+                //if(cell!=null)def=(int) cell.getNumericCellValue();//USELESS
+                //isDef=(r==1);
+                if(!localeId.equals("")){
+                    if(idLang.equals(localeId))isDef=true;
+                    else isDef=false;
+                }
                 JMFunctions.languages.add(new JMLanguage(idLang,lang,isDef));
                 row=sheet.getRow(++r);
             }
-            r=1;
+            //if(JMFunctions.getDefaultLanguage()==null)JMFunctions.setDefaultLanguage(0);
+            //JMFunctions.trace(JMFunctions.getDefaultLanguage().getLangId());
             for(JMLanguage lang:JMFunctions.languages){
+                r=1;
                 sheet=wb.getSheet(lang.getLangId());
                 if(sheet!=null){
                     row=sheet.getRow(r);
@@ -135,12 +157,21 @@ public class JMFunctions {
             }
         }
     }
+    public static void setDefaultLanguage(String localeCode){
+        for(JMLanguage l:languages){
+            if(l.getLangId().equals(localeCode)){
+                l.setDefault(true);
+            }else{
+                l.setDefault(false);
+            }
+        }
+    }
     
     public static JMLanguage getDefaultLanguage(){
         for(JMLanguage tmp:languages){
             if(tmp.getDefault())return tmp;
         }
-        return null;
+        return languages.get(0);
     }
 
     public static String getStringMessage(String msgType){
@@ -389,6 +420,34 @@ public class JMFunctions {
     private static double getXScaledValue(double scale, double bottomValue){
         return bottomValue*scale;
     }
-    
+
+    public static URL getResourcePath(String resId, Class<?> CLASS) {
+        return CLASS.getClassLoader().getResource(resId);
+    }
+    public static URL getResourcePath(String resId){
+        return ClassLoader.getSystemClassLoader().getResource(resId);
+    }
+    public static File resourceToCache(String resId, Class<?> CLASS){
+        File ret=null;
+        URL tes=JMFunctions.getResourcePath(resId, CLASS);
+        ret=new File(JMFunctions.getCacheDir()+"/"+resId);
+        try {
+            FileUtils.copyURLToFile(tes, ret);
+        } catch (IOException ex) {
+            Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        /*InputStream inp=CLASS.getResourceAsStream(resId);
+        try {
+            byte[] buffer = new byte[inp.available()];
+            inp.read(buffer);
+            ret=new File(JMFunctions.getCacheDir()+resId);
+            OutputStream out=new FileOutputStream(ret);
+            out.write(buffer);
+        } catch (IOException ex) {
+            Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);
+        }*/
+        return ret;
+    }
 
 }

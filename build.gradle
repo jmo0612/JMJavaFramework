@@ -39,6 +39,9 @@ if (sysprops['idea.platform.prefix'] != null) {
     repositories {
         jcenter()
     }
+    processResources{
+        from('src/main/res')
+    }
 }
 
 
@@ -78,6 +81,10 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml
     implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '4.0.0'
+    
+    // https://mvnrepository.com/artifact/commons-io/commons-io
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+
 
 
 
