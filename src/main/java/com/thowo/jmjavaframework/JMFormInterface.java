@@ -5,4 +5,5 @@ public interface JMFormInterface {
     void displayError(String errMsg);
     void displayHint(String hint);
     void setDataContainer(JMDataContainer dataContainer);
+    void setHidden(boolean hidden);
 }

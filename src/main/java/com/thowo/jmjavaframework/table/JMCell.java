@@ -21,7 +21,7 @@ public class JMCell {
     private Boolean hidden;
     
     public JMCell(Integer column, JMDataContainer data){
-        setProp(column, data, false);
+        setProp(column, data, true);
     }
     public JMCell(Integer column, JMDataContainer data, Boolean hidden){
         setProp(column, data, hidden);
@@ -30,6 +30,7 @@ public class JMCell {
         this.colNum=column;
         this.data=data;
         this.hidden=hidden;
+        this.data.setHidden(hidden);
     }
     public void setRow(JMRow row){
         if(row==null)return;

@@ -98,6 +98,7 @@ public class JMResultSetStyle {
         return this.fieldNames.get(columnIndex);
     }
     
+    
     public Object[] getParams(int columnIndex){
         return this.listParams.get(columnIndex);
     }
@@ -189,4 +190,5 @@ public class JMResultSetStyle {
         this.hiddens=hiddens;
         this.listParams=listParams;
     }
+    
 }

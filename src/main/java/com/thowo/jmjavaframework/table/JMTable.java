@@ -6,6 +6,7 @@
 package com.thowo.jmjavaframework.table;
 
 import com.thowo.jmjavaframework.JMDataContainer;
+import com.thowo.jmjavaframework.JMFormInterface;
 import com.thowo.jmjavaframework.JMFunctions;
 import com.thowo.jmjavaframework.db.JMResultSet;
 import com.thowo.jmjavaframework.db.JMResultSetStyle;
@@ -33,39 +34,52 @@ public class JMTable {
     public static JMTable create(JMResultSet rs, JMResultSetStyle style){
         return new JMTable(rs, style);
     }
+    public static JMTable create(JMResultSet rs,List<JMDataContainer> dataContainers, JMResultSetStyle style){
+        return new JMTable(rs,dataContainers, style);
+    }
+    public static JMTable create(JMResultSet rs,List<JMDataContainer> dataContainers){
+        return new JMTable(rs,dataContainers);
+    }
     public static JMTable create(JMResultSet rs){
         return new JMTable(rs);
     }
     
     public JMTable(JMResultSet rs, List<Boolean> colsVisibility, List<String> colsDataType, List<Object[]> colsFormatParams){
-        this.setProp(rs, colsVisibility, colsDataType, colsFormatParams);
+        this.setProp(rs, null,colsVisibility, colsDataType, colsFormatParams);
     }
     public JMTable(JMResultSet rs, List<String> colsDataType, List<Object[]> colsFormatParams){
         List<Boolean> colsVisibility=new ArrayList();
         for(String s:colsDataType){
             colsVisibility.add(true);
         }
-        this.setProp(rs, colsVisibility, colsDataType, colsFormatParams);
+        this.setProp(rs, null,colsVisibility, colsDataType, colsFormatParams);
+    }
+    public JMTable(JMResultSet rs,List<JMDataContainer> dataContainers, JMResultSetStyle style){
+        this.setProp(rs,dataContainers, style);
+    }
+    public JMTable(JMResultSet rs,List<JMDataContainer> dataContainers){
+        JMResultSetStyle style=new JMResultSetStyle(rs.getSQLResultSet());
+        this.setProp(rs,dataContainers, style);
     }
     public JMTable(JMResultSet rs, JMResultSetStyle style){
-        this.setProp(rs, style);
+        this.setProp(rs,null, style);
     }
     public JMTable(JMResultSet rs){
         JMResultSetStyle style=new JMResultSetStyle(rs.getSQLResultSet());
-        this.setProp(rs, style);
+        this.setProp(rs,null, style);
     }
     public JMTable(){
         
     }
     
-    private void setProp(JMResultSet rs, JMResultSetStyle style){
+    private void setProp(JMResultSet rs,List<JMDataContainer> dataContainers , JMResultSetStyle style){
         List<Boolean> colsVisibility=style.getVisibles();
         List<String> colsDataType=style.getDataTypes();
         List<Object[]> colsFormatParams=style.getListParams();
-        this.setProp(rs, colsVisibility, colsDataType, colsFormatParams);
+        this.setProp(rs,dataContainers, colsVisibility, colsDataType, colsFormatParams);
     }
     
-    private void setProp(JMResultSet rs, List<Boolean> colsVisibility, List<String> colsDataType, List<Object[]> colsFormatParams){
+    private void setProp(JMResultSet rs,List<JMDataContainer> dataContainers, List<Boolean> colsVisibility, List<String> colsDataType, List<Object[]> colsFormatParams){
         if(rs!=null){
             if(colsDataType.size()!=colsVisibility.size())JMFunctions.trace("different size between colsDataType and colsVisibility");
             if(colsDataType.size()!=colsFormatParams.size())JMFunctions.trace("different size between colsDataType and colsFormatParams");
@@ -78,10 +92,15 @@ public class JMTable {
                     String dt="";
                     Boolean hidden=false;
                     Object[] prms=null;
+                    JMDataContainer dc=null;
                     if(j<colsDataType.size())dt=colsDataType.get(j);
                     if(j<colsVisibility.size())hidden=!colsVisibility.get(j);
                     if(j<colsFormatParams.size())prms=colsFormatParams.get(j);
-                    JMDataContainer dc=new JMDataContainer(rs,j,dt,prms);
+                    if(dataContainers==null){
+                        dc=new JMDataContainer(rs,j,dt,prms);
+                    }else{
+                        if(j<dataContainers.size())dc=dataContainers.get(j);
+                    }
                     this.currentRow.addCell(dc,hidden);
                 }
                 JMFunctions.trace(this.currentRow.getCells().get(3).getText());
@@ -159,5 +178,12 @@ public class JMTable {
         }
         ret=data.toArray();
         return ret;
+    }
+    public void setFormInterface(JMFormInterface component, int column){
+        this.firstRow();
+        do{
+            List<JMCell> cells=this.currentRow.getCells();
+            cells.get(column).getDataContainer().setInterface(component, !cells.get(column).getVisible());
+        }while(this.nextRow()!=null);
     }
 }

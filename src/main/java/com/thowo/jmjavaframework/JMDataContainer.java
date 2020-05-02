@@ -75,7 +75,10 @@ public class JMDataContainer {
     }
     
     
-    
+    public void setInterface(JMFormInterface component, boolean hidden){
+        this.fi=component;
+        this.setHidden(hidden);
+    }
     
     
     private void setProp(JMFormInterface component, JMResultSet resultSet,int colIndex, String dataType, Object[] params){
@@ -143,6 +146,10 @@ public class JMDataContainer {
                 this.setValueAsObject(value);
             }
         }
+    }
+    
+    public void setHidden(boolean hidden){
+        if(this.fi!=null)this.fi.setHidden(hidden);
     }
 
     public String getFieldName(){
