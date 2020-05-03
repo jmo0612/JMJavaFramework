@@ -69,4 +69,6 @@ public class JMConstMessage {
     //=============================MSG_ELSE================================
     public static final String MSG_ELSE_DATE_EMPTY="001";
     public static final String MSG_ELSE_DATE_INVALID="002";
+    public static final String MSG_ELSE_INPUT_INVALID="003";
+    public static final String MSG_ELSE_NUMBER_INVALID="004";
 }

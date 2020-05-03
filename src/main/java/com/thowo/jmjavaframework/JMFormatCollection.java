@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 //import static android.content.ContentValues.TAG;
 
@@ -89,6 +91,8 @@ public class JMFormatCollection {
         frmt.add("EEE, dd-MMM-yyyy HH:mm:ss");
         frmt.add("dd MMMMM yyyy HH:mm:ss");
         frmt.add("EEEEE, dd MMMMM yyyy HH:mm:ss");
+        frmt.add("yyyy-MM-dd");
+        frmt.add("yyyy-MM-dd HH:mm:ss");
         String ret="";
         if(format>=0 && format<frmt.size()){
             ret=frmt.get(format);
@@ -115,20 +119,34 @@ public class JMFormatCollection {
         return ret;
     }
 
+    public static Date dateDBFormat(String date) throws ParseException{
+        Date ret=null;
+        try {
+            ret=dateFromString(date,"yyyy-MM-dd HH:mm:ss");
+        } catch (ParseException ex) {
+            ret=dateFromString(date,"yyyy-MM-dd");
+        }
+        return ret;
+    }
     public static Date dateFromString(String date){
-        return dateFromString(date,"");
+        Date ret=null;
+        for(int i=2;i<=15;i++){
+            try {
+                ret=dateFromString(date,strFormat(i));
+                JMFunctions.trace(strFormat(i));
+                break;
+            } catch (ParseException ex) {
+                //Logger.getLogger(JMFormatCollection.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return ret;
     }
 
-    public static Date dateFromString(String date, String dateFormat){
+    public static Date dateFromString(String date, String dateFormat) throws ParseException{
         Date ret=null;
         if(dateFormat.equals(""))dateFormat=strFormat(JMO_DATE_STANDARD);
         SimpleDateFormat sdf= new SimpleDateFormat(dateFormat);
-        try {
-            ret=sdf.parse(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            JMFunctions.trace(e.getMessage());
-        }
+        ret=sdf.parse(date);
         return ret;
     }
 

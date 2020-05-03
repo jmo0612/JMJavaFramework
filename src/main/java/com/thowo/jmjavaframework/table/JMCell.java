@@ -19,12 +19,27 @@ public class JMCell {
     
     private JMDataContainer data;
     private Boolean hidden;
+    private String queryPrefix="'";
+    private String querySuffix="'";
+    private Boolean excludeFromUpdate=false;
     
     public JMCell(Integer column, JMDataContainer data){
         setProp(column, data, true);
     }
     public JMCell(Integer column, JMDataContainer data, Boolean hidden){
         setProp(column, data, hidden);
+    }
+    public JMCell(){}
+    public JMCell copy(){
+        JMCell ret=new JMCell();
+        ret.colNum=this.colNum;
+        ret.data=this.data.copy();
+        ret.excludeFromUpdate=this.excludeFromUpdate;
+        ret.hidden=this.hidden;
+        ret.queryPrefix=this.queryPrefix;
+        ret.querySuffix=this.querySuffix;
+        ret.row=this.row;
+        return ret;
     }
     private void setProp(Integer column, JMDataContainer data, Boolean hidden){
         this.colNum=column;
@@ -74,5 +89,34 @@ public class JMCell {
     public JMDataContainer getDataContainer(){
         return this.data;
     }
-    
+    public JMRow getRow(){
+        return this.row;
+    }
+    public JMCell getNext(){
+        return this.next;
+    }
+    public JMCell getPrev(){
+        return this.prev;
+    }
+    public Integer getColNum(){
+        return this.colNum;
+    }
+    public void setQueryPrefix(String prefix){
+        this.queryPrefix=prefix;
+    }
+    public String getQueryPrefix(){
+        return this.queryPrefix;
+    }
+    public void setQuerySuffix(String suffix){
+        this.querySuffix=suffix;
+    }
+    public String getQuerySuffix(){
+        return this.querySuffix;
+    }
+    public void setExcludeFromUpdate(Boolean exclude){
+        this.excludeFromUpdate=exclude;
+    }
+    public boolean excludedFromUpdate(){
+        return this.excludeFromUpdate;
+    }
 }

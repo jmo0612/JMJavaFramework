@@ -6,6 +6,7 @@
 package com.thowo.jmjavaframework;
 
 import com.thowo.jmjavaframework.lang.JMConstMessage;
+import java.text.ParseException;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,6 +20,12 @@ import java.util.List;
 public class JMDate {
     private Date dt;
     
+    public JMDate(){
+        this.dt=new Date();
+    }
+    public JMDate(String dt) throws ParseException{
+        this.dt=JMFormatCollection.dateDBFormat(dt);
+    }
     public JMDate(Date dt){
         this.dt=dt;
     }
