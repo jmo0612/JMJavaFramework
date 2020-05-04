@@ -236,6 +236,9 @@ public class JMFunctions {
         uiL.trace(msg);
         uiL.messageBox(msg);
     }
+    public static int confirmBoxYN(String title, String message, String yes, String no, boolean defaultNo){
+        return uiL.confirmBoxYN(title, message, yes, no, defaultNo);
+    }
 
     public static boolean fileExist(File file){
         if(file==null)return false;

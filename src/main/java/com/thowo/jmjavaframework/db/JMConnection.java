@@ -167,5 +167,30 @@ public class JMConnection {
         if(!this.errMsg.equals(""))JMFunctions.traceAndShow(this.errMsg);
         return ret;
     }
+    
+    public Boolean queryUpdateMySQL(String sql, Boolean showNullError){
+        Boolean ret=null;
+        if(this.connectedMySQL){
+            Callable<Boolean> c=()->{
+                try {
+                    Statement stmt=this.conMySQL.createStatement();
+                    int r=stmt.executeUpdate(sql);
+                    this.errMsg="";
+                    return true; 
+                } catch (SQLException ex) {
+                    Logger.getLogger(JMConnection.class.getName()).log(Level.SEVERE, null, ex);
+                    this.errMsg=ex.getMessage();
+                    return false;
+                }
+                
+            };
+            Boolean r=(Boolean) new JMAsyncTask(JMFunctions.getCurrentAsyncListener(),c,JMConnection.JM_ASYNC_FETCH).getResult();
+            
+            ret=r;
+        }
+        
+        if(!this.errMsg.equals(""))JMFunctions.traceAndShow(this.errMsg);
+        return ret;
+    }
 
 }

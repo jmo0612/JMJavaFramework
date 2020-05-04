@@ -15,5 +15,5 @@ public interface JMUIListener {
     void trace(String message);
     //void messageBox(String title, String message, File icon);
     void messageBox(String message);
-    //void confirmBox(String message);
+    int confirmBoxYN(String title,String message,String yes, String no, boolean defaultNo);
 }

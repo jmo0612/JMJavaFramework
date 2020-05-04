@@ -34,7 +34,23 @@ public class JMDataContainer {
     private String dataType;
     private String fieldName;
     private Object[] params;
+    private JMResultSet rs;
+    private int rsCol;
+    private boolean fiHidden;
 
+    public JMDataContainer copy(){
+        JMDataContainer ret=new JMDataContainer();
+        ret.dataType=this.dataType;
+        ret.errMsg=this.errMsg;
+        ret.fi=this.fi;
+        ret.fieldName=this.fieldName;
+        ret.hint=this.hint;
+        ret.params=this.params;
+        ret.txt=this.txt;
+        //ret.val=null;
+        //ret.setValue(this.val);
+        return ret;
+    }
     public JMDataContainer(){
         this.setProp(null, null, 0, "|STRING|", null);
     }
@@ -75,18 +91,7 @@ public class JMDataContainer {
         this.setProp(component, resultSet, colIndex, dataType, null);
     }
     
-    public JMDataContainer copy(){
-        JMDataContainer ret=new JMDataContainer();
-        ret.dataType=this.dataType;
-        ret.errMsg=this.errMsg;
-        ret.fi=this.fi;
-        ret.fieldName=this.fieldName;
-        ret.hint=this.hint;
-        ret.params=this.params;
-        ret.txt=this.txt;
-        ret.val=this.val;
-        return ret;
-    }
+    
     public void setInterface(JMInputInterface component, boolean hidden){
         this.fi=component;
         this.setHidden(hidden);
@@ -97,12 +102,25 @@ public class JMDataContainer {
         //JMFunctions.trace(this.txt);
     }
     
-    
+    public JMResultSet getResultSet(){
+        return this.rs;
+    }
+    public int getRsCol(){
+        return this.rsCol;
+    }
+    public String getDataType(){
+        return this.dataType;
+    }
+    public Object[] getParams(){
+        return this.params;
+    }
     private void setProp(JMInputInterface component, JMResultSet resultSet,int colIndex, String dataType, Object[] params){
         this.fi=component;
         if(component!=null)this.fi.setDataContainer(this);
         this.dataType=dataType+"|";
         this.params=params;
+        this.rs=resultSet;
+        this.rsCol=colIndex;
         if(resultSet!=null){
             this.fieldName=resultSet.getColumnName(colIndex);
             this.setValue(resultSet, colIndex);
@@ -214,7 +232,9 @@ public class JMDataContainer {
         }
     }
     public void setValue(String value) throws ParseException,NumberFormatException{
+        
         if(this.dataType.contains(JMDataContainer.DATA_TYPE_STRING+"|")){
+            //JMFunctions.trace("STRING"+value);
             this.setValueAsString((String) value);
         }else if(this.dataType.contains(JMDataContainer.DATA_TYPE_INTEGER+"|")){
             if(this.dataType.contains(JMDataContainer.DATA_FORMAT+"|")){
@@ -263,7 +283,11 @@ public class JMDataContainer {
     }
     
     public void setHidden(boolean hidden){
+        this.fiHidden=hidden;
         if(this.fi!=null)this.fi.setHidden(hidden);
+    }
+    public boolean getFiHidden(){
+        return this.fiHidden;
     }
 
     public String getFieldName(){
@@ -283,6 +307,7 @@ public class JMDataContainer {
         return this.val;
     }
     public String getValueAsString(){
+        //JMFunctions.trace("ADAKAH? "+this.val);
         if(this.dataType.contains(JMDataContainer.DATA_TYPE_DATE+"|")){
             JMDate d=(JMDate) this.val;
             if(this.dataType.contains(JMDataContainer.DATE_TIME+"|")){
@@ -292,6 +317,10 @@ public class JMDataContainer {
                 //DATE
                 return d.dateDB();
             }
+        }else if(this.dataType.contains(JMDataContainer.DATA_TYPE_BOOLEAN+"|")){
+            boolean val=(boolean) this.val;
+            if(val)return "1";
+            else return "0";
         }
         return String.valueOf(this.val);
     }
@@ -430,7 +459,7 @@ public class JMDataContainer {
         if(this.fi!=null){
             this.fi.displayText(this.txt);
             this.fi.setValueObject(this.val);
-            JMFunctions.trace("DATE: "+value.dateDB());
+            //JMFunctions.trace("DATE: "+value.dateDB());
             this.fi.setValueString(value.dateDB());
         }
     }
@@ -441,7 +470,7 @@ public class JMDataContainer {
         if(this.fi!=null){
             this.fi.displayText(this.txt);
             this.fi.setValueObject(this.val);
-            JMFunctions.trace("DATE: "+value.dateDB());
+            //JMFunctions.trace("DATE: "+value.dateDB());
             this.fi.setValueString(value.dateDB());
         }
     }
@@ -451,7 +480,7 @@ public class JMDataContainer {
         if(this.fi!=null){
             this.fi.displayText(this.txt);
             this.fi.setValueObject(this.val);
-            JMFunctions.trace("DATETIME: "+value.dateTimeDB());
+            //JMFunctions.trace("DATETIME: "+value.dateTimeDB());
             this.fi.setValueString(value.dateTimeDB());
         }
     }
@@ -470,7 +499,7 @@ public class JMDataContainer {
         if(this.fi!=null){
             this.fi.displayText(this.txt);
             this.fi.setValueObject(this.val);
-            JMFunctions.trace("DATETIME: "+value.dateTimeDB());
+            //JMFunctions.trace("DATETIME: "+value.dateTimeDB());
             this.fi.setValueString(value.dateTimeDB());
         }
     }
@@ -481,7 +510,7 @@ public class JMDataContainer {
         if(this.fi!=null){
             this.fi.displayText(this.txt);
             this.fi.setValueObject(this.val);
-            JMFunctions.trace("DATETIME: "+value.dateTimeDB());
+            //JMFunctions.trace("DATETIME: "+value.dateTimeDB());
             this.fi.setValueString(value.dateTimeDB());
         }
     }
@@ -500,7 +529,7 @@ public class JMDataContainer {
         if(this.fi!=null){
             this.fi.displayText(this.txt);
             this.fi.setValueObject(this.val);
-            JMFunctions.trace("DATETIME: "+value.dateTimeDB());
+            //JMFunctions.trace("DATETIME: "+value.dateTimeDB());
             this.fi.setValueString(value.dateTimeDB());
         }
     }

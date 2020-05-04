@@ -19,5 +19,8 @@ public interface JMFormInterface {
     void actionView();
     void actionNext();
     void actionPrev();
+    void actionFirst();
+    void actionLast();
+    void actionCancel();
     
 }

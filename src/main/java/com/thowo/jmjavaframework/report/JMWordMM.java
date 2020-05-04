@@ -58,7 +58,7 @@ public class JMWordMM {
         if(this.doc==null)return;
         if(this.table.isEmpty())return;
         boolean first=true;
-        this.table.firstRow();
+        this.table.firstRow(false);
         do{
             JMRow r=this.table.getCurrentRow();
             //if(r!=null)JMFunctions.trace(r.getCells().get(0).getValueString());
@@ -71,7 +71,7 @@ public class JMWordMM {
             }else{
                 this.doc=JMWord.addDoc(this.doc, template);
             }
-        }while(this.table.nextRow()!=null);
+        }while(this.table.nextRow(false)!=null);
     }
     private boolean saveResult(){
         return JMWord.save(this.doc, this.outputPath);

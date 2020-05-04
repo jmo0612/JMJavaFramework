@@ -24,6 +24,13 @@ public class JMRow {
     private Boolean hidden;
     private Boolean excluded;
     
+    
+    public void setHidden(Boolean hidden){
+        this.hidden=hidden;
+    }
+    public Boolean getHidden(){
+        return this.hidden;
+    }
     public JMRow(){
         this.setProp(false);
     }
@@ -73,6 +80,9 @@ public class JMRow {
     }
     public Boolean getExcluded(){
         return this.excluded;
+    }
+    public void setExcluded(Boolean excluded){
+        this.excluded=excluded;
     }
     public List<JMCell> getCells(){
         return this.cells;

@@ -29,6 +29,8 @@ public class JMTable {
     private List<Integer> keyCols=new ArrayList();
     private List<JMCell> masterCells=new ArrayList();
     private JMRow currentRow; 
+    private JMRow firstRow;
+    private JMRow lastRow;
     private String name;
     
     public static JMTable create(JMResultSet rs, List<Boolean> colsVisibility, List<String> colsDataType, List<Object[]> colsFormatParams){
@@ -92,8 +94,13 @@ public class JMTable {
             if(colsDataType.size()!=rs.getColCount())JMFunctions.trace("different size between colsDataType and resultSet column count");
             rs.first();
             Integer i=0;
+            boolean first=true;
             do{
                 this.currentRow=this.addRow();
+                if(first){
+                    this.firstRow=this.currentRow;
+                    first=false;
+                }
                 for(int j=0;j<colsDataType.size();j++){
                     String dt="";
                     Boolean hidden=false;
@@ -109,10 +116,10 @@ public class JMTable {
                     }
                     this.currentRow.addCell(dc,hidden);
                 }
-                JMFunctions.trace(this.currentRow.getCells().get(3).getText());
+                //JMFunctions.trace(this.currentRow.getCells().get(3).getText());
                 //JMFunctions.trace(rs.getString(1));
             }while(rs.next());
-            this.firstRow();
+            this.firstRow(true);
             
         }
     }
@@ -123,7 +130,7 @@ public class JMTable {
         return this.addRow(false);
     }
     private JMRow addRow(Boolean hidden){
-        this.lastRow();
+        this.lastRow(true);
         JMRow ret=new JMRow(hidden);
         if(this.currentRow!=null){
             ret.setPrev(this.currentRow);
@@ -131,53 +138,52 @@ public class JMTable {
         }
         ret.setTable(this);
         this.currentRow=ret;
+        this.lastRow=this.currentRow;
         return ret;
     }
     public Integer getRowCount(){
         if(this.currentRow==null)return 0;
+        JMRow b=this.currentRow;
         Integer ret=1;
-        this.firstRow();
-        while(this.nextRow()!=null){
+        this.firstRow(false);
+        while(this.nextRow(false)!=null){
             if(ret==Integer.MAX_VALUE){
                 JMFunctions.trace("LIMIT ROW COUNT REACHED");
                 return ret;
             }
             ret++;
         }
+        this.currentRow=b;
         return ret;
     }
     public JMRow getCurrentRow(){
         if(this.currentRow==null)return null;
         return this.currentRow;
     }
-    public JMRow firstRow(){
+    public JMRow firstRow(boolean updateContainer){
         if(this.currentRow==null)return null;
-        while(this.currentRow.getPrev()!=null){
-            this.currentRow=this.currentRow.getPrev();
-        }
-        this.currentRow.displayInterface();
+        this.currentRow=this.firstRow;
+        if(updateContainer)this.currentRow.displayInterface();
         return this.currentRow;
     }
-    public JMRow nextRow(){
+    public JMRow nextRow(boolean updateContainer){
         JMRow ret=this.currentRow.getNext();
         if(this.currentRow==null) return null;
         if(ret!=null)this.currentRow=ret;
-        this.currentRow.displayInterface();
+        if(updateContainer)this.currentRow.displayInterface();
         return ret;
     }
-    public JMRow prevRow(){
+    public JMRow prevRow(boolean updateContainer){
         JMRow ret=this.currentRow.getPrev();
         if(this.currentRow==null) return null;
         if(ret!=null)this.currentRow=ret;
-        this.currentRow.displayInterface();
+        if(updateContainer)this.currentRow.displayInterface();
         return ret;
     }
-    public JMRow lastRow(){
+    public JMRow lastRow(boolean updateContainer){
         if(this.currentRow==null)return null;
-        while(this.currentRow.getNext()!=null){
-            this.currentRow=this.currentRow.getNext();
-        }
-        this.currentRow.displayInterface();
+        this.currentRow=this.lastRow;
+        if(updateContainer)this.currentRow.displayInterface();
         return this.currentRow;
     }
     public Object[] getTableData(){
@@ -191,29 +197,41 @@ public class JMTable {
         return ret;
     }
     public void setFormInterface(JMInputInterface component, int column){
-        this.firstRow();
+        JMRow b=this.currentRow;
+        this.firstRow(false);
         do{
             List<JMCell> cells=this.currentRow.getCells();
             cells.get(column).getDataContainer().setInterface(component, !cells.get(column).getVisible());
-        }while(this.nextRow()!=null);
+        }while(this.nextRow(false)!=null);
+        this.currentRow=b;
     }
-    public JMRow findString(String search, int column){
+    public JMRow findByKeys(List<String> keyValues){
+        if(this.keyCols==null)return null;
+        if(this.keyCols.size()!=keyValues.size())return null;
         JMRow c=this.currentRow;
         JMRow ret=null;
-        this.firstRow();
+        this.firstRow(false);
+        boolean match=true;
         do{
-            List<JMCell> cells=this.currentRow.getCells();
-            if(cells.get(column).getValueString().equals(search)){
+            match=true;
+            for(int i=0;i<keyValues.size();i++){
+                List<JMCell> cells=this.currentRow.getCells();
+                if(!cells.get(this.keyCols.get(i)).getValueString().equals(keyValues.get(i))){
+                    match=false;
+                    break;
+                }
+            }
+            if(match){
                 ret=this.currentRow;
                 break;
             }
-        }while(this.nextRow()!=null);
-        this.currentRow=c;
+        }while(this.nextRow(false)!=null);
+        if(!match)this.currentRow=c;
         return ret;
     }
-    public void gotoRow(JMRow row){
+    public void gotoRow(JMRow row,boolean updateContainer){
         this.currentRow=row;
-        row.displayInterface();
+        if(updateContainer)row.displayInterface();
     }
     public String getName(){
         return this.name;
@@ -254,7 +272,30 @@ public class JMTable {
     public List<Integer> getKeyColumns(){
         return this.keyCols;
     }
-    public JMRow addNewRow(){
+    public List<String> getKeyValues(){
+        List<String> ret=new ArrayList();
+        for(JMCell cell:this.currentRow.getCells()){
+            ret.add(cell.getValueString());
+        }
+        return ret;
+    }
+    public JMRow addNewRow(boolean updateContainer){
+        JMRow ret=this.addRow(false);
+        ret.setTable(this);
+        ret.setNext(null);
+        ret.setPrev(this.lastRow);
+        if(this.lastRow!=null)this.lastRow.setNext(ret);
+        this.lastRow=ret;
+        ret.setHidden(this.currentRow.getHidden());
+        ret.setExcluded(this.currentRow.getExcluded());
+        for(JMCell cell:this.currentRow.getCells()){
+            JMDataContainer dc=new JMDataContainer(cell.getDataContainer().getResultSet(),cell.getDataContainer().getRsCol(),cell.getDataContainer().getDataType(),cell.getDataContainer().getParams());
+            ret.addCell(dc,cell.getDataContainer().getFiHidden());
+        }
+        this.currentRow=ret;
+        return ret;
+    }
+    public JMRow addNewRowBU(boolean updateContainer){
         JMRow cur=this.currentRow;
         JMRow ret=this.addRow();
         this.currentRow=cur;
@@ -265,6 +306,7 @@ public class JMTable {
         ret.setCells(cells);
         for(int i=0;i<cells.size();i++){
             JMCell cell=cells.get(i);
+            cell.setRow(ret);
             if(i-1>=0){
                 cell.setPrev(cells.get(i-1));
                 cells.get(i-1).setNext(cell);
@@ -309,23 +351,37 @@ public class JMTable {
             }
         }
         this.currentRow=ret;
+        this.lastRow=this.currentRow;
+        if(updateContainer)this.currentRow.displayInterface();
         return ret;
     }
     public void excludeColumnsFromUpdate(List<Integer> column){
         JMRow tmp=this.currentRow;
-        this.firstRow();
+        this.firstRow(false);
         do{
             this.currentRow.excludeColumnsFromUpdate(column);
-        }while(this.nextRow()!=null);
+        }while(this.nextRow(false)!=null);
         this.currentRow=tmp;
     }
-    public JMRow deleteRow(JMRow row){
+    public JMRow deleteRow(JMRow row, boolean updateContainer){
         JMRow p=row.getPrev();
         JMRow n=row.getNext();
         if(p!=null)p.setNext(n);
         if(n!=null)n.setPrev(p);
         if(p!=null)this.currentRow=p;
         else this.currentRow=n;
+        if(this.currentRow.getPrev()==null)this.firstRow=this.currentRow;
+        if(this.currentRow.getNext()==null)this.lastRow=this.currentRow;
+        if(updateContainer)this.currentRow.displayInterface();
         return row;
+    }
+    public boolean isFirstRecord(){
+        return this.currentRow.getPrev()==null;
+    }
+    public boolean isLastRecord(){
+        return this.currentRow.getNext()==null;
+    }
+    public void setKeyColumns(List<Integer> keyColumns){
+        this.keyCols=keyColumns;
     }
 }
