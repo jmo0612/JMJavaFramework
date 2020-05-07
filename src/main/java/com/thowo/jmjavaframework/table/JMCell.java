@@ -23,6 +23,12 @@ public class JMCell {
     private String querySuffix="'";
     private Boolean excludeFromUpdate=false;
     
+    public JMCell(Integer column, Boolean hidden){
+        setProp(column, null, true);
+    }
+    public void addDataContainer(JMDataContainer dc){
+        this.data=dc;
+    }
     public JMCell(Integer column, JMDataContainer data){
         setProp(column, data, true);
     }
@@ -30,22 +36,11 @@ public class JMCell {
         setProp(column, data, hidden);
     }
     public JMCell(){}
-    public JMCell copy(){
-        JMCell ret=new JMCell();
-        ret.colNum=this.colNum;
-        ret.data=this.data.copy();
-        ret.excludeFromUpdate=this.excludeFromUpdate;
-        ret.hidden=this.hidden;
-        ret.queryPrefix=this.queryPrefix;
-        ret.querySuffix=this.querySuffix;
-        ret.row=this.row;
-        return ret;
-    }
     private void setProp(Integer column, JMDataContainer data, Boolean hidden){
         this.colNum=column;
         this.data=data;
         this.hidden=hidden;
-        this.data.setHidden(hidden);
+        this.data.hideInterfaces(hidden);
     }
     public void setRow(JMRow row){
         if(row==null)return;
@@ -65,23 +60,23 @@ public class JMCell {
     public Boolean getVisible(){
         return !this.hidden;
     }
-    public Object getValueObject(){
-        return this.data;
+    public Object getValue(){
+        return this.data.getValue();
     }
     public String getText(){
         return this.data.getText();
     }
     public String getValueString(){
-        return this.data.getValueAsString();
+        return String.valueOf(this.data.getValue());
     }
     public Integer getValueInteger(){
-        return this.data.getValueAsInteger();
+        return Integer.valueOf(String.valueOf(this.data.getValue()));
     }
     public Double getValueDouble(){
-        return this.data.getValueAsDouble();
+        return Double.valueOf(String.valueOf(this.data.getValue()));
     }
     public Boolean getValueBoolean(){
-        return this.data.getValueAsBoolean();
+        return Boolean.valueOf(String.valueOf(this.data.getValue()));
     }
     public String getFieldName(){
         return this.data.getFieldName();

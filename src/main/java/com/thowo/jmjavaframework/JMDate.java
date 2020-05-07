@@ -20,6 +20,10 @@ import java.util.List;
 public class JMDate {
     private Date dt;
     
+    public static JMDate create(String dt) throws ParseException{
+        return new JMDate(dt);
+    }
+    
     public JMDate(){
         this.dt=new Date();
     }

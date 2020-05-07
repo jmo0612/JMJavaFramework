@@ -38,7 +38,6 @@ public class JMWordMM {
         this.saveResult();
     }
     private XWPFDocument process(XWPFDocument template,JMRow row){
-        if(row.getExcluded())return template;
         List<JMCell> cells=row.getCells();
         for(JMCell cell:cells){
             String field=cell.getFieldName();

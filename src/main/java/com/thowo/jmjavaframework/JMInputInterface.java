@@ -1,7 +1,7 @@
 package com.thowo.jmjavaframework;
 
 public interface JMInputInterface {
-    void displayText(String text);
+    void displayText(String text, int JMDataContainerConstantAlign);
     void displayError(String errMsg);
     void displayHint(String hint);
     void setDataContainer(JMDataContainer dataContainer);

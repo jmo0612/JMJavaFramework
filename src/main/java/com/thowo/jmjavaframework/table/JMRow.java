@@ -7,8 +7,11 @@ package com.thowo.jmjavaframework.table;
 
 import com.thowo.jmjavaframework.JMDataContainer;
 import com.thowo.jmjavaframework.JMFunctions;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -21,26 +24,21 @@ public class JMRow {
     private JMRow prev;
     
     private List<JMCell> cells;
-    private Boolean hidden;
-    private Boolean excluded;
+    private Integer rowNum;
     
     
-    public void setHidden(Boolean hidden){
-        this.hidden=hidden;
+    public Integer getRowNum(){
+        return this.rowNum;
     }
-    public Boolean getHidden(){
-        return this.hidden;
+    public void setRowNum(Integer rowNum){
+        this.rowNum=rowNum;
     }
-    public JMRow(){
-        this.setProp(false);
+    public JMRow(Integer rowNum){
+        this.setProp(rowNum);
     }
-    public JMRow(Boolean hidden){
-        this.setProp(hidden);
-    }
-    private void setProp(Boolean hidden){
+    private void setProp(Integer rowNum){
         cells=new ArrayList();
-        this.hidden=hidden;
-        this.excluded=false;
+        this.rowNum=rowNum;
     }
     public JMCell addCell(JMDataContainer data){
         return addCell(data, false);
@@ -66,9 +64,6 @@ public class JMRow {
         this.next=next;
         if(next!=null)next.prev=this;
     }
-    public Boolean getVisible(){
-        return !this.hidden;
-    }
     public void setTable(JMTable table){
         this.table=table;
     }
@@ -78,18 +73,12 @@ public class JMRow {
     public JMRow getPrev(){
         return this.prev;
     }
-    public Boolean getExcluded(){
-        return this.excluded;
-    }
-    public void setExcluded(Boolean excluded){
-        this.excluded=excluded;
-    }
     public List<JMCell> getCells(){
         return this.cells;
     }
-    public void displayInterface(){
+    public void displayInterface(boolean defaultValue){
         for(JMCell cell:this.cells){
-            cell.getDataContainer().refresh();
+            cell.getDataContainer().refreshInterfaces(this.table.getStyle(),null,true,defaultValue);
         }
     }
     public JMTable getTable(){
@@ -150,5 +139,13 @@ public class JMRow {
     }
     public void setCells(List<JMCell> cells){
         this.cells=cells;
+    }
+    public List<JMDataContainer> getDataContainers(){
+        List<JMDataContainer> data=new ArrayList();
+        List<JMCell> cells=this.getCells();
+        for(JMCell cell:cells){
+            data.add(cell.getDataContainer());
+        }
+        return data;
     }
 }
