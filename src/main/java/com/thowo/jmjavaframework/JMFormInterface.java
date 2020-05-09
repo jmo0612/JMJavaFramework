@@ -12,17 +12,17 @@ import com.thowo.jmjavaframework.table.JMRow;
  * @author jimi
  */
 public interface JMFormInterface {
-    void actionAdd(JMRow rowAdded);
-    void actionDelete(JMRow rowDeleted);
-    void actionSave(String updateQuery);
-    void actionEdit(JMRow rowEdited);
-    void actionPrint(JMRow rowPrinted);
-    void actionRefresh(JMRow rowRefreshed);
-    void actionView(JMRow rowViewed);
-    void actionNext(JMRow nextRow);
-    void actionPrev(JMRow prevRow);
-    void actionFirst(JMRow firstRow);
-    void actionLast(JMRow lastRow);
-    void gotoRecord(JMRow currentRow);
-    void actionCancel(JMRow rowCanceled, boolean canceled);
+    void actionAfterAdded(JMRow rowAdded);
+    void actionAfterDeleted(JMRow row, boolean deleted);
+    void actionAfterSaved(String updateQuery,boolean saved);
+    void actionAfterEdited(JMRow rowEdited);
+    void actionAfterPrinted(JMRow rowPrinted);
+    void actionAfterRefreshed(JMRow rowRefreshed);
+    void actionAfterViewed(JMRow rowViewed);
+    void actionAfterMovedNext(JMRow nextRow);
+    void actionAfterMovedPrev(JMRow prevRow);
+    void actionAfterMovedFirst(JMRow firstRow);
+    void actionAfterMovedLast(JMRow lastRow);
+    void actionAfterMovedtoRecord(JMRow currentRow);
+    void actionAfterCanceled(JMRow rowCanceled, boolean canceled);
 }

@@ -218,7 +218,6 @@ public class JMFunctions {
         asyncL=platformDisplay;
     }
 
-
     public static JMAsyncListener getCurrentAsyncListener(){
         return asyncL;
     }
@@ -235,6 +234,9 @@ public class JMFunctions {
     public static void traceAndShow(String msg){
         uiL.trace(msg);
         uiL.messageBox(msg);
+    }
+    public static void errorMessage(String msg){
+        uiL.errorBox(msg);
     }
     public static int confirmBoxYN(String title, String message, String yes, String no, boolean defaultNo){
         return uiL.confirmBoxYN(title, message, yes, no, defaultNo);

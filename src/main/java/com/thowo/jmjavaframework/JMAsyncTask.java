@@ -33,7 +33,12 @@ public class JMAsyncTask {
         this.el=el;
         this.id=id;
         this.timeOut=timeOut;
-        process(task);
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                JMAsyncTask.this.process(task);
+            }
+        }).start();
     }
     
     private void process(Callable<?> task){
@@ -42,17 +47,21 @@ public class JMAsyncTask {
             ExecutorService executor=Executors.newFixedThreadPool(1);
             Future<?> future=executor.submit(task);
             try {
+                this.el.onJMProcess(this.id);
                 this.result=future.get(1, TimeUnit.MINUTES);
                 this.el.onJMComplete(this.result, this.id);
             } catch (InterruptedException ex) {
                 Logger.getLogger(JMAsyncTask.class.getName()).log(Level.SEVERE, null, ex);
                 this.errorMessage=ex.getMessage();
+                this.el.onJMError(this.errorMessage, this.id);
             } catch (ExecutionException ex) {
                 Logger.getLogger(JMAsyncTask.class.getName()).log(Level.SEVERE, null, ex);
                 this.errorMessage=ex.getMessage();
+                this.el.onJMError(this.errorMessage, this.id);
             } catch (TimeoutException ex) {
                 Logger.getLogger(JMAsyncTask.class.getName()).log(Level.SEVERE, null, ex);
                 this.errorMessage=ex.getMessage();
+                this.el.onJMError(this.errorMessage, this.id);
             }finally{
                 executor.shutdown();
             }

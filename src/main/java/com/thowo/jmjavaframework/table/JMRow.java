@@ -109,7 +109,7 @@ public class JMRow {
         for(JMCell cell:this.cells){
             if(!cell.excludedFromUpdate()){
                 f+=cell.getFieldName()+",";
-                v+=cell.getQueryPrefix()+cell.getValueString()+cell.getQuerySuffix()+",";
+                v+=cell.getQueryPrefix()+cell.getDBValue()+cell.getQuerySuffix()+",";
             }
         }
         if(f.lastIndexOf(",")<0)return "";
@@ -147,5 +147,21 @@ public class JMRow {
             data.add(cell.getDataContainer());
         }
         return data;
+    }
+    public void setValueFromString(int column, String value){
+        this.cells.get(column).getDataContainer().refreshInterfaces(this.getTable().getStyle(), value, true, true);
+    }
+    public boolean isEdited(){
+        for(JMCell cell:this.cells){
+            if(cell.getDataContainer().isEdited())return true;
+        }
+        return false;
+    }
+    public boolean isValuesValid(){
+        for(JMDataContainer dc:this.getDataContainers()){
+            if(dc.isError())return false;
+            
+        }
+        return true;
     }
 }

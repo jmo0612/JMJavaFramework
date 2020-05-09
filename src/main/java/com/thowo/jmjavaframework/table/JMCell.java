@@ -69,6 +69,9 @@ public class JMCell {
     public String getValueString(){
         return String.valueOf(this.data.getValue());
     }
+    public String getDBValue(){
+        return this.getDataContainer().getValueDB();
+    }
     public Integer getValueInteger(){
         return Integer.valueOf(String.valueOf(this.data.getValue()));
     }

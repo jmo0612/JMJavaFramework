@@ -26,6 +26,8 @@ import java.util.logging.Logger;
  * @author jimi
  */
 public class JMTable {
+    public static final int DBTYPE_MYSQL=0;
+    public static final int DBTYPE_SQLITE=1;
     //INTEGER SIZE OF ROWS ONLY
     //AUTOMATIC FIRST ROW
     private List<Integer> keyCols=new ArrayList();
@@ -38,17 +40,22 @@ public class JMTable {
     private List<JMFormInterface> interfaces;
     private List<String> labelTitles;
     private JMRow edited=null;
+    private boolean adding=false;
+    private String query="";
+    private int dbType=DBTYPE_MYSQL;
     
-    public JMResultSetStyle getStyle(){
-        return this.style;
+    public static JMTable create(String query, int dbType){
+        return new JMTable(query,dbType);
     }
-    public static JMTable create(JMResultSet rs){
-        return new JMTable(rs);
+    public JMTable(String query, int dbType){
+        this.query=query;
+        this.dbType=dbType;
+        
+        JMResultSet rs=this.getResultSet(query, dbType);
+        //if(!rs.first())return;
+        JMResultSetStyle style=new JMResultSetStyle(rs);
+        this.setProp(rs, style);
     }
-    public static JMTable create(JMResultSet rs, JMResultSetStyle style){
-        return new JMTable(rs,style);
-    }
-    
     public JMTable(JMResultSet rs){
         JMResultSetStyle style=new JMResultSetStyle(rs);
         this.setProp(rs, style);
@@ -63,11 +70,13 @@ public class JMTable {
         List<Object[]> colsFormatParams=style.getListParams();
         List<String> fieldNames=style.getFieldNames();
         List<String> labelTitles=style.getLabelTitles();
+        this.labelTitles=labelTitles;
         if(rs!=null){
             if(colsFormat.size()!=colsVisibility.size())JMFunctions.trace("different size between colsDataType and colsVisibility");
             if(colsFormat.size()!=colsFormatParams.size())JMFunctions.trace("different size between colsDataType and colsFormatParams");
             if(colsFormat.size()!=rs.getColCount())JMFunctions.trace("different size between colsDataType and resultSet column count");
-            rs.first();
+            boolean empty=!rs.first();
+            //if(empty)return;
             Integer i=0;
             boolean first=true;
             do{
@@ -85,24 +94,68 @@ public class JMTable {
                     if(j<colsVisibility.size())hidden=!colsVisibility.get(j);
                     if(j<colsFormatParams.size())prms=colsFormatParams.get(j);
                     
-                    if(colsFormat.get(j).contains(JMResultSetStyle.DATA_TYPE_BOOLEAN))dc=JMDataContainer.create((Object)rs.getBool(j),j,fieldNames.get(j));
-                    else if(colsFormat.get(j).contains(JMResultSetStyle.DATA_TYPE_DATE))dc=JMDataContainer.create((Object)rs.getDate(j, false),j,fieldNames.get(j));
-                    else if(colsFormat.get(j).contains(JMResultSetStyle.DATA_TYPE_DOUBLE))dc=JMDataContainer.create((Object)rs.getDouble(j),j,fieldNames.get(j));
-                    else if(colsFormat.get(j).contains(JMResultSetStyle.DATA_TYPE_INTEGER))dc=JMDataContainer.create((Object)rs.getInt(j),j,fieldNames.get(j));
-                    else if(colsFormat.get(j).contains(JMResultSetStyle.DATA_TYPE_STRING))dc=JMDataContainer.create((Object)rs.getString(j),j,fieldNames.get(j));
-                    else dc=JMDataContainer.create((Object)rs.getBlob(j),j,fieldNames.get(j));
+                    
+                    if(!empty){
+                        if(colsFormat.get(j).contains(JMResultSetStyle.DATA_TYPE_BOOLEAN))dc=JMDataContainer.create((Object)rs.getBool(j),j,fieldNames.get(j));
+                        else if(colsFormat.get(j).contains(JMResultSetStyle.DATA_TYPE_DATE))dc=JMDataContainer.create((Object)rs.getDate(j, false),j,fieldNames.get(j));
+                        else if(colsFormat.get(j).contains(JMResultSetStyle.DATA_TYPE_DOUBLE))dc=JMDataContainer.create((Object)rs.getDouble(j),j,fieldNames.get(j));
+                        else if(colsFormat.get(j).contains(JMResultSetStyle.DATA_TYPE_INTEGER))dc=JMDataContainer.create((Object)rs.getInt(j),j,fieldNames.get(j));
+                        else if(colsFormat.get(j).contains(JMResultSetStyle.DATA_TYPE_STRING))dc=JMDataContainer.create((Object)rs.getString(j),j,fieldNames.get(j));
+                        else dc=JMDataContainer.create((Object)rs.getBlob(j),j,fieldNames.get(j));
+                    }else{
+                        if(colsFormat.get(j).contains(JMResultSetStyle.DATA_TYPE_BOOLEAN))dc=JMDataContainer.create(false,j,fieldNames.get(j));
+                        else if(colsFormat.get(j).contains(JMResultSetStyle.DATA_TYPE_DATE))dc=JMDataContainer.create(new JMDate(),j,fieldNames.get(j));
+                        else if(colsFormat.get(j).contains(JMResultSetStyle.DATA_TYPE_DOUBLE))dc=JMDataContainer.create(0.0,j,fieldNames.get(j));
+                        else if(colsFormat.get(j).contains(JMResultSetStyle.DATA_TYPE_INTEGER))dc=JMDataContainer.create(0,j,fieldNames.get(j));
+                        else if(colsFormat.get(j).contains(JMResultSetStyle.DATA_TYPE_STRING))dc=JMDataContainer.create("",j,fieldNames.get(j));
+                        else dc=JMDataContainer.create("",j,fieldNames.get(j));
+                    }
+                    
                     
                     JMCell cell=this.currentRow.addCell(dc,hidden);
                     dc.setCell(cell);
                     dc.refreshInterfaces(style,null,true,false);
                 }
-                //JMFunctions.trace(this.currentRow.getCells().get(3).getText());
-                //JMFunctions.trace(rs.getString(1));
+                this.gotoRow(this.currentRow, true);
             }while(rs.next());
-            this.lastRow=this.currentRow;
             this.firstRow(true);
-            this.labelTitles=labelTitles;
+            if(empty)this.deleteAddedRow();
         }
+    }
+    private JMResultSet getResultSet(String query, int dbType){
+        JMResultSet rs=null;
+        if(dbType==JMTable.DBTYPE_MYSQL){
+            rs=JMFunctions.getCurrentConnection().queryMySQL(query, true);
+        }else if(dbType==JMTable.DBTYPE_SQLITE){
+            rs=JMFunctions.getCurrentConnection().querySQLite(query, true);
+        }
+        return rs;
+    }
+    public JMResultSetStyle getStyle(){
+        return this.style;
+    }
+    public void refresh(){
+        if(this.query.equals(""))return;
+        List<JMRow> deleted=new ArrayList();
+        JMRow r=this.firstRow;
+        while(r!=null){
+            deleted.add(this.deleteAddedRow());
+            r=r.getNext();
+        }
+        this.currentRow=null;
+        this.firstRow=null;
+        this.lastRow=null;
+        for(JMRow d:deleted){
+            d=null;
+        }
+        JMResultSet rs=this.getResultSet(this.query, this.dbType);
+        this.setProp(rs, this.style);
+        if(this.interfaces!=null){
+            for(JMFormInterface fi:this.interfaces){
+                fi.actionAfterRefreshed(this.currentRow);
+            }
+        }
+        this.gotoRow(this.currentRow, true);
     }
     public boolean isEmpty(){
         return this.currentRow==null;
@@ -116,54 +169,56 @@ public class JMTable {
         return this.currentRow;
     }
     public JMRow firstRow(boolean updateContainer){
-        if(this.currentRow==null)return null;
         this.currentRow=this.firstRow;
         if(updateContainer){
-            this.currentRow.displayInterface(true);
-            if(this.interfaces!=null){
-                for(JMFormInterface fi:this.interfaces){
-                    fi.actionFirst(this.currentRow);
+            if(this.currentRow!=null){
+                this.currentRow.displayInterface(true);
+                if(this.interfaces!=null){
+                    for(JMFormInterface fi:this.interfaces){
+                        fi.actionAfterMovedFirst(this.currentRow);
+                    }
                 }
             }
         }
         return this.currentRow;
     }
     public JMRow nextRow(boolean updateContainer){
-        JMRow ret=this.currentRow.getNext();
-        if(this.currentRow==null) return null;
+        JMRow ret=this.currentRow;
+        if(ret!=null)ret=this.currentRow.getNext();
         if(ret!=null)this.currentRow=ret;
         if(updateContainer){
-            this.currentRow.displayInterface(true);
+            if(this.currentRow!=null)this.currentRow.displayInterface(true);
             if(this.interfaces!=null){
                 for(JMFormInterface fi:this.interfaces){
-                    fi.actionNext(this.currentRow);
+                    fi.actionAfterMovedNext(ret);
                 }
             }
         }
         return ret;
     }
     public JMRow prevRow(boolean updateContainer){
-        JMRow ret=this.currentRow.getPrev();
-        if(this.currentRow==null) return null;
+        JMRow ret=this.currentRow;
+        if(ret!=null)ret=this.currentRow.getPrev();
         if(ret!=null)this.currentRow=ret;
         if(updateContainer){
-            this.currentRow.displayInterface(true);
+            if(this.currentRow!=null)this.currentRow.displayInterface(true);
             if(this.interfaces!=null){
                 for(JMFormInterface fi:this.interfaces){
-                    fi.actionPrev(this.currentRow);
+                    fi.actionAfterMovedNext(ret);
                 }
             }
         }
         return ret;
     }
     public JMRow lastRow(boolean updateContainer){
-        if(this.currentRow==null)return null;
         this.currentRow=this.lastRow;
         if(updateContainer){
-            this.currentRow.displayInterface(true);
-            if(this.interfaces!=null){
-                for(JMFormInterface fi:this.interfaces){
-                    fi.actionLast(this.currentRow);
+            if(this.currentRow!=null){
+                this.currentRow.displayInterface(true);
+                if(this.interfaces!=null){
+                    for(JMFormInterface fi:this.interfaces){
+                        fi.actionAfterMovedFirst(this.currentRow);
+                    }
                 }
             }
         }
@@ -179,10 +234,10 @@ public class JMTable {
             r=r.getNext();
         }
         if(updateContainer){
-            this.currentRow.displayInterface(true);
+            if(this.currentRow!=null)this.currentRow.displayInterface(true);
             if(this.interfaces!=null){
                 for(JMFormInterface fi:this.interfaces){
-                    fi.gotoRecord(this.currentRow);
+                    fi.actionAfterMovedtoRecord(this.currentRow);
                 }
             }
         }
@@ -191,63 +246,122 @@ public class JMTable {
     public void gotoRow(JMRow row,boolean updateContainer){
         this.currentRow=row;
         if(updateContainer){
-            this.currentRow.displayInterface(true);
+            if(this.currentRow!=null)this.currentRow.displayInterface(true);
             if(this.interfaces!=null){
                 for(JMFormInterface fi:this.interfaces){
-                    fi.gotoRecord(this.currentRow);
+                    fi.actionAfterMovedtoRecord(this.currentRow);
                 }
             }
         }
     }
     public void editRow(){
-        if(this.currentRow==null)return;
+        //if(this.currentRow==null)return;
         for(JMCell cell:this.currentRow.getCells()){
             cell.getDataContainer().backup();
         }
         this.edited=this.currentRow;
+        this.adding=false;
         if(this.interfaces!=null){
             for(JMFormInterface fi:this.interfaces){
-                fi.actionEdit(this.currentRow);
+                fi.actionAfterEdited(this.currentRow);
             }
         }
     }
     public void cancelEdit(String message,int YesConfirm){
-        boolean canceled=false;
-        boolean adding=false;
-        if(this.currentRow==null)return;
-        if(JMFunctions.confirmBoxYN(JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_CONFIRM), message, JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_YES), JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_NO), true)==YesConfirm){
-            for(JMCell cell:this.currentRow.getCells()){
-                if(this.edited==null)adding=true;
-                else cell.getDataContainer().restore();
+        boolean proceed=false;
+        if(this.adding){
+            //ADDING
+            if(JMFunctions.confirmBoxYN(JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_CONFIRM), message, JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_YES), JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_NO), true)==YesConfirm){
+                //USER CONFIRM YES
+                this.deleteAddedRow();
+                this.edited=null;
+                proceed=true;
             }
-            this.edited=null;
-            canceled=true;
-        }else {
-            canceled=false;
-        }
-        if(!adding){
-            if(this.interfaces!=null){
-                for(JMFormInterface fi:this.interfaces){
-                    fi.actionCancel(this.currentRow,canceled);
+        }else{
+            //JUST EDITING
+            if(this.edited!=null){
+                //ROW EDITED EXISTED
+                if(this.edited.isEdited()){
+                    //USER MADE CHANGES
+                    if(JMFunctions.confirmBoxYN(JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_CONFIRM), message, JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_YES), JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_NO), true)==YesConfirm){
+                        //USER CONFIRM YES
+                        for(JMCell cell:this.currentRow.getCells()){
+                            if(!this.adding)cell.getDataContainer().restore();
+                        }
+                        this.edited=null;
+                        proceed=true;
+                    }
+                }else{
+                    //NO CHANGES 
+                    for(JMCell cell:this.currentRow.getCells()){
+                        if(!this.adding)cell.getDataContainer().restore();
+                    }
+                    this.edited=null;
+                    proceed=true;
                 }
+            }else{
+                //ROW EDITED NOT EXISTED 
+                for(JMCell cell:this.currentRow.getCells()){
+                    if(!this.adding)cell.getDataContainer().restore();
+                }
+                proceed=true;
             }
-        }else this.deleteAddedRow();
+        }
+        if(this.interfaces!=null){
+            for(JMFormInterface fi:this.interfaces){
+                fi.actionAfterCanceled(this.currentRow,proceed);
+            }
+        }
+        
+        
+    }
+    public void viewRow(){
+        /*if(this.interfaces!=null){
+            for(JMFormInterface fi:this.interfaces){
+                fi.actionAfterViewed(this.currentRow);
+            }
+        }*/
     }
     public String print(){
         return "";
     }
     public void save(){
-        if(this.edited!=null){
-            boolean edit=false;
-            for(JMCell cell:this.currentRow.getCells()){
-                if(cell.getDataContainer().isEdited()){
-                    edit=true;
-                    break;
-                }
-            }
-            if(edit)JMFunctions.trace(this.currentRow.getUpdateSQL());
+        //if(this.currentRow==null)return;
+        boolean proceed=true;
+        if(this.edited==null){
+            if(!this.adding)proceed=false;
+        }else{
+            if(!this.currentRow.isEdited())proceed=false;
         }
-        this.edited=null;
+        boolean saved=true;
+        if(proceed){
+            if(this.currentRow.isValuesValid()){
+                saved=JMFunctions.getCurrentConnection().queryUpdateMySQL(this.currentRow.getUpdateSQL(), true);
+                JMFunctions.trace(this.currentRow.getUpdateSQL());
+                //saved=true;
+            }else{
+                JMFunctions.errorMessage(JMFunctions.getMessege(JMConstMessage.MSG_ELSE+JMConstMessage.MSG_ELSE_INPUT_INVALID));
+                saved=false;
+            }
+        }else{
+            if(!this.currentRow.isValuesValid()){
+                JMFunctions.errorMessage(JMFunctions.getMessege(JMConstMessage.MSG_ELSE+JMConstMessage.MSG_ELSE_INPUT_INVALID));
+                saved=false;
+            }
+            JMFunctions.trace("NOTHING TO SAVE");
+            saved=false;
+        }
+        
+        if(this.interfaces!=null){
+            for(JMFormInterface fi:this.interfaces){
+                fi.actionAfterSaved(this.currentRow.getUpdateSQL(),saved);
+            }
+        }
+        if(saved){
+            this.gotoRow(this.currentRow, true);
+            this.edited=null;
+            this.adding=false;
+        }
     }
     public List<JMDataContainer> getCurrentRowDatas(){
         List<JMDataContainer> data=new ArrayList();
@@ -260,6 +374,7 @@ public class JMTable {
     public void setFormInterface(JMInputInterface component, int column, boolean defaultValue){
         JMRow b=this.currentRow;
         this.firstRow(false);
+        //if(this.currentRow==null)return;
         do{
             List<JMCell> cells=this.currentRow.getCells();
             cells.get(column).getDataContainer().addInterface(component,defaultValue);
@@ -353,18 +468,19 @@ public class JMTable {
         ret.setTable(this);
         this.currentRow=ret;
         this.lastRow=this.currentRow;
+        if(this.firstRow==null)this.firstRow=this.currentRow;
         return ret;
     }
-    public JMRow addNewRow(List<JMInputInterface> newInterfaces){
+    public JMRow addNewRow(){
         JMRow ret=this.addRow(false);
-        if(ret==null)return null;
+        //if(ret==null)return null;
         ret.setTable(this);
         
         List<Boolean> colsVisibility=style.getVisibles();
         List<String> colsFormat=style.getFormats();
         List<Object[]> colsFormatParams=style.getListParams();
         List<String> fieldNames=style.getFieldNames();
-        JMFunctions.trace("Interfaces: "+newInterfaces.size()+", Formats: "+style.getFormats().size());
+        
         for(int j=0;j<this.style.getFormats().size();j++){
             Boolean hidden=false;
             JMDataContainer dc=null;
@@ -372,22 +488,22 @@ public class JMTable {
             dc=JMDataContainer.create("",j,fieldNames.get(j));
             JMCell cell=ret.addCell(dc,hidden);
             dc.setCell(cell);
-            dc.refreshInterfaces(style,"",false,true);
-            if(newInterfaces!=null){
-                dc.addInterface(newInterfaces.get(j),true);
-            }
+            dc.refreshInterfaces(this.style,"",false,true);
         }
-        
+        JMFunctions.trace(ret.getCells().size()+"     size");
         this.currentRow=ret;
+        if(ret==null)JMFunctions.trace("BABI");
+        else JMFunctions.trace("NDA BABI");
+        //this.edited=ret;
+        this.adding=true;
         if(this.interfaces!=null){
             for(JMFormInterface fi:this.interfaces){
-                fi.actionAdd(this.currentRow);
+                fi.actionAfterAdded(this.currentRow);
             }
         }
-        this.gotoRow(ret, true);
+        //this.gotoRow(ret, true);
         return ret;
     }
-    
     public void excludeColumnsFromUpdate(List<Integer> column){
         JMRow tmp=this.currentRow;
         this.firstRow(false);
@@ -396,8 +512,9 @@ public class JMTable {
         }while(this.nextRow(false)!=null);
         this.currentRow=tmp;
     }
-    private void deleteAddedRow(){
+    private JMRow deleteAddedRow(){
         JMRow delete=this.currentRow;
+        //if(delete==null)return null;
         JMRow p=this.currentRow.getPrev();
         JMRow n=this.currentRow.getNext();
         if(p!=null)p.setNext(n);
@@ -408,62 +525,76 @@ public class JMTable {
             start=p.getRowNum();
         }
         else this.currentRow=n;
-        this.updateRowNums(this.currentRow, start);
-        
-        if(this.currentRow.getPrev()==null)this.firstRow=this.currentRow;
-        if(this.currentRow.getNext()==null)this.lastRow=this.currentRow;
-        this.currentRow.displayInterface(true);
+        if(this.currentRow!=null){
+            this.updateRowNums(this.currentRow, start);
+            if(this.currentRow.getPrev()==null)this.firstRow=this.currentRow;
+            if(this.currentRow.getNext()==null)this.lastRow=this.currentRow;
+            this.currentRow.displayInterface(true);
+        }else{
+            this.firstRow=null;
+            this.lastRow=null;
+        }
         if(this.interfaces!=null){
             for(JMFormInterface fi:this.interfaces){
-                fi.actionDelete(delete);
+                fi.actionAfterDeleted(delete,true);
+            }
+        }
+        this.gotoRow(this.currentRow, true);
+        return delete;
+    }
+    public void deleteRow(JMRow row,String message,int YesConfirm){
+        boolean deleted=false;
+        //if(this.currentRow==null)return;
+        if(JMFunctions.confirmBoxYN(JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_CONFIRM), message, JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_YES), JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_NO), true)==YesConfirm){
+            deleted=JMFunctions.getCurrentConnection().queryUpdateMySQL(this.currentRow.getDeleteSQL(), true);
+            //deleted=true;
+            JMRow p=row.getPrev();
+            JMRow n=row.getNext();
+            if(p!=null)p.setNext(n);
+            if(n!=null)n.setPrev(p);
+            Integer start=row.getRowNum();
+            if(p!=null){
+                this.currentRow=p;
+                start=p.getRowNum();
+            }
+            else this.currentRow=n;
+            if(this.currentRow!=null){
+                this.updateRowNums(this.currentRow, start);
+                if(this.currentRow.getPrev()==null)this.firstRow=this.currentRow;
+                if(this.currentRow.getNext()==null)this.lastRow=this.currentRow;
+            }
+        }else {
+            deleted=false;
+        }
+        if(this.currentRow==null){
+            this.firstRow=null;
+            this.lastRow=null;
+        }
+        
+        if(this.currentRow!=null)this.currentRow.displayInterface(true);
+        if(this.interfaces!=null){
+            for(JMFormInterface fi:this.interfaces){
+                fi.actionAfterDeleted(row,deleted);
             }
         }
         this.gotoRow(this.currentRow, true);
         
-        JMFunctions.trace(delete.getDeleteSQL());
-    }
-    public JMRow deleteRow(JMRow row, boolean updateContainer){
-        
-        JMRow p=row.getPrev();
-        JMRow n=row.getNext();
-        if(p!=null)p.setNext(n);
-        if(n!=null)n.setPrev(p);
-        Integer start=row.getRowNum();
-        if(p!=null){
-            this.currentRow=p;
-            start=p.getRowNum();
-        }
-        else this.currentRow=n;
-        this.updateRowNums(this.currentRow, start);
-        
-        if(this.currentRow.getPrev()==null)this.firstRow=this.currentRow;
-        if(this.currentRow.getNext()==null)this.lastRow=this.currentRow;
-        if(updateContainer){
-            this.currentRow.displayInterface(true);
-            if(this.interfaces!=null){
-                for(JMFormInterface fi:this.interfaces){
-                    fi.actionDelete(row);
-                }
-            }
-        }
-        this.gotoRow(this.currentRow, updateContainer);
-        
-        JMFunctions.trace(row.getDeleteSQL());
-        return row;
+        //JMFunctions.trace(row.getDeleteSQL());
     }
     private void updateRowNums(JMRow from,Integer start){
         JMRow w=from;
         Integer r=start;
         while(w!=null && r!=Integer.MAX_VALUE){
-            JMFunctions.trace("UPDATED ROW NUM: "+r);
             w.setRowNum(r++);
             w=w.getNext();
         }
     }
     public boolean isFirstRecord(){
+        if(this.currentRow==null)return false;
         return this.currentRow.getPrev()==null;
     }
     public boolean isLastRecord(){
+        if(this.currentRow==null)return false;
         return this.currentRow.getNext()==null;
     }
     public void setKeyColumns(List<Integer> keyColumns){
@@ -476,5 +607,11 @@ public class JMTable {
     }
     public List<String> getLabelTitles(){
         return this.labelTitles;
+    }
+    public boolean isAddingRow(){
+        return this.adding;
+    }
+    public boolean isEditingRow(){
+        return this.edited!=null;
     }
 }

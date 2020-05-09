@@ -28,6 +28,7 @@ public class JMConstMessage {
     public static final String MSG_UI_CONFIRM="007";
     public static final String MSG_UI_WARNING="008";
     public static final String MSG_UI_ERROR="009";
+    public static final String MSG_UI_MESSAGE="010";
     
     //==============================MSG_ASYNC_STATES============================
     public static final String MSG_ASYNC_STARTED="001";
@@ -72,4 +73,5 @@ public class JMConstMessage {
     public static final String MSG_ELSE_INPUT_INVALID="003";
     public static final String MSG_ELSE_NUMBER_INVALID="004";
     public static final String MSG_ELSE_CANCEL_EDITING="005";
+    public static final String MSG_ELSE_DELETE="006";
 }

@@ -154,7 +154,7 @@ public class JMDate {
     public String dateTimeDB(){
         String ret="";
         if(this.dt!=null){
-            ret=this.getYearFull()+"-"+this.getMonth()+"-"+this.getDayOfMonth()+" "+this.getHour24()+this.getMinute()+this.getSecond();
+            ret=this.getYearFull()+"-"+this.getMonth()+"-"+this.getDayOfMonth()+" "+this.getHour24()+":"+this.getMinute()+":"+this.getSecond();
         }
         return ret;
     }

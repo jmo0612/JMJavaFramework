@@ -192,5 +192,9 @@ public class JMConnection {
         if(!this.errMsg.equals(""))JMFunctions.traceAndShow(this.errMsg);
         return ret;
     }
+    
+    public boolean mySQLConnected(){
+        return this.connectedMySQL;
+    }
 
 }
