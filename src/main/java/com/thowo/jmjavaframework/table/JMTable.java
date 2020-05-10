@@ -43,6 +43,7 @@ public class JMTable {
     private boolean adding=false;
     private String query="";
     private int dbType=DBTYPE_MYSQL;
+    private String filter="";
     
     public static JMTable create(String query, int dbType){
         return new JMTable(query,dbType);
@@ -136,9 +137,15 @@ public class JMTable {
     }
     public void refresh(){
         if(this.query.equals(""))return;
+        if(this.interfaces!=null){
+            for(JMFormInterface fi:this.interfaces){
+                fi.actionBeforeRefresh(this.currentRow);
+            }
+        }
         List<JMRow> deleted=new ArrayList();
         JMRow r=this.firstRow;
         while(r!=null){
+            this.currentRow=r;
             deleted.add(this.deleteAddedRow());
             r=r.getNext();
         }
@@ -148,6 +155,7 @@ public class JMTable {
         for(JMRow d:deleted){
             d=null;
         }
+        
         JMResultSet rs=this.getResultSet(this.query, this.dbType);
         this.setProp(rs, this.style);
         if(this.interfaces!=null){
@@ -156,6 +164,23 @@ public class JMTable {
             }
         }
         this.gotoRow(this.currentRow, true);
+    }
+    public void filter(String filter){
+        //NOTHING TO DO WITH THE DATAS;
+        if(this.interfaces!=null){
+            for(JMFormInterface fi:this.interfaces){
+                fi.actionBeforeFilter(filter);
+            }
+        }
+        this.filter=filter;
+        if(this.interfaces!=null){
+            for(JMFormInterface fi:this.interfaces){
+                fi.actionAfterFiltered(filter);
+            }
+        }
+    }
+    public String getFilter(){
+        return this.filter;
     }
     public boolean isEmpty(){
         return this.currentRow==null;
@@ -228,6 +253,32 @@ public class JMTable {
         JMRow r=this.firstRow;
         while(r!=null){
             if(r.getRowNum()==rowNum){
+                this.currentRow=r;
+                break;
+            }
+            r=r.getNext();
+        }
+        if(updateContainer){
+            if(this.currentRow!=null)this.currentRow.displayInterface(true);
+            if(this.interfaces!=null){
+                for(JMFormInterface fi:this.interfaces){
+                    fi.actionAfterMovedtoRecord(this.currentRow);
+                }
+            }
+        }
+        return this.currentRow;
+    }
+    public JMRow gotoRow(List<String> values,boolean updateContainer){
+        JMRow r=this.firstRow;
+        while(r!=null){
+            boolean found=true;
+            for(int i=0;i<this.keyCols.size();i++){
+                if(!r.getDataContainers().get(this.keyCols.get(i)).getValueString().equals(values.get(i))){
+                    found=false;
+                    break;
+                }
+            }
+            if(found){
                 this.currentRow=r;
                 break;
             }

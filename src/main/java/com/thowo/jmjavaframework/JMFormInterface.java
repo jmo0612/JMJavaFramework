@@ -18,6 +18,7 @@ public interface JMFormInterface {
     void actionAfterEdited(JMRow rowEdited);
     void actionAfterPrinted(JMRow rowPrinted);
     void actionAfterRefreshed(JMRow rowRefreshed);
+    void actionBeforeRefresh(JMRow rowRefreshed);
     void actionAfterViewed(JMRow rowViewed);
     void actionAfterMovedNext(JMRow nextRow);
     void actionAfterMovedPrev(JMRow prevRow);
@@ -25,4 +26,6 @@ public interface JMFormInterface {
     void actionAfterMovedLast(JMRow lastRow);
     void actionAfterMovedtoRecord(JMRow currentRow);
     void actionAfterCanceled(JMRow rowCanceled, boolean canceled);
+    void actionBeforeFilter(String filter);
+    void actionAfterFiltered(String filter);
 }
