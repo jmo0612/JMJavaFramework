@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -27,8 +29,13 @@ public class JMDate {
     public JMDate(){
         this.dt=new Date();
     }
-    public JMDate(String dt) throws ParseException{
-        this.dt=JMFormatCollection.dateDBFormat(dt);
+    public JMDate(String dt) throws ParseException {
+        try {
+            //throws ParseException
+            this.dt=JMFormatCollection.dateIndoFormat(dt);
+        } catch (ParseException ex) {
+            this.dt=JMFormatCollection.dateDBFormat(dt);
+        }
     }
     public JMDate(Date dt){
         this.dt=dt;
@@ -151,10 +158,26 @@ public class JMDate {
         }
         return ret;
     }
+    public String dateIndo(){
+        String ret="";
+        if(this.dt!=null){
+            //ret=this.getYearFull()+"-"+this.getMonth()+"-"+this.getDayOfMonth();
+            ret=this.getDayOfMonth()+"/"+this.getMonth()+"/"+this.getYearFull();
+        }
+        return ret;
+    }
     public String dateTimeDB(){
         String ret="";
         if(this.dt!=null){
             ret=this.getYearFull()+"-"+this.getMonth()+"-"+this.getDayOfMonth()+" "+this.getHour24()+":"+this.getMinute()+":"+this.getSecond();
+        }
+        return ret;
+    }
+    public String dateTimeIndo(){
+        String ret="";
+        if(this.dt!=null){
+            //ret=this.getYearFull()+"-"+this.getMonth()+"-"+this.getDayOfMonth()+" "+this.getHour24()+":"+this.getMinute()+":"+this.getSecond();
+            ret=this.getDayOfMonth()+"/"+this.getMonth()+"/"+this.getYearFull()+" "+this.getHour24()+":"+this.getMinute()+":"+this.getSecond();
         }
         return ret;
     }

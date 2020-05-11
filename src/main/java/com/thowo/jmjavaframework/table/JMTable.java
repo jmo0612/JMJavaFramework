@@ -559,6 +559,7 @@ public class JMTable {
         return ret;
     }
     public void excludeColumnsFromUpdate(List<Integer> column){
+        if(this.currentRow==null)return;
         this.excludedBU=column;
         JMRow tmp=this.currentRow;
         this.firstRow(false);

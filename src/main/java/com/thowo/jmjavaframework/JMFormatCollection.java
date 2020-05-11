@@ -128,6 +128,15 @@ public class JMFormatCollection {
         }
         return ret;
     }
+    public static Date dateIndoFormat(String date) throws ParseException{
+        Date ret=null;
+        try {
+            ret=dateFromString(date,"dd/MM/yyyy HH:mm:ss");
+        } catch (ParseException ex) {
+            ret=dateFromString(date,"dd/MM/yyyy");
+        }
+        return ret;
+    }
     public static Date dateFromString(String date){
         Date ret=null;
         for(int i=2;i<=15;i++){

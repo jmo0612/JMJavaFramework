@@ -186,9 +186,9 @@ public class JMDataContainer {
             if(formatType.contains(JMResultSetStyle.FORMAT_DATE_TIME+"|")){
                 //DATETIME
                 
-                this.valString=dVal.dateTimeDB();
+                this.valString=dVal.dateTimeIndo();
                 this.val=dVal;
-                this.valDB=this.valString;
+                this.valDB=dVal.dateTimeDB();
                 this.setValueAsJMDateTime(dVal,display);
                 if(formatType.contains(JMResultSetStyle.FORMAT_DATE_12+"|")){
                     //12
@@ -199,9 +199,9 @@ public class JMDataContainer {
                 }
             }else{
                 //DATE
-                this.valString=dVal.dateDB();
+                this.valString=dVal.dateIndo();
                 this.val=dVal;
-                this.valDB=this.valString;
+                this.valDB=dVal.dateDB();
                 if(formatType.contains(JMResultSetStyle.FORMAT_DATE_DB+"|")){
                     this.setValueAsJMDate(dVal,display);
                 }else{
@@ -332,20 +332,23 @@ public class JMDataContainer {
     private void setValueAsJMDate(JMDate value, boolean display){
         this.txt=value.dateDB();
         this.val=value;
-        this.valString=value.dateDB();
+        //this.valString=value.dateDB();
+        this.valString=value.dateIndo();
         if(display)this.displayToInterfaces();
     }
     private void setValueAsJMDate(JMDate value,boolean complete, boolean display){
         this.txt=value.dateShort();
         if(complete)this.txt=value.dateFull();
         this.val=value;
-        this.valString=value.dateDB();
+        //this.valString=value.dateDB();
+        this.valString=value.dateIndo();
         if(display)this.displayToInterfaces();
     }
     private void setValueAsJMDateTime(JMDate value, boolean display){
         this.txt=value.dateTimeDB();
         this.val=value;
-        this.valString=value.dateTimeDB();
+        //this.valString=value.dateTimeDB();
+        this.valString=value.dateTimeIndo();
         if(display)this.displayToInterfaces();
     }
     private void setValueAsJMDateTime24(JMDate value, boolean shortDate, boolean showSecond, boolean showMinute, boolean display){
@@ -360,14 +363,16 @@ public class JMDataContainer {
             }
         }
         this.val=value;
-        this.valString=value.dateTimeDB();
+        //this.valString=value.dateTimeDB();
+        this.valString=value.dateTimeIndo();
         if(display)this.displayToInterfaces();
     }
     private void setValueAsJMDateTime24(JMDate value, boolean shortDate, boolean display){
         this.txt=value.dateTimeFull24();
         if(shortDate)this.txt=value.dateTimeShortHM24();
         this.val=value;
-        this.valString=value.dateTimeDB();
+        //this.valString=value.dateTimeDB();
+        this.valString=value.dateTimeIndo();
         if(display)this.displayToInterfaces();
     }
     private void setValueAsJMDateTime12(JMDate value, boolean shortDate, boolean showSecond, boolean showMinute, boolean display){
@@ -382,7 +387,8 @@ public class JMDataContainer {
             }
         }
         this.val=value;
-        this.valString=value.dateTimeDB();
+        //this.valString=value.dateTimeDB();
+        this.valString=value.dateTimeIndo();
         if(display)this.displayToInterfaces();
     }
     
