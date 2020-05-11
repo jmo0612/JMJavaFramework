@@ -44,6 +44,7 @@ public class JMTable {
     private String query="";
     private int dbType=DBTYPE_MYSQL;
     private String filter="";
+    private List<Integer> excludedBU;
     
     public static JMTable create(String query, int dbType){
         return new JMTable(query,dbType);
@@ -158,6 +159,7 @@ public class JMTable {
         
         JMResultSet rs=this.getResultSet(this.query, this.dbType);
         this.setProp(rs, this.style);
+        
         if(this.interfaces!=null){
             for(JMFormInterface fi:this.interfaces){
                 fi.actionAfterRefreshed(this.currentRow);
@@ -367,11 +369,11 @@ public class JMTable {
         
     }
     public void viewRow(){
-        /*if(this.interfaces!=null){
+        if(this.interfaces!=null){
             for(JMFormInterface fi:this.interfaces){
                 fi.actionAfterViewed(this.currentRow);
             }
-        }*/
+        }
     }
     public String print(){
         return "";
@@ -387,6 +389,7 @@ public class JMTable {
         boolean saved=true;
         if(proceed){
             if(this.currentRow.isValuesValid()){
+                if(this.excludedBU!=null)this.excludeColumnsFromUpdate(this.excludedBU);
                 saved=JMFunctions.getCurrentConnection().queryUpdateMySQL(this.currentRow.getUpdateSQL(), true);
                 JMFunctions.trace(this.currentRow.getUpdateSQL());
                 //saved=true;
@@ -556,6 +559,7 @@ public class JMTable {
         return ret;
     }
     public void excludeColumnsFromUpdate(List<Integer> column){
+        this.excludedBU=column;
         JMRow tmp=this.currentRow;
         this.firstRow(false);
         do{
@@ -665,4 +669,5 @@ public class JMTable {
     public boolean isEditingRow(){
         return this.edited!=null;
     }
+    
 }

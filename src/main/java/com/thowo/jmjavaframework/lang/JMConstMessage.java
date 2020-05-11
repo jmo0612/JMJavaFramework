@@ -74,4 +74,5 @@ public class JMConstMessage {
     public static final String MSG_ELSE_NUMBER_INVALID="004";
     public static final String MSG_ELSE_CANCEL_EDITING="005";
     public static final String MSG_ELSE_DELETE="006";
+    public static final String MSG_ELSE_IMAGE_ONLY="007";
 }

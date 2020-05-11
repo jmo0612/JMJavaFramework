@@ -18,6 +18,11 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -264,6 +269,33 @@ public class JMFunctions {
             return true;
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
+        }
+    }
+    
+    public static boolean moveFile(File fileS, File fileD){
+        if(!fileExist(fileS)){
+            JMFunctions.trace("KOSONG");
+            return false;
+        }
+        deleteFile(fileD);
+        //createFile(fileD);
+        return fileS.renameTo(fileD);
+    }
+    public static boolean copyFile(String fileS, String fileD){
+        Path FROM = Paths.get(fileS);
+        Path TO = Paths.get(fileD);
+        //overwrite the destination file if it exists, and copy
+        // the file attributes, including the rwx permissions
+        CopyOption[] options = new CopyOption[]{
+          StandardCopyOption.REPLACE_EXISTING,
+          StandardCopyOption.COPY_ATTRIBUTES
+        }; 
+        try {
+            Files.copy(FROM, TO, options);
+            return true;
+        } catch (IOException ex) {
+            Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
     }
