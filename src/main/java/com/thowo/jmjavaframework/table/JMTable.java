@@ -391,7 +391,7 @@ public class JMTable {
             if(this.currentRow.isValuesValid()){
                 if(this.excludedBU!=null)this.excludeColumnsFromUpdate(this.excludedBU);
                 saved=JMFunctions.getCurrentConnection().queryUpdateMySQL(this.currentRow.getUpdateSQL(), true);
-                JMFunctions.trace(this.currentRow.getUpdateSQL());
+                //JMFunctions.trace(this.currentRow.getUpdateSQL());
                 //saved=true;
             }else{
                 JMFunctions.errorMessage(JMFunctions.getMessege(JMConstMessage.MSG_ELSE+JMConstMessage.MSG_ELSE_INPUT_INVALID));
@@ -401,9 +401,10 @@ public class JMTable {
             if(!this.currentRow.isValuesValid()){
                 JMFunctions.errorMessage(JMFunctions.getMessege(JMConstMessage.MSG_ELSE+JMConstMessage.MSG_ELSE_INPUT_INVALID));
                 saved=false;
+            }else{
+                JMFunctions.trace("NOTHING TO SAVE");
+                //saved=true;
             }
-            JMFunctions.trace("NOTHING TO SAVE");
-            saved=false;
         }
         
         if(this.interfaces!=null){
