@@ -258,7 +258,7 @@ public class JMFunctions {
 
     public static boolean deleteFile(File file){
         if(!fileExist(file))return false;
-        return file.delete();
+        return FileUtils.deleteQuietly(file);
     }
 
     public static boolean createFile(File file){
@@ -285,6 +285,7 @@ public class JMFunctions {
             }
             deleteFile(fileD);*/
             //createFile(fileD);
+            
             FileUtils.moveFile(fileS, fileD);
             //return fileS.renameTo(fileD);
             return true;
