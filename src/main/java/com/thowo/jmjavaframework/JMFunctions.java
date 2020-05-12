@@ -80,6 +80,9 @@ public class JMFunctions {
     public static String getCacheDir(){
         return cacheDir;
     }
+    public static String getDocDir(){
+        return docDir;
+    }
     
     private static void readExcelLang(File excel,String localeId){
         try {
@@ -274,25 +277,25 @@ public class JMFunctions {
     }
     
     public static boolean moveFile(File fileS, File fileD){
-        if(!fileExist(fileS)){
+        if(!JMFunctions.fileExist(fileS))return false;
+        try {
+            /*if(!fileExist(fileS)){
             JMFunctions.trace("KOSONG");
             return false;
+            }
+            deleteFile(fileD);*/
+            //createFile(fileD);
+            FileUtils.moveFile(fileS, fileD);
+            //return fileS.renameTo(fileD);
+            return true;
+        } catch (IOException ex) {
+            Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
         }
-        deleteFile(fileD);
-        //createFile(fileD);
-        return fileS.renameTo(fileD);
     }
     public static boolean copyFile(String fileS, String fileD){
-        Path FROM = Paths.get(fileS);
-        Path TO = Paths.get(fileD);
-        //overwrite the destination file if it exists, and copy
-        // the file attributes, including the rwx permissions
-        CopyOption[] options = new CopyOption[]{
-          StandardCopyOption.REPLACE_EXISTING,
-          StandardCopyOption.COPY_ATTRIBUTES
-        }; 
         try {
-            Files.copy(FROM, TO, options);
+            FileUtils.copyFile(new File(fileS), new File(fileD));
             return true;
         } catch (IOException ex) {
             Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);
