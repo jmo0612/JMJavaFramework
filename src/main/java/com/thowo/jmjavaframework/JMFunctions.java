@@ -260,6 +260,16 @@ public class JMFunctions {
         if(!fileExist(file))return false;
         return FileUtils.deleteQuietly(file);
     }
+    public static boolean deleteFolder(File folder){
+        if(!fileExist(folder))return false;
+        try {
+            FileUtils.deleteDirectory(folder);
+            return true;
+        } catch (IOException ex) {
+            Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+    }
 
     public static boolean createFile(File file){
         if(fileExist(file))return true;
@@ -288,6 +298,19 @@ public class JMFunctions {
             
             FileUtils.moveFile(fileS, fileD);
             //return fileS.renameTo(fileD);
+            return true;
+        } catch (IOException ex) {
+            Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+    }
+    public static boolean moveFileReplace(File fileS, File fileD){
+        if(!JMFunctions.fileExist(fileS))return false;
+        if(JMFunctions.fileExist(fileD)){
+            JMFunctions.deleteFile(fileD);
+        }
+        try {
+            FileUtils.moveFile(fileS, fileD);
             return true;
         } catch (IOException ex) {
             Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);

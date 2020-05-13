@@ -457,7 +457,6 @@ public class JMDataContainer {
         this.txtBU=this.txt;
         this.valStringBU=this.valString;
         this.valDBBU=this.valDB;
-        JMFunctions.trace("BACKED UP");
     }
     public void restore(){
         this.val=this.valBU;
@@ -467,10 +466,10 @@ public class JMDataContainer {
         this.refreshInterfaces(this.cell.getRow().getTable().getStyle(), null,true,false);
     }
     public boolean isEdited(){
-        JMFunctions.trace(this.val+"="+this.valBU);
-        JMFunctions.trace(this.txt+"="+this.txtBU);
-        JMFunctions.trace(this.valString+"="+this.valStringBU);
-        JMFunctions.trace(this.valDB+"="+this.valDBBU);
+        //JMFunctions.trace(this.val+"="+this.valBU);
+        //JMFunctions.trace(this.txt+"="+this.txtBU);
+        //JMFunctions.trace(this.valString+"="+this.valStringBU);
+        //JMFunctions.trace(this.valDB+"="+this.valDBBU);
         return this.val!=this.valBU || !this.txt.equals(this.txtBU) || !this.valString.equals(this.valStringBU) || !this.valDB.equals(this.valDBBU);
     }
     public boolean isInterfaceRegistered(JMInputInterface ii){

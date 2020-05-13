@@ -117,7 +117,6 @@ public class JMRow {
         f=f.substring(0, f.lastIndexOf(","));
         v=v.substring(0, v.lastIndexOf(","));
         ret+=t+"("+f+") VALUES("+v+")";
-        JMFunctions.trace(ret);
         return ret;
     }
     public String getDeleteSQL(){

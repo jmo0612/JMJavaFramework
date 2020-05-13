@@ -45,6 +45,8 @@ public class JMTable {
     private int dbType=DBTYPE_MYSQL;
     private String filter="";
     private List<Integer> excludedBU;
+    private String wordReport;
+    private String excelReport;
     
     public static JMTable create(String query, int dbType){
         return new JMTable(query,dbType);
@@ -545,10 +547,8 @@ public class JMTable {
             dc.setCell(cell);
             dc.refreshInterfaces(this.style,"",false,true);
         }
-        JMFunctions.trace(ret.getCells().size()+"     size");
+        //JMFunctions.trace(ret.getCells().size()+"     size");
         this.currentRow=ret;
-        if(ret==null)JMFunctions.trace("BABI");
-        else JMFunctions.trace("NDA BABI");
         //this.edited=ret;
         this.adding=true;
         if(this.interfaces!=null){
@@ -560,8 +560,8 @@ public class JMTable {
         return ret;
     }
     public void excludeColumnsFromUpdate(List<Integer> column){
-        if(this.currentRow==null)return;
         this.excludedBU=column;
+        if(this.currentRow==null)return;
         JMRow tmp=this.currentRow;
         this.firstRow(false);
         do{
@@ -670,6 +670,9 @@ public class JMTable {
     }
     public boolean isEditingRow(){
         return this.edited!=null;
+    }
+    public void setWordReport(String wordFile){
+        this.wordReport=wordFile;
     }
     
 }
