@@ -26,8 +26,10 @@ public class JMWordMM {
     private String templatePath;
     private String outputPath;
     private JMTable table;
+    private boolean printCurrent=false;
     
-    public JMWordMM(JMTable table, String templatePath, String outputPath){
+    public JMWordMM(JMTable table, String templatePath, String outputPath, boolean currentRecord){
+        this.printCurrent=currentRecord;
         this.setProp(table, templatePath, outputPath);
     }
     private void setProp(JMTable table, String templatePath, String outputPath){
@@ -41,6 +43,7 @@ public class JMWordMM {
         List<JMCell> cells=row.getCells();
         for(JMCell cell:cells){
             String field=cell.getFieldName();
+            JMFunctions.trace("$_JM_Master_"+field);
             JMDataContainer dc=cell.getDataContainer();
             if(dc==null)break;
             try {
@@ -57,10 +60,8 @@ public class JMWordMM {
         if(this.doc==null)return;
         if(this.table.isEmpty())return;
         boolean first=true;
-        this.table.firstRow(false);
-        do{
+        if(this.printCurrent){
             JMRow r=this.table.getCurrentRow();
-            //if(r!=null)JMFunctions.trace(r.getCells().get(0).getValueString());
             XWPFDocument template=JMWord.open(this.templatePath);
             //Fill data here
             template=this.process(template, r);
@@ -70,7 +71,22 @@ public class JMWordMM {
             }else{
                 this.doc=JMWord.addDoc(this.doc, template);
             }
-        }while(this.table.nextRow(false)!=null);
+        }else{
+            this.table.firstRow(false);
+            do{
+                JMRow r=this.table.getCurrentRow();
+                //if(r!=null)JMFunctions.trace(r.getCells().get(0).getValueString());
+                XWPFDocument template=JMWord.open(this.templatePath);
+                //Fill data here
+                template=this.process(template, r);
+                if(first){
+                    this.doc=template;
+                    first=false;
+                }else{
+                    this.doc=JMWord.addDoc(this.doc, template);
+                }
+            }while(this.table.nextRow(false)!=null);
+        }
     }
     private boolean saveResult(){
         return JMWord.save(this.doc, this.outputPath);

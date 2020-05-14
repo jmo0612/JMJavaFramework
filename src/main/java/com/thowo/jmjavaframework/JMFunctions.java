@@ -4,6 +4,9 @@ package com.thowo.jmjavaframework;
 import com.thowo.jmjavaframework.db.JMConnection;
 import com.thowo.jmjavaframework.lang.JMLanguage;
 import com.thowo.jmjavaframework.lang.JMMessage;
+import com.thowo.jmjavaframework.table.JMCell;
+import com.thowo.jmjavaframework.table.JMRow;
+import com.thowo.jmjavaframework.table.JMTable;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -31,11 +34,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 
 
@@ -140,6 +150,90 @@ public class JMFunctions {
             Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);
             JMFunctions.traceAndShow(ex.getMessage());
         }
+    }
+    
+    public static void writeTableToExcel(JMTable table, String dest, List<Integer> excluded){
+        if(table==null)return;
+        if(table.isEmpty())return;
+        if(excluded==null)excluded=table.getExcludedCols();
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet(table.getName());
+        
+        
+        CellStyle style = workbook.createCellStyle();  
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        
+        
+        int r=0;
+        int xlsR=0;
+        JMRow row=table.getCurrentRow();
+        table.firstRow(false);
+        
+        Row xlsRow=sheet.createRow(xlsR);
+        int c=0;
+        int xlsC=0;
+        for(JMCell col:table.getCurrentRow().getCells()){
+            boolean exclude=false;
+            if(excluded!=null){
+                for(Integer tmp:excluded){
+                    if(tmp==c){
+                        exclude=true;
+                        break;
+                    }
+                }
+            }
+            if(!exclude){
+                Cell xlsCell=xlsRow.createCell(xlsC);
+                xlsCell.setCellStyle(style);
+                xlsCell.setCellValue(table.getLabelTitles().get(c));
+                xlsC++;
+            }
+            c++;
+        }
+        
+        style.setAlignment(HorizontalAlignment.LEFT);
+        xlsR=1;
+        do{
+            xlsRow=sheet.createRow(xlsR);
+            c=0;
+            xlsC=0;
+            for(JMCell col:table.getCurrentRow().getCells()){
+                JMFunctions.trace(""+c);
+                boolean exclude=false;
+                if(excluded!=null){
+                    for(Integer tmp:excluded){
+                        if(tmp==c){
+                            exclude=true;
+                            break;
+                        }
+                    }
+                }
+                if(!exclude){
+                    Cell xlsCell=xlsRow.createCell(xlsC);
+                    xlsCell.setCellStyle(style);
+                    xlsCell.setCellValue(col.getDBValue());
+                    xlsC++;
+                }
+                c++;
+            }
+            r++;
+            xlsR++;
+        }while(table.nextRow(false)!=null);
+        FileOutputStream outputStream;
+        try {
+            outputStream = new FileOutputStream(dest);
+            workbook.write(outputStream);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        table.gotoRow(r, false);
     }
     
     public static String getMessege(String idMsg){

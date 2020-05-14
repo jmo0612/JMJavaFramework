@@ -13,6 +13,7 @@ import com.thowo.jmjavaframework.JMFunctions;
 import com.thowo.jmjavaframework.db.JMResultSet;
 import com.thowo.jmjavaframework.db.JMResultSetStyle;
 import com.thowo.jmjavaframework.lang.JMConstMessage;
+import com.thowo.jmjavaframework.report.JMWordMM;
 import java.sql.Types;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -45,8 +46,6 @@ public class JMTable {
     private int dbType=DBTYPE_MYSQL;
     private String filter="";
     private List<Integer> excludedBU;
-    private String wordReport;
-    private String excelReport;
     
     public static JMTable create(String query, int dbType){
         return new JMTable(query,dbType);
@@ -377,8 +376,15 @@ public class JMTable {
             }
         }
     }
-    public String print(){
-        return "";
+    public void print(){
+        JMFunctions.trace("PRINTING");
+        if(this.isEmpty())return;
+        if(this.currentRow==null)return;
+        if(this.interfaces!=null){
+            for(JMFormInterface fi:this.interfaces){
+                fi.actionAfterPrinted(this.currentRow);
+            }
+        }
     }
     public void save(){
         //if(this.currentRow==null)return;
@@ -671,8 +677,9 @@ public class JMTable {
     public boolean isEditingRow(){
         return this.edited!=null;
     }
-    public void setWordReport(String wordFile){
-        this.wordReport=wordFile;
+    public List<Integer> getExcludedCols(){
+        return this.excludedBU;
     }
+    
     
 }
