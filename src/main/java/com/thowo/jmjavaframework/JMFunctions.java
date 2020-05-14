@@ -607,5 +607,21 @@ public class JMFunctions {
         }*/
         return ret;
     }
+    public static String removeExtension(String fileName) {
+        if (fileName.indexOf(".") > 0) {
+            return fileName.substring(0, fileName.lastIndexOf("."));
+        } else {
+            return fileName;
+        }
+ 
+    }
+    public static String getExtension(String fileName) {
+        if (fileName.indexOf(".") > 0) {
+            return fileName.substring(fileName.lastIndexOf("."));
+        } else {
+            return fileName;
+        }
+ 
+    }
 
 }
