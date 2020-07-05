@@ -205,8 +205,8 @@ public class JMWord {
         String mainPart = appendString.substring(appendString.indexOf(">") + 1,
                         appendString.lastIndexOf("<"));
         mainPart=mainPart.replace(str, newStr);
-        CTBody makeBody = CTBody.Factory.parse(prefix + mainPart + sufix );
-        body.set(makeBody);
+        //CTBody makeBody = CTBody.Factory.parse(prefix + mainPart + sufix );
+        //body.set(makeBody);
         return doc;
     }
     private static void appendBody(CTBody src, CTBody append, Integer startId, Integer abstractNum) throws Exception {
@@ -228,9 +228,9 @@ public class JMWord {
                 addPart=addPart.replace("<w:numId w:val=\""+ c++ +"\"/>", "<w:numId w:val=\""+id+"\"/>");
             }
         }
-        CTBody makeBody = CTBody.Factory.parse(prefix + mainPart + addPart + sufix );
+        //==CTBody makeBody = CTBody.Factory.parse(prefix + mainPart + addPart + sufix );
         //CTBody makeBody = CTBody.Factory.parse(prefix + mainPart + addPart + mainPart + addPart + sufix );
-        src.set(makeBody);
+        //==src.set(makeBody);
         //JMFunctions.trace(prefix + mainPart + addPart
         //                + sufix);
         

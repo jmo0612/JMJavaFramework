@@ -71,17 +71,16 @@ public class JMFunctions {
         
     }
 
-    public static void init(File languageExcelFilex, String cacheDirPath, String docDirPath,String localeId){
+    public static void init(File languageExcelFile, String cacheDirPath, String docDirPath,String localeId){
         //JMStringMessages.init();
         JMFunctions.languages=new ArrayList();
         JMFunctions.messages=new ArrayList();
         JMFunctions.cacheDir=cacheDirPath;
         JMFunctions.docDir=docDirPath;
-        
-        //URL excl=JMFunctions.getResourcePath("raw/jmlanguagepack.xls", this.getClass());
-        URL excl=JMFunctions.getResourcePath("raw/jmlanguagepack.xls", JMFunctions.INSTANCE().getClass());
-        //JMFunctions.trace("LASO = "+excl.getPath());
-        File languageExcelFile = JMFunctions.resourceToCache("raw/jmlanguagepack.xls", JMFunctions.class);
+        if(languageExcelFile==null){
+            languageExcelFile = JMFunctions.resourceToCache("raw/jmlanguagepack.xls", JMFunctions.class);
+        }
+
         if(JMFunctions.fileExist(languageExcelFile)){
             JMFunctions.readExcelLang(languageExcelFile,localeId);
         }
@@ -580,6 +579,7 @@ public class JMFunctions {
     }
 
     public static URL getResourcePath(String resId, Class<?> CLASS) {
+        JMFunctions.trace("JIMI "+resId);
         return CLASS.getClassLoader().getResource(resId);
     }
     public static URL getResourcePath(String resId){
@@ -588,6 +588,7 @@ public class JMFunctions {
     public static File resourceToCache(String resId, Class<?> CLASS){
         File ret=null;
         URL tes=JMFunctions.getResourcePath(resId, CLASS);
+        JMFunctions.trace("JIMI "+tes.toString());
         ret=new File(JMFunctions.getCacheDir()+"/"+resId);
         try {
             FileUtils.copyURLToFile(tes, ret);

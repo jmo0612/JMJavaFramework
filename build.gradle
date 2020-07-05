@@ -30,7 +30,11 @@ if (sysprops['idea.platform.prefix'] != null) {
         }
 
 
+
+
     }
+
+
 } else {
     apply plugin: 'java'
     apply plugin: 'jacoco'
@@ -39,6 +43,7 @@ if (sysprops['idea.platform.prefix'] != null) {
     repositories {
         jcenter()
     }
+
     processResources{
         from('src/main/res')
     }
@@ -85,6 +90,8 @@ dependencies {
     // https://mvnrepository.com/artifact/commons-io/commons-io
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'
 
+    // https://mvnrepository.com/artifact/com.google.apis/google-api-services-drive
+    implementation group: 'com.google.apis', name: 'google-api-services-drive', version: 'v3-rev197-1.25.0'
 
 
 
