@@ -1,0 +1,3 @@
+com.thowo.jmjavaframework
+raw jmlanguagepack
+string app_name
