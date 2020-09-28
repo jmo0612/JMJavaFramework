@@ -2,6 +2,7 @@ package com.thowo.jmjavaframework;
 
 
 import com.thowo.jmjavaframework.lang.JMConstMessage;
+import com.thowo.jmjavaframework.lang.JMMessage;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -10,10 +11,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 //import static android.content.ContentValues.TAG;
 
@@ -99,7 +102,6 @@ public class JMFormatCollection {
         }
         return ret;
     }
-
     public static String stringWithFormat(String str,int JMO_STRING){
         String ret="";
         if(str.equals(""))return "";
@@ -118,7 +120,6 @@ public class JMFormatCollection {
         }
         return ret;
     }
-
     public static Date dateDBFormat(String date) throws ParseException{
         Date ret=null;
         try {
@@ -150,7 +151,6 @@ public class JMFormatCollection {
         }
         return ret;
     }
-
     public static Date dateFromString(String date, String dateFormat) throws ParseException{
         Date ret=null;
         if(dateFormat.equals(""))dateFormat=strFormat(JMO_DATE_STANDARD);
@@ -158,11 +158,9 @@ public class JMFormatCollection {
         ret=sdf.parse(date);
         return ret;
     }
-
     public static Date dateTimeFromString(String dateTime){
         return dateTimeFromString(dateTime,"");
     }
-
     public static Date dateTimeFromString(String dateTime, String dateTimeFormat){
         Date ret=null;
         if(dateTimeFormat.equals(""))dateTimeFormat=strFormat(JMO_DATETIME_STANDARD);
@@ -175,11 +173,9 @@ public class JMFormatCollection {
         }
         return ret;
     }
-
     public static String stringFromDate(Date date){
         return stringFromDate(date,"");
     }
-
     public static String stringFromDate(Date date, String dateFormat){
         String ret=null;
         if(dateFormat.equals(""))dateFormat=strFormat(JMO_DATE_STANDARD);
@@ -187,7 +183,6 @@ public class JMFormatCollection {
         ret=sdf.format(date);
         return ret;
     }
-
     public static String stringFromdateTime(Date dateTime, String dateTimeFormat){
         String ret=null;
         if(dateTimeFormat.equals(""))dateTimeFormat=strFormat(JMO_DATETIME_STANDARD);
@@ -199,7 +194,6 @@ public class JMFormatCollection {
         }
         return ret;
     }
-
     public static String stringFirstCapsAndFix(String str){
         String words[] = str.replaceAll("\\s+", " ").trim().split(" ");
         String newSentence = "";
@@ -211,7 +205,6 @@ public class JMFormatCollection {
 
         return newSentence.trim();
     }
-
     public static String stringFirstCapsAndFixButDot(String str){
         String words[] = str.replaceAll("\\s+", " ").trim().split(" ");
         String newSentence = "";
@@ -234,7 +227,6 @@ public class JMFormatCollection {
 
         return newSentence.trim();
     }
-
     public static String stringFirstCaps(String str){
         String words[] = str.replaceAll("\\s+", " ").trim().split(" ");
         String newSentence = "";
@@ -246,43 +238,33 @@ public class JMFormatCollection {
 
         return newSentence.trim();
     }
-
     public static String stringName(String theName){
         return stringName(null, "", theName, null, "", JMO_NAME_FIRST, null, "",JMO_STRING_FIRST_CAPS);
     }
-
     public static String stringName(String theName, int stringCapsMode){
         return stringName(null, "", theName, null, "", JMO_NAME_FIRST, null, "",stringCapsMode);
     }
-
     public static String stringName(List<String> firstTitles, String firstTitlesSeparator, String theName, List<String> lastTitles, String lastTitlesSeparator){
         return stringName(firstTitles, firstTitlesSeparator, theName, null, "", JMO_NAME_FIRST, lastTitles, lastTitlesSeparator,JMO_STRING_FIRST_CAPS);
     }
-
     public static String stringName(List<String> firstTitles, String firstTitlesSeparator, String theName, List<String> lastTitles, String lastTitlesSeparator, int stringCapsMode){
         return stringName(firstTitles, firstTitlesSeparator, theName, null, "", JMO_NAME_FIRST, lastTitles, lastTitlesSeparator,stringCapsMode);
     }
-
     public static String stringName(String firstName, List<String> midNames, String lastName){
         return stringName(null, "", firstName, midNames, lastName, JMO_NAME_COMPLETE, null, "",JMO_STRING_FIRST_CAPS);
     }
-
     public static String stringName(String firstName, List<String> midNames, String lastName, int nameFormat){
         return stringName(null, "", firstName, midNames, lastName, nameFormat, null, "",JMO_STRING_FIRST_CAPS);
     }
-
     public static String stringName(String firstName, List<String> midNames, String lastName, int nameFormat, int stringCapsMode){
         return stringName(null, "", firstName, midNames, lastName, nameFormat, null, "",stringCapsMode);
     }
-
     public static String stringName(List<String> firstTitles, String firstTitlesSeparator, String firstName, List<String> midNames, String lastName, List<String> lastTitles, String lastTitlesSeparator){
         return stringName(firstTitles, firstTitlesSeparator, firstName, midNames, lastName, JMO_NAME_COMPLETE, lastTitles, lastTitlesSeparator,JMO_STRING_FIRST_CAPS);
     }
-
     public static String stringName(List<String> firstTitles, String firstTitlesSeparator, String firstName, List<String> midNames, String lastName, int nameFormat, List<String> lastTitles, String lastTitlesSeparator){
         return stringName(firstTitles, firstTitlesSeparator, firstName, midNames, lastName, nameFormat, lastTitles, lastTitlesSeparator,JMO_STRING_FIRST_CAPS);
     }
-
     private static String formatTheNames(String firstName, List<String> midNames, String lastName, int nameFormat){
         String format=new DecimalFormat("0000").format(nameFormat);
         if(format.length()>4)format=format.substring(format.length()-4,format.length()-1);
@@ -375,7 +357,6 @@ public class JMFormatCollection {
         }
         return ret;
     }
-
     public static String stringName(List<String> firstTitles, String firstTitlesSeparator, String firstName, List<String> midNames, String lastName, int nameFormat, List<String> lastTitles, String lastTitlesSeparator, int stringCapsMode){
         String fT="";
         String lT="";
@@ -405,14 +386,12 @@ public class JMFormatCollection {
         }
         return fT+" " + nm + ((!lT.equals("")) ? ", " + lT:"");
     }
-    
     public static String leadingZero(Integer number, int numOfZero){
         String ret="";
         if(number<0)ret="-";
         ret+=String.format("%0"+numOfZero+"d", number);
         return ret;
     }
-
     public static String currency(Double number){
         NumberFormat df = NumberFormat.getCurrencyInstance();
         DecimalFormatSymbols dfs = new DecimalFormatSymbols();
@@ -431,7 +410,6 @@ public class JMFormatCollection {
         ((DecimalFormat) df).setDecimalFormatSymbols(dfs);
         return df.format(number);
     }
-
     public static boolean isThisDateValid(String dateToValidate, String dateFromat){
 
         if(dateToValidate == null){
@@ -454,5 +432,106 @@ public class JMFormatCollection {
 
         return true;
     }
+    public static Double strToDouble(String value, Double defValue){
+        try {
+            return Double.valueOf(value);
+        }catch (NumberFormatException ex){
+            return defValue;
+        }
+    }
+    public static Double strToDouble(String value){
+        return strToDouble(value,0.0);
+    }
+    public static Integer strToInteger(String value, Integer defValue){
+        try {
+            return Integer.valueOf(value);
+        }catch (NumberFormatException ex){
+            return defValue;
+        }
+    }
+    public static Integer strToInteger(String value){
+        return strToInteger(value,0);
+    }
+    public static Boolean strToBoolean(String value, String strTrue, String strFalse){
+        if(strTrue.equals("")|| strFalse.equals("")){
+            strTrue="True";
+            strFalse="False";
+        }
 
+        if(value.length()==1){
+            if(strTrue.substring(0,1).toUpperCase().equals(value.toUpperCase())){
+                return true;
+            }else if(strFalse.substring(0,1).toUpperCase().equals(value.toUpperCase())){
+                return false;
+            }else{
+                if(value.toUpperCase().equals("T")){
+                    return true;
+                }else if(value.toUpperCase().equals("F")){
+                    return false;
+                }else if(value.toUpperCase().equals("Y")){
+                    return true;
+                }else if(value.toUpperCase().equals("N")){
+                    return false;
+                }else{
+                    return false;
+                }
+            }
+        }else{
+            if(strTrue.toUpperCase().contains(value.toUpperCase())){
+                return true;
+            }else if(strFalse.toUpperCase().contains(value.toUpperCase())){
+                return false;
+            }else{
+                if(value.toUpperCase().equals("TRUE")){
+                    return true;
+                }else if(value.toUpperCase().equals("FALSE")){
+                    return false;
+                }else if(value.toUpperCase().equals("YES")){
+                    return true;
+                }else if(value.toUpperCase().equals("NO")){
+                    return false;
+                }else{
+                    return false;
+                }
+            }
+        }
+
+
+    }
+    public static Boolean strToBoolean(String value){
+        return strToBoolean(value,"","");
+    }
+    public static String booleanToString(Boolean value, String strTrue, String strFalse){
+        if(strTrue.equals("")||strFalse.equals("")){
+            strTrue="True";
+            strFalse="False";
+        }
+        return (value?strTrue:strFalse);
+    }
+    public static String booleanToString(Boolean value){
+        return booleanToString(value,"","");
+    }
+    public static String[] strToArray(String str, String splitter){
+        return str.split(splitter);
+    }
+    private static Integer monthFromString(String str){
+        for(int i=1;i<=12;i++){
+            String m=JMFunctions.getMessege(JMConstMessage.MSG_DATE+JMConstMessage.MSG_DATE_MONTH+JMConstMessage.MSG_DATE_TYPE_COMPLETE+JMFormatCollection.leadingZero(i, 3));
+            if(m.toUpperCase().equals(str.toUpperCase())){
+                return i;
+            }
+        }
+        for(int i=1;i<=12;i++){
+            try {
+                Date d= new SimpleDateFormat("dd/MM/yyyy").parse("01/"+JMFormatCollection.leadingZero(i,2)+"/2000");
+                String m= new SimpleDateFormat("MMMM").format(d);
+                if(m.toUpperCase().equals(str.toUpperCase())){
+                    return i;
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return 0;
+    }
 }

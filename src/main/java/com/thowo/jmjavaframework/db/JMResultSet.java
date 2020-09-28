@@ -38,6 +38,7 @@ public class JMResultSet {
     }
 
     public boolean first(){
+        if(this.rs==null)return false;
         try {
             return this.rs.first();
         } catch (SQLException e) {

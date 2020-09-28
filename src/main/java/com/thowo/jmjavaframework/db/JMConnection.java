@@ -101,8 +101,8 @@ public class JMConnection {
                     return false;
                 }
             };
-            
             new JMAsyncTask(JMFunctions.getCurrentAsyncListener(),c,JMConnection.JM_ASYNC_CONNECT);
+
             
         }
         if(!this.errMsg.equals(""))JMFunctions.traceAndShow(this.errMsg);
@@ -143,7 +143,7 @@ public class JMConnection {
     }
     
     public JMResultSet queryMySQL(String sql, Boolean showNullError){
-        JMResultSet ret=null;
+        JMResultSet ret=new JMResultSet(null);
         if(this.connectedMySQL){
             Callable<ResultSet> c=()->{
                 try {
@@ -159,9 +159,12 @@ public class JMConnection {
                 }
                 
             };
-            ResultSet r=(ResultSet) new JMAsyncTask(JMFunctions.getCurrentAsyncListener(),c,JMConnection.JM_ASYNC_FETCH).getResult();
+            Object res=new JMAsyncTask(JMFunctions.getCurrentAsyncListener(),c,JMConnection.JM_ASYNC_FETCH).getResult();
+            ResultSet r=null;
+            if(res!=null)r=(ResultSet) new JMAsyncTask(JMFunctions.getCurrentAsyncListener(),c,JMConnection.JM_ASYNC_FETCH).getResult();
             
             ret=new JMResultSet(r,showNullError);
+
         }
         
         if(!this.errMsg.equals(""))JMFunctions.traceAndShow(this.errMsg);

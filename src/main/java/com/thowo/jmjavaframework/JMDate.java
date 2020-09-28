@@ -5,6 +5,8 @@
  */
 package com.thowo.jmjavaframework;
 
+import com.thowo.jmjavaframework.db.JMConnection;
+import com.thowo.jmjavaframework.db.JMResultSet;
 import com.thowo.jmjavaframework.lang.JMConstMessage;
 import java.text.ParseException;
 
@@ -23,7 +25,19 @@ public class JMDate {
     private Date dt;
     
     public static JMDate create(String dt) throws ParseException{
+        //rubah
         return new JMDate(dt);
+    }
+    public static JMDate now(){
+        JMDate tmp=new JMDate();
+        JMConnection con=JMFunctions.getCurrentConnection();
+        if(con!=null){
+            JMResultSet r=JMFunctions.getCurrentConnection().queryMySQL("select NOW()",false);
+            if(r!=null){
+                tmp=r.getDate(0,false);
+            }
+        }
+        return tmp;
     }
     
     public JMDate(){
@@ -56,6 +70,12 @@ public class JMDate {
         Calendar c=Calendar.getInstance();
         c.setTime(this.dt);
         return c.get(Calendar.DATE);
+    }
+    public int getMaxDayOfMonth(){
+        if(this.dt==null)return 0;
+        Calendar c=Calendar.getInstance();
+        c.setTime(this.dt);
+        return c.getActualMaximum(Calendar.DATE);
     }
     public int getDayOfWeek(){
         if(this.dt==null)return 0;

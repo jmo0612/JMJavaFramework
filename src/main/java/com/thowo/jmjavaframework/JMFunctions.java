@@ -247,6 +247,9 @@ public class JMFunctions {
         }
         return ret;
     }
+    public static String removeMultipleSpaces(String text){
+        return text.trim().replaceAll("\\s{2,}", " ");
+    }
     
     public static void setDefaultLanguage(int listIndex){
         for(int i=0;i<languages.size();i++){
