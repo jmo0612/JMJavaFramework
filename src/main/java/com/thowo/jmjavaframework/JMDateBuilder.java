@@ -1,7 +1,5 @@
 package com.thowo.jmjavaframework;
 
-import android.util.ArrayMap;
-
 import com.thowo.jmjavaframework.lang.JMConstMessage;
 
 import java.text.ParseException;
