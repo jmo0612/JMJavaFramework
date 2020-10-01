@@ -72,6 +72,7 @@ public class JMFunctions {
     }
 
     public static void init(File languageExcelFile, String cacheDirPath, String docDirPath,String localeId){
+        //System.setProperty("org.apache.poi.javax.xml.stream.XMLInputFactory", "com.fasterxml.aalto.stax.InputFactoryImpl");
         //JMStringMessages.init();
         JMFunctions.languages=new ArrayList();
         JMFunctions.messages=new ArrayList();

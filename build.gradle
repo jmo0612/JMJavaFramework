@@ -84,8 +84,14 @@ dependencies {
     // https://mvnrepository.com/artifact/org.odftoolkit/odfdom-java
     //implementation group: 'org.odftoolkit', name: 'odfdom-java', version: '0.8.7'
 
+    // https://mvnrepository.com/artifact/javax.xml.stream/stax-api
+    implementation group: 'javax.xml.stream', name: 'stax-api', version: '1.0-2'
+
+
     // https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml
     implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '4.0.0'
+
+    //implementation group: 'com.fasterxml', name: 'aalto-xml', version: '1.0.0'
     
     // https://mvnrepository.com/artifact/commons-io/commons-io
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'

@@ -45,7 +45,6 @@ public class JMDateBuilder {
         }
     }
 
-    //private final String CONST_DELIMITERS = "\\s+|,\\s*|\\.\\s*";
     private final String CONST_DELIMITERS = "-|:|\\s+|,|\\.|\\/";
     private final Integer CONST_YEAR=0;
     private final Integer CONST_MONTH=1;
@@ -74,9 +73,6 @@ public class JMDateBuilder {
     public static JMDateBuilder create(String strDate, Integer paramAI){
         return new JMDateBuilder(strDate,paramAI);
     }
-    /*public static JMDateBuilder create(String strDate){
-        return new JMDateBuilder(strDate,JMDateBuilder.CONST_AI_NORMAL);
-    }*/
     private JMDateBuilder(String strDate, Integer paramAI){
         this.dateAI=paramAI;
         this.initVars();
@@ -87,24 +83,7 @@ public class JMDateBuilder {
         this.findMonthText();
         this.findAmPmText();
         this.validateIntegerDate();
-        this.process(block,1);
-        /*if(block==1){
-            this.process1();
-        }else if(block==2){
-            this.process2();
-        }else if(block==3){
-            this.process3();
-        }else if(block==4){
-            //this.process4();
-        }else if(block==5){
-            //this.process5();
-        }else if(block==6){
-            //this.process6();
-        }else if(block==7){
-            //this.process7();
-        }else{
-            //this.process7plus();
-        }*/
+        this.process(1);
     }
 
     public JMDate getDate(){
@@ -121,29 +100,6 @@ public class JMDateBuilder {
             return this.now;
         }
     }
-
-    private void findDate(){
-        if(strDate.length==0)return;
-        if(this.isValidDate())return;
-        RemainingStrDate rem=this.getRemainingStrDate();
-        if(this.strDate.length==1){
-            if(this.monthDefined())return;
-            if(this.yearDefined())return;
-            if(this.dayDefined())return;
-            if(this.hourDefined())return;
-            if(this.minuteDefined())return;
-            if(this.secondDefined())return;
-            this.setYear(rem);
-            return;
-        }else if(this.strDate.length==2){
-            if(this.monthDefined()){
-                if(this.dayDefined() || this.yearDefined())return;
-
-            }
-
-        }
-    }
-
     private Integer theBestCandidate(List<Integer> indices,List<Integer> nearTos,List<Integer> farFroms){
         if(indices==null)return -1;
         if(indices.size()==0)return -1;
@@ -190,7 +146,7 @@ public class JMDateBuilder {
                             newIndices.add(index);
                             Integer nD=Math.abs(index-nearTo);
                             Integer fD=Math.abs(farFrom-index);
-                            aiPoints.add(1.0/nD+fD);
+                            aiPoints.add(100.0/nD+fD/100.0);
                         }
                     }
                 }else{
@@ -198,7 +154,7 @@ public class JMDateBuilder {
                         newIndices.add(index);
                         Integer nD=Math.abs(index-nearTo);
                         Integer fD=0;
-                        aiPoints.add(1.0/nD+fD);
+                        aiPoints.add(100.0/nD+fD/100.0);
                     }
                 }
             }
@@ -209,7 +165,7 @@ public class JMDateBuilder {
                         newIndices.add(index);
                         Integer nD=Integer.MAX_VALUE;
                         Integer fD=Math.abs(farFrom-index);
-                        aiPoints.add(1.0/nD+fD);
+                        aiPoints.add(100.0/nD+fD/100.0);
                     }
                 }
             }else{
@@ -217,7 +173,7 @@ public class JMDateBuilder {
                     newIndices.add(index);
                     Integer nD=Integer.MAX_VALUE;
                     Integer fD=0;
-                    aiPoints.add(1.0/nD+fD);
+                    aiPoints.add(100.0/nD+fD/100.0);
                 }
             }
         }
@@ -232,7 +188,7 @@ public class JMDateBuilder {
         }
         return ret;
     }
-    private int process(int block, int ymdhms){
+    private int process(int ymdhms){
         if(this.isValidDate())return 1;
         if(this.getRemainingStrDate().getSize()==0){
             if(!this.monthDefined()){
@@ -248,43 +204,47 @@ public class JMDateBuilder {
         if(ymdhms==this.CONST_MONTH){
             //MONTH
             if(this.monthDefined()){
-                this.process(block,this.CONST_DAY);//DAY
+                this.process(this.CONST_DAY);//DAY
                 return 1;
             }
             this.setMonth(this.getRemainingStrDate());
             if(!this.monthDefined()){
+                if(this.getRemainingStrDate().getSize()==1){
+                    this.process(this.CONST_DAY);
+                    return 1;
+                }
                 this.fillDateNow();
-                this.process(block,this.CONST_HOUR);//HOUR
+                this.process(this.CONST_HOUR);
                 return 1;
             }else{
-                this.process(block,this.CONST_DAY);//DAY
+                this.process(this.CONST_DAY);//DAY
                 return 1;
             }
         }else if(ymdhms==this.CONST_DAY){
             //DAY
             if(this.dayDefined()){
-                this.process(block,this.CONST_YEAR);//YEAR
+                this.process(this.CONST_YEAR);//YEAR
                 return 1;
             }
             this.setDay(this.getRemainingStrDate());
-            this.process(block,this.CONST_YEAR);//YEAR
+            this.process(this.CONST_YEAR);//YEAR
             return 1;
         }else if(ymdhms==0){
             //YEAR
             if(this.yearDefined()){
-                this.process(block,this.CONST_HOUR);//HOUR
+                this.process(this.CONST_HOUR);//HOUR
                 return 1;
             }
             this.setYear(this.getRemainingStrDate());
             if(!this.yearDefined()){
                 this.fillDateFirst();
             }
-            this.process(block,this.CONST_HOUR);//HOUR
+            this.process(this.CONST_HOUR);//HOUR
             return 1;
         }else if(ymdhms==this.CONST_HOUR){
             //HOUR
             if(this.hourDefined()){
-                this.process(block,this.CONST_MINUTE);//MINUTE
+                this.process(this.CONST_MINUTE);//MINUTE
                 return 1;
             }
             if(this.amPm!=this.CONST_FORMAT_24){
@@ -293,461 +253,56 @@ public class JMDateBuilder {
                     this.setHour24(this.getRemainingStrDate());
                     if(!this.hourDefined()){
                         this.fillTimeNow();
-                        this.process(block,-1);//UNKNOWN
+                        this.process(-1);//UNKNOWN
                         return 1;
                     }else{
-                        this.process(block,this.CONST_MINUTE);
+                        this.process(this.CONST_MINUTE);
                         return 1;
                     }
                 }else{
-                    this.process(block,this.CONST_MINUTE);//MINUTE
+                    this.process(this.CONST_MINUTE);//MINUTE
                     return 1;
                 }
             }else{
                 this.setHour24(this.getRemainingStrDate());
                 if(!this.hourDefined()){
                     this.fillTimeFirst();
-                    this.process(block,-1);//UNKNOWN
+                    this.process(-1);//UNKNOWN
                     return 1;
                 }else{
-                    this.process(block,this.CONST_MINUTE);
+                    this.process(this.CONST_MINUTE);
                     return 1;
                 }
             }
         }else if(ymdhms==4){
             //MINUTE
             if(this.minuteDefined()){
-                this.process(block,this.CONST_SECOND);//SECOND
+                this.process(this.CONST_SECOND);//SECOND
                 return 1;
             }
             this.setMinute(this.getRemainingStrDate());
             if(!this.minuteDefined()){
                 this.fillTimeFirst();
-                this.process(block,-1);//UNKNOWN
+                this.process(-1);//UNKNOWN
                 return 1;
             }else{
-                this.process(block,this.CONST_SECOND);//SECOND
+                this.process(this.CONST_SECOND);//SECOND
                 return 1;
             }
         }else if(ymdhms==5){
             //SECOND
             if(this.secondDefined()){
-                this.process(block,-1);//UNKNOWN
+                this.process(-1);//UNKNOWN
                 return 1;
             }
             this.setSecond(this.getRemainingStrDate());
-            this.process(block,-1);//UNKNOWN
+            this.process(-1);//UNKNOWN
             return 1;
         }else{
             fillDateTimeFirst();
             return 1;
         }
     }
-    private void process1(){
-        if(this.monthDefined()){
-            this.fillDateTimeFirst();
-        }else{
-            if(this.amPm==this.CONST_FORMAT_24){
-                this.setDay(this.getRemainingStrDate());
-                if(!this.dayDefined()){
-                    this.setMonth(this.getRemainingStrDate());
-                    if(!this.monthDefined()){
-                        this.assignYear(this.getRemainingStrDate().getStrDateIndexOf(0));
-                        this.fillDateTimeFirst();
-                    }else{
-                        this.fillDateTimeFirst();
-                    }
-                }else{
-                    this.fillDateNow();
-                    this.fillTimeFirst();
-                }
-            }else{
-                this.fillDateTimeNow();
-            }
-        }
-    }
-    private void process2(){
-        if(this.monthDefined()){
-            if(this.amPm!=this.CONST_FORMAT_24){
-                this.fillDateFirst();
-                this.fillTimeNow();
-            }else{
-                this.setDay(this.getRemainingStrDate());
-                if(!this.dayDefined()){
-                    this.assignYear(this.getRemainingStrDate().getStrDateIndexOf(0));
-                    this.fillDateTimeFirst();
-                }else{
-                    this.fillDateNow();
-                    this.fillTimeFirst();
-                }
-            }
-        }else{
-            if(this.amPm!=this.CONST_FORMAT_24){
-                this.setHour12(this.getRemainingStrDate());
-                if(!this.hourDefined()){
-                    this.setHour24(this.getRemainingStrDate());
-                    if(!this.hourDefined()){
-                        this.setDay(this.getRemainingStrDate());
-                        if(!this.dayDefined()){
-                            this.setMonth(this.getRemainingStrDate());
-                            if(!this.monthDefined())this.assignYear(this.getRemainingStrDate().getStrDateIndexOf(0));
-                            this.fillDateTimeFirst();
-                        }else{
-                            this.fillDateNow();
-                            this.fillTimeFirst();
-                        }
-                    }else{
-                        this.fillDateNow();
-                        this.fillTimeFirst();
-                    }
-                }else{
-                    this.fillDateNow();
-                    this.fillTimeFirst();
-                }
-            }else{
-                this.setMonth(this.getRemainingStrDate());
-                if(!this.monthDefined()){
-                    this.setYear(this.getRemainingStrDate());
-                    if(!this.yearDefined()){
-                        this.setDay(this.getRemainingStrDate());
-                        if(!this.dayDefined()){
-                            this.setHour24(this.getRemainingStrDate());
-                            if(!this.hourDefined()){
-                                this.fillDateTimeNow();
-                            }else{
-                                this.setMinute(this.getRemainingStrDate());
-                                this.fillDateNow();
-                                this.fillTimeFirst();
-                            }
-                        }else{
-                            this.fillDateNow();
-                            this.fillTimeFirst();
-                        }
-                    }else{
-                        this.fillDateTimeFirst();
-                    }
-                }else{
-                    this.setDay(this.getRemainingStrDate());
-                    if(!this.dayDefined()){
-                        this.setYear(this.getRemainingStrDate());
-                        if(!this.yearDefined()){
-                            this.fillDateTimeNow();
-                        }else{
-                            this.fillDateTimeFirst();
-                        }
-                    }else{
-                        this.fillDateTimeNow();
-                    }
-                }
-            }
-        }
-    }
-    private void process3(){
-        if(this.monthDefined()){
-            if(this.amPm!=this.CONST_FORMAT_24){
-                this.setDay(this.getRemainingStrDate());
-                if(!this.dayDefined()){
-                    this.setHour12(this.getRemainingStrDate());
-                    if(!this.hourDefined()){
-                        this.setYear(this.getRemainingStrDate());
-                        if(!yearDefined()){
-                            this.setHour24(this.getRemainingStrDate());
-                            this.fillDateNow();
-                            this.fillTimeFirst();
-                        }else{
-                            this.fillDateFirst();
-                            this.fillTimeNow();
-                        }
-                    }else{
-                        this.fillDateNow();
-                        this.fillTimeFirst();
-                    }
-                }else{
-                    this.fillDateNow();
-                    this.fillTimeNow();
-                }
-            }else{
-                this.setDay(this.getRemainingStrDate());
-                if(!this.dayDefined()){
-                    this.setYear(this.getRemainingStrDate());
-                    if(!this.yearDefined()){
-                        this.setHour24(this.getRemainingStrDate());
-                        if(!this.hourDefined()){
-                            this.fillDateFirst();
-                            this.fillTimeNow();
-                        }else{
-                            this.fillDateFirst();
-                            this.fillTimeFirst();
-                        }
-                    }else{
-                        this.setHour24(this.getRemainingStrDate());
-                        if(!this.hourDefined()){
-                            this.fillDateFirst();
-                            this.fillTimeNow();
-                        }else{
-                            this.fillDateFirst();
-                            this.fillTimeFirst();
-                        }
-                    }
-                }else{
-                    this.setYear(this.getRemainingStrDate());
-                    if(!this.yearDefined()){
-                        this.setHour24(this.getRemainingStrDate());
-                        if(!this.hourDefined()){
-                            this.fillDateNow();
-                            this.fillTimeNow();
-                        }else{
-                            this.fillDateNow();
-                            this.fillTimeFirst();
-                        }
-                    }else{
-                        this.fillTimeFirst();
-                    }
-                }
-            }
-        }else{
-            if(this.amPm!=this.CONST_FORMAT_24){
-                this.setYear(this.getRemainingStrDate());
-                if(!this.yearDefined()){
-                    this.setHour12(this.getRemainingStrDate());
-                    if(!this.hourDefined()){
-                        this.setHour24(this.getRemainingStrDate());
-                        if(!this.hourDefined()){
-                            this.fillDateTimeNow();
-                        }else{
-                            this.setMinute(this.getRemainingStrDate());
-                            if(!this.minuteDefined()){
-                                this.setMonth(this.getRemainingStrDate());
-                                if(!this.monthDefined()){
-                                    this.fillDateNow();
-                                    this.fillTimeFirst();
-                                }else{
-                                    this.fillDateTimeFirst();
-                                }
-                            }else{
-                                this.fillDateNow();
-                                this.fillTimeFirst();
-                            }
-                        }
-                    }else{
-                        this.setMinute(this.getRemainingStrDate());
-                        if(!this.minuteDefined()){
-                            this.setMonth(this.getRemainingStrDate());
-                            if(!this.monthDefined()){
-                                this.fillDateNow();
-                                this.fillTimeFirst();
-                            }else{
-                                this.fillDateTimeFirst();
-                            }
-                        }else{
-                            this.fillDateNow();
-                            this.fillTimeFirst();
-                        }
-                    }
-                }else{
-                    this.setMonth(this.getRemainingStrDate());
-                    if(!this.monthDefined()){
-                        this.setHour12(this.getRemainingStrDate());
-                        if(!this.hourDefined()){
-                            this.setHour24(this.getRemainingStrDate());
-                            if(!this.hourDefined()){
-                                this.fillDateTimeNow();
-                            }else{
-                                this.fillDateTimeFirst();
-                            }
-                        }else{
-                            this.fillDateTimeFirst();
-                        }
-                    }else{
-                        this.fillDateFirst();
-                        this.fillTimeNow();
-                    }
-                }
-            }else{
-                this.setYear(this.getRemainingStrDate());
-                if(!this.yearDefined()){
-                    this.setMonth(this.getRemainingStrDate());
-                    if(!this.monthDefined()){
-                        this.setHour24(this.getRemainingStrDate());
-                        if(!this.hourDefined()){
-                            this.fillDateTimeNow();
-                        }else{
-                            this.setMinute(this.getRemainingStrDate());
-                            if(!this.minuteDefined()){
-                                this.fillDateNow();
-                                this.fillTimeFirst();
-                            }else{
-                                this.setSecond(this.getRemainingStrDate());
-                                if(!this.secondDefined()){
-                                    this.fillDateNow();
-                                    this.fillTimeFirst();
-                                }else{
-                                    this.fillDateNow();
-                                }
-                            }
-                        }
-                    }else{
-                        this.setDay(this.getRemainingStrDate());
-                        if(!this.dayDefined()){
-                            this.setHour24(this.getRemainingStrDate());
-                            if(!this.hourDefined()){
-                                this.fillDateTimeFirst();
-                            }else{
-                                this.setMinute(this.getRemainingStrDate());
-                                this.fillDateTimeFirst();
-                            }
-                        }else{
-                            this.setHour24(this.getRemainingStrDate());
-                            if(!this.hourDefined()){
-                                this.fillDateTimeFirst();
-                            }else{
-                                this.fillDateNow();
-                                this.fillTimeFirst();
-                            }
-                        }
-                    }
-                }else{
-                    this.setMonth(this.getRemainingStrDate());
-                    if(!this.monthDefined()){
-                        this.setHour24(this.getRemainingStrDate());
-                        if(!this.hourDefined()){
-                            this.fillDateTimeFirst();
-                        }else{
-                            this.setMinute(this.getRemainingStrDate());
-                            this.fillDateTimeFirst();
-                        }
-                    }else{
-                        this.setDay(this.getRemainingStrDate());
-                        if(!this.dayDefined()){
-                            this.setHour24(this.getRemainingStrDate());
-                            this.fillDateTimeFirst();
-                        }else{
-                            this.fillTimeFirst();
-                        }
-                    }
-                }
-            }
-        }
-    }
-    /*private void process4(){
-        if(this.monthDefined()){
-            if(this.amPm!=this.CONST_FORMAT_24){
-                this.setDay(this.getRemainingStrDate());
-                if(!this.dayDefined()){
-                    this.setHour12(this.getRemainingStrDate());
-                    if(!this.hourDefined()){
-                        this.setHour24(this.getRemainingStrDate());
-                        if(!this.hourDefined()){
-                            this.setYear(this.getRemainingStrDate());
-                            if(!this.yearDefined()){
-                                this.fillDateTimeFirst();
-                            }else{
-                                this.fillDateFirst();
-                                this.fillTimeNow();
-                            }
-                        }else{
-                            this.setMinute(this.getRemainingStrDate());
-                            if(!this.minuteDefined()){
-                                this.setYear(this.getRemainingStrDate());
-                                this.fillDateTimeFirst();
-                            }else{
-                                this.fillDateTimeFirst();
-                            }
-                        }
-                    }else{
-                        this.setMinute(this.getRemainingStrDate());
-                        if(!this.minuteDefined()){
-                            this.setYear(this.getRemainingStrDate());
-                            this.fillDateTimeFirst();
-                        }else{
-                            this.fillDateTimeFirst();
-                        }
-                    }
-                }else{
-                    this.setHour12(this.getRemainingStrDate());
-                    if(!this.hourDefined()){
-                        this.setYear(this.getRemainingStrDate());
-                        if(!this.yearDefined()){
-                            this.fillDateTimeNow();
-                        }else{
-                            this.fillTimeNow();
-                        }
-                    }else{
-                        this.fillDateTimeFirst();
-                    }
-                }
-            }else{
-                this.setDay(this.getRemainingStrDate());
-                if(!this.dayDefined()){
-                    this.setYear(this.getRemainingStrDate());
-                    if(!this.yearDefined()){
-                        this.setHour24(this.getRemainingStrDate());
-                        if(!this.hourDefined()){
-                            this.fillDateTimeFirst();
-                        }else{
-                            this.setMinute(this.getRemainingStrDate());
-                            if(!this.minuteDefined()){
-                                this.fillDateTimeFirst();
-                            }else{
-                                this.setSecond(this.getRemainingStrDate());
-                                this.fillDateTimeFirst();
-                            }
-                        }
-                    }else{
-                        this.setHour24(this.getRemainingStrDate());
-                        if(!this.hourDefined()){
-                            this.fillDateTimeFirst();
-                        }else{
-                            this.setMinute(this.getRemainingStrDate());
-                            this.fillDateTimeFirst();
-                        }
-                    }
-                }else{
-                    this.setYear(this.getRemainingStrDate());
-                    if(!this.yearDefined()){
-                        this.setHour24(this.getRemainingStrDate());
-                        if(!this.hourDefined()){
-                            this.fillDateTimeFirst();
-                        }else{
-                            this.setMinute(this.getRemainingStrDate());
-                            this.fillDateTimeFirst();
-                        }
-                    }else{
-                        this.setHour24(this.getRemainingStrDate());
-                        this.fillTimeFirst();
-                    }
-                }
-            }
-        }else{
-            if(this.amPm!=this.CONST_FORMAT_24){
-                this.setMonth(this.getRemainingStrDate());
-                if(!this.monthDefined()){
-
-                }else{
-                    this.setDay(this.getRemainingStrDate());
-                    if(!this.)
-                }
-            }else{
-
-            }
-        }
-    }*/
-    private void processTmp(){
-        if(this.monthDefined()){
-            if(this.amPm!=this.CONST_FORMAT_24){
-
-            }else{
-
-            }
-        }else{
-            if(this.amPm!=this.CONST_FORMAT_24){
-
-            }else{
-
-            }
-        }
-    }
-
     private void setYear(RemainingStrDate rem){
         if(this.yearDefined())return;
         if(rem.getSize()==0){
@@ -768,140 +323,7 @@ public class JMDateBuilder {
             this.assignYear(this.theBestCandidate(foundIndices,nearIndices,farIndices));
             return;
         }
-        if(!this.monthDefined() && !this.dayDefined()){
-            if(rem.getSize()==1){
-                foundIndices=this.findMaxDayInMonthNow(rem);
-                if(foundIndices.size()>0){
-                    if(this.dayDefined())return;
-                    List<Integer> nearIndices=new ArrayList<>();
-                    nearIndices.add(this.getMonthIndex());
-                    nearIndices.add(this.getYearIndex());
-                    List<Integer> farIndices=new ArrayList<>();
-                    farIndices.add(this.getHourIndex());
-                    farIndices.add(this.getMinuteIndex());
-                    farIndices.add(this.getSecondIndex());
-                    farIndices.add(this.getAmPmIndex());
-
-                    this.assignDay(this.theBestCandidate(foundIndices,nearIndices,farIndices));
-                    rem=this.getRemainingStrDate();
-                    this.setYear(rem);
-                    return;
-                }
-                foundIndices=this.findMax12(rem);
-                if(foundIndices.size()>0){
-                    if(this.monthDefined())return;
-                    List<Integer> nearIndices=new ArrayList<>();
-                    nearIndices.add(this.getDayIndex());
-                    nearIndices.add(this.getYearIndex());
-                    List<Integer> farIndices=new ArrayList<>();
-                    farIndices.add(this.getHourIndex());
-                    farIndices.add(this.getMinuteIndex());
-                    farIndices.add(this.getSecondIndex());
-                    farIndices.add(this.getAmPmIndex());
-
-                    this.assignMonth(this.theBestCandidate(foundIndices,nearIndices,farIndices));
-                    rem=this.getRemainingStrDate();
-                    this.setYear(rem);
-                    return;
-                }
-                List<Integer> nearIndices=new ArrayList<>();
-                nearIndices.add(this.getMonthIndex());
-                nearIndices.add(this.getDayIndex());
-                List<Integer> farIndices=new ArrayList<>();
-                farIndices.add(this.getHourIndex());
-                farIndices.add(this.getMinuteIndex());
-                farIndices.add(this.getSecondIndex());
-                farIndices.add(this.getAmPmIndex());
-
-                this.assignYear(this.theBestCandidate(foundIndices,nearIndices,farIndices));
-                return;
-            }
-            if(rem.getSize()==2){
-                foundIndices=this.findMax12(rem);
-                if(foundIndices.size()==0){
-                    foundIndices=this.findMax23(rem);
-                    if(foundIndices.size()>0){
-                        this.fillYear();
-                        this.fillMonth();
-                        this.fillDay();
-                        if(this.hourDefined())return;
-                        List<Integer> nearIndices=new ArrayList<>();
-                        nearIndices.add(this.getAmPmIndex());
-                        nearIndices.add(this.getMinuteIndex());
-                        nearIndices.add(this.getSecondIndex());
-                        List<Integer> farIndices=new ArrayList<>();
-                        farIndices.add(this.getYearIndex());
-                        farIndices.add(this.getMonthIndex());
-                        farIndices.add(this.getDayIndex());
-
-                        this.assignHour(this.theBestCandidate(foundIndices,nearIndices,farIndices));
-                        rem=this.getRemainingStrDate();
-                        this.setMinute(rem);
-                        return;
-                    }
-                    if(this.yearDefined())return;
-                    List<Integer> nearIndices=new ArrayList<>();
-                    nearIndices.add(this.getMonthIndex());
-                    nearIndices.add(this.getDayIndex());
-                    List<Integer> farIndices=new ArrayList<>();
-                    farIndices.add(this.getHourIndex());
-                    farIndices.add(this.getMinuteIndex());
-                    farIndices.add(this.getSecondIndex());
-                    farIndices.add(this.getAmPmIndex());
-
-                    this.assignYear(this.theBestCandidate(foundIndices,nearIndices,farIndices));
-                    return;
-                }
-                if(this.monthDefined())return;
-                List<Integer> nearIndices=new ArrayList<>();
-                nearIndices.add(this.getYearIndex());
-                nearIndices.add(this.getDayIndex());
-                List<Integer> farIndices=new ArrayList<>();
-                farIndices.add(this.getHourIndex());
-                farIndices.add(this.getMinuteIndex());
-                farIndices.add(this.getSecondIndex());
-                farIndices.add(this.getAmPmIndex());
-
-                this.assignMonth(this.theBestCandidate(foundIndices,nearIndices,farIndices));
-                rem=this.getRemainingStrDate();
-                this.setYear(rem);
-                return;
-            }
-            if(rem.getSize()==3){
-
-            }
-        }
-        foundIndices=this.find31(rem);
-        if(foundIndices.size()>0){
-            List<Integer> nearIndices=new ArrayList<>();
-            nearIndices.add(this.getMonthIndex());
-            nearIndices.add(this.getDayIndex());
-            List<Integer> farIndices=new ArrayList<>();
-            farIndices.add(this.getHourIndex());
-            farIndices.add(this.getMinuteIndex());
-            farIndices.add(this.getSecondIndex());
-            farIndices.add(this.getAmPmIndex());
-
-            this.assignYear(this.theBestCandidate(foundIndices,nearIndices,farIndices));
-            return;
-        }
-        foundIndices=this.findMaxDayInMonthNow(rem);
-        if(foundIndices.size()>0){
-            if(this.dayDefined())return;
-            List<Integer> nearIndices=new ArrayList<>();
-            nearIndices.add(this.getMonthIndex());
-            nearIndices.add(this.getYearIndex());
-            List<Integer> farIndices=new ArrayList<>();
-            farIndices.add(this.getHourIndex());
-            farIndices.add(this.getMinuteIndex());
-            farIndices.add(this.getSecondIndex());
-            farIndices.add(this.getAmPmIndex());
-
-            this.assignDay(this.theBestCandidate(foundIndices,nearIndices,farIndices));
-            rem=this.getRemainingStrDate();
-            this.setYear(rem);
-            return;
-        }
+        foundIndices=this.findAll(rem);
         List<Integer> nearIndices=new ArrayList<>();
         nearIndices.add(this.getMonthIndex());
         nearIndices.add(this.getDayIndex());
@@ -913,8 +335,6 @@ public class JMDateBuilder {
 
         this.assignYear(this.theBestCandidate(foundIndices,nearIndices,farIndices));
     }
-
-
     private void setMonth(RemainingStrDate rem){
         if(this.monthDefined())return;
         List<Integer> foundIndices=this.findMax12(rem);
@@ -1019,39 +439,20 @@ public class JMDateBuilder {
         }
     }
 
+    private List<Integer> findAll(RemainingStrDate remainingStrDate){
+        List<Integer> ret=new ArrayList<>();
+        List<String> tmpDateStr=remainingStrDate.getStrings();
+        for(int i=0;i<tmpDateStr.size();i++){
+            ret.add(remainingStrDate.getStrDateIndexOf(i));
+        }
+        return ret;
+    }
     private List<Integer> find59(RemainingStrDate remainingStrDate){
         List<Integer> ret=new ArrayList<>();
         List<String> tmpDateStr=remainingStrDate.getStrings();
         for(int i=0;i<tmpDateStr.size();i++){
             Integer tmp=JMFormatCollection.strToInteger(tmpDateStr.get(i),-1);
             if(tmp>59)ret.add(remainingStrDate.getStrDateIndexOf(i));
-        }
-        return ret;
-    }
-    private List<Integer> find31(RemainingStrDate remainingStrDate){
-        List<Integer> ret=new ArrayList<>();
-        List<String> tmpDateStr=remainingStrDate.getStrings();
-        for(int i=0;i<tmpDateStr.size();i++){
-            Integer tmp=JMFormatCollection.strToInteger(tmpDateStr.get(i),-1);
-            if(tmp>31)ret.add(remainingStrDate.getStrDateIndexOf(i));
-        }
-        return ret;
-    }
-    private List<Integer> find23(RemainingStrDate remainingStrDate){
-        List<Integer> ret=new ArrayList<>();
-        List<String> tmpDateStr=remainingStrDate.getStrings();
-        for(int i=0;i<tmpDateStr.size();i++){
-            Integer tmp=JMFormatCollection.strToInteger(tmpDateStr.get(i),-1);
-            if(tmp>23)ret.add(remainingStrDate.getStrDateIndexOf(i));
-        }
-        return ret;
-    }
-    private List<Integer> find12(RemainingStrDate remainingStrDate){
-        List<Integer> ret=new ArrayList<>();
-        List<String> tmpDateStr=remainingStrDate.getStrings();
-        for(int i=0;i<tmpDateStr.size();i++){
-            Integer tmp=JMFormatCollection.strToInteger(tmpDateStr.get(i),-1);
-            if(tmp>12)ret.add(remainingStrDate.getStrDateIndexOf(i));
         }
         return ret;
     }
@@ -1070,15 +471,6 @@ public class JMDateBuilder {
         for(int i=0;i<tmpDateStr.size();i++){
             Integer tmp=JMFormatCollection.strToInteger(tmpDateStr.get(i),-1);
             if(tmp<=23)ret.add(remainingStrDate.getStrDateIndexOf(i));
-        }
-        return ret;
-    }
-    private List<Integer> findMax31(RemainingStrDate remainingStrDate){
-        List<Integer> ret=new ArrayList<>();
-        List<String> tmpDateStr=remainingStrDate.getStrings();
-        for(int i=0;i<tmpDateStr.size();i++){
-            Integer tmp=JMFormatCollection.strToInteger(tmpDateStr.get(i),-1);
-            if(tmp<=31)ret.add(remainingStrDate.getStrDateIndexOf(i));
         }
         return ret;
     }
@@ -1208,25 +600,6 @@ public class JMDateBuilder {
         return this.validDate.get(this.CONST_SECOND)>-1;
     }
 
-    private boolean yearIndexExisted(){
-        return this.strDateIndices.get(this.CONST_YEAR)!=-1;
-    }
-    private boolean monthIndexExisted(){
-        return this.strDateIndices.get(this.CONST_MONTH)!=-1;
-    }
-    private boolean dayIndexExisted(){
-        return this.strDateIndices.get(this.CONST_DAY)!=-1;
-    }
-    private boolean hourIndexExisted(){
-        return this.strDateIndices.get(this.CONST_HOUR)!=-1;
-    }
-    private boolean minuteIndexExisted(){
-        return this.strDateIndices.get(this.CONST_MINUTE)!=-1;
-    }
-    private boolean secondIndexExisted(){
-        return this.strDateIndices.get(this.CONST_SECOND)!=-1;
-    }
-
     private boolean isValidDate(){
         if(this.validDate==null)return false;
         if(this.validDate.size()<6)return false;
@@ -1297,14 +670,7 @@ public class JMDateBuilder {
         if(hour==24)hour=0;
         return hour;
     }
-    private void fillDateTimeNow(){
-        if(!this.yearDefined())this.fillYear();
-        if(!this.monthDefined())this.fillMonth();
-        if(!this.dayDefined())this.fillDay();
-        if(!this.hourDefined())this.fillHour();
-        if(!this.minuteDefined())this.fillMinute();
-        if(!this.secondDefined())this.fillSecond();
-    }
+
     private void fillDateTimeFirst(){
         if(!this.yearDefined())this.fillYear();
         if(!this.monthDefined())this.fillMonth(1);
