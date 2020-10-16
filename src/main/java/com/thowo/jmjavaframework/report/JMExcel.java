@@ -6,6 +6,7 @@
 package com.thowo.jmjavaframework.report;
 
 import com.thowo.jmjavaframework.JMFormatCollection;
+import com.thowo.jmjavaframework.JMFunctions;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -43,10 +44,13 @@ public class JMExcel {
             
         } catch (FileNotFoundException ex) {
             Logger.getLogger(JMExcel.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
         } catch (IOException ex) {
             Logger.getLogger(JMExcel.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
         } catch (EncryptedDocumentException ex) {
             Logger.getLogger(JMExcel.class.getName()).log(Level.SEVERE, null, ex);
+            JMFunctions.traceAndShow(ex.getMessage());
         }
     }
     public JMExcel setSheet(int no){

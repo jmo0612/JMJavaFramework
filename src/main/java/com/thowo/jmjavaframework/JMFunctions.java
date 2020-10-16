@@ -251,6 +251,9 @@ public class JMFunctions {
     public static String removeMultipleSpaces(String text){
         return text.trim().replaceAll("\\s{2,}", " ");
     }
+    public static String removeSpaces(String text){
+        return text.trim().replaceAll("\\s", "");
+    }
     
     public static void setDefaultLanguage(int listIndex){
         for(int i=0;i<languages.size();i++){
@@ -627,6 +630,22 @@ public class JMFunctions {
             return fileName;
         }
  
+    }
+    public static String validDBValue(String value,String nullValue){
+        String ret=nullValue;
+        if(!value.equals("")){
+            ret="'"+value+"'";
+        }else{
+            if(nullValue.equals("")){
+                ret="''";
+            }else{
+                ret=nullValue;
+            }
+        }
+        return ret;
+    }
+    public static String validDBValue(String value){
+        return validDBValue(value,"");
     }
 
 }

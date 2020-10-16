@@ -8,7 +8,11 @@ package com.thowo.jmjavaframework;
 import com.thowo.jmjavaframework.db.JMConnection;
 import com.thowo.jmjavaframework.db.JMResultSet;
 import com.thowo.jmjavaframework.lang.JMConstMessage;
+import java.math.BigDecimal;
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.ZoneId;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,6 +31,33 @@ public class JMDate {
     public static JMDate create(String dt) throws ParseException{
         //rubah
         return new JMDate(dt);
+    }
+    public static JMDate createFromSerial(String dateSerial) throws ParseException{
+        //rubah
+        if(dateSerial.equals("")){
+            JMDate tmp=new JMDate();
+            tmp.dt=null;
+            return tmp;
+        }
+        JMDate tmp=new JMDate();
+        tmp.dt=dateFromSerialString(dateSerial);
+        return tmp;
+    }
+    public static JMDate createNull(){
+        JMDate tmp=new JMDate();
+        tmp.dt=null;
+        return tmp;
+    }
+    private static Date dateFromSerialString(String serial){
+        Date ret=null;
+        if(!serial.equals("")){
+            BigDecimal countFromEpoch= new BigDecimal(serial);
+            long days=countFromEpoch.longValue();
+            LocalDate localDate= LocalDate.of(1899, Month.DECEMBER, 30).plusDays(days);
+            
+            ret=Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        }
+        return ret;
     }
     public static JMDate now(){
         JMDate tmp=new JMDate();

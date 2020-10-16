@@ -443,6 +443,10 @@ public class JMFormatCollection {
         return strToDouble(value,0.0);
     }
     public static Integer strToInteger(String value, Integer defValue){
+        if(!value.equals("")){
+            String[] arrTmp=strToArray(value,"[.]");
+            if(arrTmp.length>1)value=arrTmp[0];
+        }
         try {
             return Integer.valueOf(value);
         }catch (NumberFormatException ex){
@@ -500,6 +504,25 @@ public class JMFormatCollection {
     }
     public static Boolean strToBoolean(String value){
         return strToBoolean(value,"","");
+    }
+    public static JMDate strSerialToJMDate(String dateSerial,boolean defaultNow){
+        JMDate ret=null;
+        if(dateSerial.equals("")){
+            if(defaultNow){
+                return JMDate.now();
+            }else{
+                return JMDate.createNull();
+            }
+        }
+        try {
+            ret=JMDate.createFromSerial(dateSerial);
+        } catch (ParseException ex) {
+            ret=JMDate.createNull();
+        }
+        return ret;
+    }
+    public static JMDate strSerialToJMDate(String dateSerial){
+        return strSerialToJMDate(dateSerial,false);
     }
     public static String booleanToString(Boolean value, String strTrue, String strFalse){
         if(strTrue.equals("")||strFalse.equals("")){
