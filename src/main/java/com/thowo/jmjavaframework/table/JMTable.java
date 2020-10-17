@@ -680,6 +680,14 @@ public class JMTable {
     public List<Integer> getExcludedCols(){
         return this.excludedBU;
     }
-    
+    public List<JMRow> getAllRows(){
+        List<JMRow> ret=new ArrayList();
+        JMRow r=this.firstRow;
+        while(r!=null){
+            ret.add(r);
+            r=r.getNext();
+        }
+        return ret;
+    }
     
 }
