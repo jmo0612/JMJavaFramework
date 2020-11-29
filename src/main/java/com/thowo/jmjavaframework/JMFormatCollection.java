@@ -557,4 +557,13 @@ public class JMFormatCollection {
         }
         return 0;
     }
+    public static Integer doubleToInt(Double value, int errorValue){
+        if(value>Integer.MAX_VALUE)return errorValue;
+        String d=String.valueOf(value);
+        d=d.substring(0,d.indexOf("."));
+        return Integer.valueOf(d);
+    }
+    public static Integer doubleToInt(Double value){
+        return JMFormatCollection.doubleToInt(value, 0);
+    }
 }

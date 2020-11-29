@@ -445,6 +445,7 @@ public class JMTable {
         this.currentRow=b;
     }
     public JMRow findByKeys(List<String> keyValues){
+        if(this.currentRow==null)return null;
         if(this.keyCols==null)return null;
         if(this.keyCols.size()!=keyValues.size())return null;
         JMRow c=this.currentRow;
