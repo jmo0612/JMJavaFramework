@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -506,18 +507,9 @@ public class JMFormatCollection {
         return strToBoolean(value,"","");
     }
     public static JMDate strSerialToJMDate(String dateSerial,boolean defaultNow){
-        JMDate ret=null;
-        if(dateSerial.equals("")){
-            if(defaultNow){
-                return JMDate.now();
-            }else{
-                return JMDate.createNull();
-            }
-        }
-        try {
-            ret=JMDate.createFromSerial(dateSerial);
-        } catch (ParseException ex) {
-            ret=JMDate.createNull();
+        JMDate ret=JMDate.createFromSerial(dateSerial);
+        if(ret.getDate()==null){
+            if(defaultNow)ret=JMDate.now();
         }
         return ret;
     }

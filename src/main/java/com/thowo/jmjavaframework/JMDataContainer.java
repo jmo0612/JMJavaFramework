@@ -141,6 +141,7 @@ public class JMDataContainer {
                 if(formatType.contains(JMResultSetStyle.FORMAT_DOUBLE_MONEY+"|")){
                     this.setValueAsDoubleDecimal((Double) this.val,display);
                 }else if(formatType.contains(JMResultSetStyle.FORMAT_DOUBLE_CURRENCY+"|")){
+
                     this.setValueAsDoubleCurrency((Double) this.val,display);
                 }else{
                     if(params!=null)if(params.length>0)this.setValueAsDouble((Double) this.val,(String) params[0],display);
@@ -196,6 +197,15 @@ public class JMDataContainer {
                 }else{
                     //24
                     this.setValueAsJMDateTime24(dVal,formatType.contains(JMResultSetStyle.FORMAT_DATE_SHORT+"|"),formatType.contains(JMResultSetStyle.FORMAT_DATE_S+"|"),formatType.contains(JMResultSetStyle.FORMAT_DATE_M+"|"),display);
+                }
+            }else if(formatType.contains(JMResultSetStyle.FORMAT_DATE_CUSTOM+"|")){
+                if(params!=null){
+                    if(params.length>0){
+                        this.setValueAsJMDateCustom(dVal,(String)params[0],display);
+                    }else{
+                        this.setValueAsJMDate(dVal,!formatType.contains(JMResultSetStyle.FORMAT_DATE_SHORT+"|"),display);
+                    }
+
                 }
             }else{
                 //DATE
@@ -292,6 +302,7 @@ public class JMDataContainer {
         if(display)this.displayToInterfaces();
     }
     private void setValueAsDoubleCurrency(Double value, boolean display){
+        JMFunctions.trace("HERE WE GO : "+value);
         this.txt=JMFormatCollection.currency(value);
         this.val=value;
         this.valString=String.valueOf(value);
@@ -327,6 +338,13 @@ public class JMDataContainer {
         this.txt=String.format(format,value);
         this.val=value;
         this.valString=String.valueOf(value);
+        if(display)this.displayToInterfaces();
+    }
+    private void setValueAsJMDateCustom(JMDate value,String format, boolean display){
+        this.txt=value.dateTimeCustom(format);
+        this.val=value;
+        //this.valString=value.dateDB();
+        this.valString=value.dateIndo();
         if(display)this.displayToInterfaces();
     }
     private void setValueAsJMDate(JMDate value, boolean display){

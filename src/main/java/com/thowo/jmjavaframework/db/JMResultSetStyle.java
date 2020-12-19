@@ -37,7 +37,27 @@ public class JMResultSetStyle {
     public static final String FORMAT_DATE_H="|FORMAT|H";
     public static final String FORMAT_DATE_M="|FORMAT|M";
     public static final String FORMAT_DATE_S="|FORMAT|S";
+    public static final String FORMAT_DATE_CUSTOM="|FORMAT|S";
     public static final String FORMAT_IMAGE="|FORMAT|IMAGE";
+
+    public static final String PARAM_DATE_WEEKDAY_SHORT="|WEEKDAYSHORT|";
+    public static final String PARAM_DATE_WEEKDAY_LONG="|WEEKDAYLONG|";
+    public static final String PARAM_DATE_DAY_SHORT="|DAYSHORT|";
+    public static final String PARAM_DATE_DAY_LONG="|DAYLONG|";
+    public static final String PARAM_DATE_MONTH_NUMBER_SHORT="|MONTHNUMBERSHORT|";
+    public static final String PARAM_DATE_MONTH_NUMBER_LONG="|MONTHNUMBERLONG|";
+    public static final String PARAM_DATE_MONTH_SHORT="|MONTHSHORT|";
+    public static final String PARAM_DATE_MONTH_LONG="|MONTHLONG|";
+    public static final String PARAM_DATE_YEAR_SHORT="|YEARSHORT|";
+    public static final String PARAM_DATE_YEAR_LONG="|YEARLONG|";
+    public static final String PARAM_DATE_HOUR24_SHORT="|HOUR24SHORT|";
+    public static final String PARAM_DATE_HOUR24_LONG="|HOUR24LONG|";
+    public static final String PARAM_DATE_HOUR12_SHORT="|HOUR12SHORT|";
+    public static final String PARAM_DATE_HOUR12_LONG="|HOUR12LONG|";
+    public static final String PARAM_DATE_MINUTE_SHORT="|MINUTESHORT|";
+    public static final String PARAM_DATE_MINUTE_LONG="|MINUTELONG|";
+    public static final String PARAM_DATE_SECOND_SHORT="|SECONDSHORT|";
+    public static final String PARAM_DATE_SECOND_LONG="|SECONDLONG|";
     
     
     private List<String> formatTypes=new ArrayList();
@@ -45,7 +65,15 @@ public class JMResultSetStyle {
     List<Boolean> hiddens=new ArrayList();
     List<String> labelTitles=new ArrayList();
     List<String> fieldNames=new ArrayList();
-    
+
+    public JMResultSetStyle setFormat(int column,String JMResultSetStyleConstant, Object[] params){
+        String tmp=this.formatTypes.get(column);
+        int l=tmp.indexOf(FORMAT);
+        if(l>=0)tmp=tmp.substring(0,l);
+        this.formatTypes.set(column, tmp+JMResultSetStyleConstant);
+        this.listParams.set(column,params);
+        return this;
+    }
     public JMResultSetStyle addFormat(int column,String JMResultSetStyleConstant, Object[] params){
         this.formatTypes.set(column, this.formatTypes.get(column)+JMResultSetStyleConstant);
         this.listParams.set(column,params);
