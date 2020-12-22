@@ -54,8 +54,8 @@ public class JMDate {
     }
     private static Date dateFromSerialString(int serial){
         Date ret=null;
-        GregorianCalendar gc=new GregorianCalendar(1900,Calendar.JANUARY,1);
-        gc.add(Calendar.DATE,serial-1);
+        GregorianCalendar gc=new GregorianCalendar(1899,Calendar.DECEMBER,30);
+        gc.add(Calendar.DATE,serial);
         ret=gc.getTime();
         /*if(!serial.equals("")){
             BigDecimal countFromEpoch= new BigDecimal(serial);
