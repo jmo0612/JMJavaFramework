@@ -7,6 +7,7 @@ package com.thowo.jmjavaframework;
 
 import com.thowo.jmjavaframework.db.JMConnection;
 import com.thowo.jmjavaframework.db.JMResultSet;
+import com.thowo.jmjavaframework.db.JMResultSetStyle;
 import com.thowo.jmjavaframework.lang.JMConstMessage;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -17,6 +18,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,15 +34,17 @@ public class JMDate {
         //rubah
         return new JMDate(dt);
     }
-    public static JMDate createFromSerial(String dateSerial) throws ParseException{
+    public static JMDate createFromSerial(String dateSerial){
         //rubah
-        if(dateSerial.equals("")){
-            JMDate tmp=new JMDate();
+        JMDate tmp=new JMDate();
+        Integer serial=0;
+        try{
+            serial=Integer.valueOf(dateSerial);
+        }catch(NumberFormatException ex){
             tmp.dt=null;
             return tmp;
         }
-        JMDate tmp=new JMDate();
-        tmp.dt=dateFromSerialString(dateSerial);
+        tmp.dt=dateFromSerialString(serial);
         return tmp;
     }
     public static JMDate createNull(){
@@ -48,15 +52,18 @@ public class JMDate {
         tmp.dt=null;
         return tmp;
     }
-    private static Date dateFromSerialString(String serial){
+    private static Date dateFromSerialString(int serial){
         Date ret=null;
-        if(!serial.equals("")){
+        GregorianCalendar gc=new GregorianCalendar(1899,Calendar.DECEMBER,30);
+        gc.add(Calendar.DATE,serial);
+        ret=gc.getTime();
+        /*if(!serial.equals("")){
             BigDecimal countFromEpoch= new BigDecimal(serial);
             long days=countFromEpoch.longValue();
             LocalDate localDate= LocalDate.of(1899, Month.DECEMBER, 30).plusDays(days);
             
             ret=Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        }
+        }*/
         return ret;
     }
     public static JMDate now(){
@@ -138,11 +145,23 @@ public class JMDate {
         c.setTime(this.dt);
         return JMFormatCollection.leadingZero(c.get(Calendar.HOUR_OF_DAY), 2);
     }
+    public int getHour24Int(){
+        if(this.dt==null)return 0;
+        Calendar c=Calendar.getInstance();
+        c.setTime(this.dt);
+        return c.get(Calendar.HOUR_OF_DAY);
+    }
     public String getHour12(){
         if(this.dt==null)return "";
         Calendar c=Calendar.getInstance();
         c.setTime(this.dt);
         return JMFormatCollection.leadingZero(c.get(Calendar.HOUR), 2);
+    }
+    public int getHour12Int(){
+        if(this.dt==null)return 0;
+        Calendar c=Calendar.getInstance();
+        c.setTime(this.dt);
+        return c.get(Calendar.HOUR);
     }
     public String getMinute(){
         if(this.dt==null)return "";
@@ -150,11 +169,23 @@ public class JMDate {
         c.setTime(this.dt);
         return JMFormatCollection.leadingZero(c.get(Calendar.MINUTE), 2);
     }
+    public int getMinuteInt(){
+        if(this.dt==null)return 0;
+        Calendar c=Calendar.getInstance();
+        c.setTime(this.dt);
+        return c.get(Calendar.MINUTE);
+    }
     public String getSecond(){
         if(this.dt==null)return "";
         Calendar c=Calendar.getInstance();
         c.setTime(this.dt);
         return JMFormatCollection.leadingZero(c.get(Calendar.SECOND), 2);
+    }
+    public int getSecondInt(){
+        if(this.dt==null)return 0;
+        Calendar c=Calendar.getInstance();
+        c.setTime(this.dt);
+        return c.get(Calendar.SECOND);
     }
     public String getTime24(){
         if(this.dt==null)return "";
@@ -313,6 +344,35 @@ public class JMDate {
         if(this.dt!=null){
             ret=this.dateShort();
             ret+=" "+this.getHour12()+" "+this.getAmPmShort();
+        }
+        return ret;
+    }
+    public String dateTimeCustom(String JMResultSetStyle_param){
+        String ret=dateTimeFull24();
+        if(this.dt!=null){
+            boolean h12=(JMResultSetStyle_param.contains(JMResultSetStyle.PARAM_DATE_HOUR12_LONG)||JMResultSetStyle_param.contains(JMResultSetStyle.PARAM_DATE_HOUR12_SHORT));
+            JMResultSetStyle_param=JMResultSetStyle_param.replace(JMResultSetStyle.PARAM_DATE_WEEKDAY_SHORT,JMFunctions.getMessege(JMConstMessage.MSG_DATE+JMConstMessage.MSG_DATE_DAY+JMConstMessage.MSG_DATE_TYPE_SHORT+JMFormatCollection.leadingZero(this.getDayOfWeek(), 3)));
+            JMResultSetStyle_param=JMResultSetStyle_param.replace(JMResultSetStyle.PARAM_DATE_WEEKDAY_LONG,JMFunctions.getMessege(JMConstMessage.MSG_DATE+JMConstMessage.MSG_DATE_DAY+JMConstMessage.MSG_DATE_TYPE_COMPLETE+JMFormatCollection.leadingZero(this.getDayOfWeek(), 3)));
+            JMResultSetStyle_param=JMResultSetStyle_param.replace(JMResultSetStyle.PARAM_DATE_DAY_SHORT,String.valueOf(this.getDayOfMonth()));
+            JMResultSetStyle_param=JMResultSetStyle_param.replace(JMResultSetStyle.PARAM_DATE_DAY_LONG,JMFormatCollection.leadingZero(this.getDayOfMonth(), 2));
+            JMResultSetStyle_param=JMResultSetStyle_param.replace(JMResultSetStyle.PARAM_DATE_MONTH_NUMBER_SHORT,String.valueOf(getMonth()));
+            JMResultSetStyle_param=JMResultSetStyle_param.replace(JMResultSetStyle.PARAM_DATE_MONTH_NUMBER_LONG,JMFormatCollection.leadingZero(getMonth(),2));
+            JMResultSetStyle_param=JMResultSetStyle_param.replace(JMResultSetStyle.PARAM_DATE_MONTH_SHORT,JMFunctions.getMessege(JMConstMessage.MSG_DATE+JMConstMessage.MSG_DATE_MONTH+JMConstMessage.MSG_DATE_TYPE_SHORT+JMFormatCollection.leadingZero(this.getMonth(), 3)));
+            JMResultSetStyle_param=JMResultSetStyle_param.replace(JMResultSetStyle.PARAM_DATE_MONTH_LONG,JMFunctions.getMessege(JMConstMessage.MSG_DATE+JMConstMessage.MSG_DATE_MONTH+JMConstMessage.MSG_DATE_TYPE_COMPLETE+JMFormatCollection.leadingZero(this.getMonth(), 3)));
+            JMResultSetStyle_param=JMResultSetStyle_param.replace(JMResultSetStyle.PARAM_DATE_YEAR_SHORT,getYearShort());
+            JMResultSetStyle_param=JMResultSetStyle_param.replace(JMResultSetStyle.PARAM_DATE_YEAR_LONG,String.valueOf(getYearFull()));
+            JMResultSetStyle_param=JMResultSetStyle_param.replace(JMResultSetStyle.PARAM_DATE_HOUR12_SHORT,String.valueOf(getHour12Int()));
+            JMResultSetStyle_param=JMResultSetStyle_param.replace(JMResultSetStyle.PARAM_DATE_HOUR12_LONG,getHour12());
+            JMResultSetStyle_param=JMResultSetStyle_param.replace(JMResultSetStyle.PARAM_DATE_HOUR24_SHORT,String.valueOf(getHour24Int()));
+            JMResultSetStyle_param=JMResultSetStyle_param.replace(JMResultSetStyle.PARAM_DATE_HOUR24_LONG,getHour24());
+            JMResultSetStyle_param=JMResultSetStyle_param.replace(JMResultSetStyle.PARAM_DATE_MINUTE_SHORT,String.valueOf(getMinuteInt()));
+            JMResultSetStyle_param=JMResultSetStyle_param.replace(JMResultSetStyle.PARAM_DATE_MINUTE_LONG,getMinute());
+            JMResultSetStyle_param=JMResultSetStyle_param.replace(JMResultSetStyle.PARAM_DATE_SECOND_SHORT,String.valueOf(getSecondInt()));
+            JMResultSetStyle_param=JMResultSetStyle_param.replace(JMResultSetStyle.PARAM_DATE_SECOND_LONG,getSecond());
+            if(h12)JMResultSetStyle_param+=" "+getAmPmComplete();
+            ret=JMResultSetStyle_param;
+            //ret=JMFormatCollection.stringFromdateTime(this.dt,format);
+            //ret=toStringYMDhms(dateTimeFull24());
         }
         return ret;
     }
