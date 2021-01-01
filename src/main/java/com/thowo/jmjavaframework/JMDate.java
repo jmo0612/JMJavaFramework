@@ -30,6 +30,11 @@ import java.util.logging.Logger;
 public class JMDate {
     private Date dt;
     
+    public static JMDate create(Date dt){
+        //rubah
+        return new JMDate(dt);
+    }
+    
     public static JMDate create(String dt) throws ParseException{
         //rubah
         return new JMDate(dt);
