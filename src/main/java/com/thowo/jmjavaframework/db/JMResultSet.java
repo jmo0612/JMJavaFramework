@@ -11,6 +11,7 @@ import com.thowo.jmjavaframework.lang.JMConstMessage;
 import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
@@ -230,7 +231,10 @@ public class JMResultSet {
         if(this.rs==null)return null;
         try {
             //this.rs.first();
-            JMDate ret=new JMDate(new Date(rs.getTimestamp(field+1).getTime()),showDateError);
+            Timestamp tmp=rs.getTimestamp(field+1);
+            Date dt=null;
+            JMDate ret=new JMDate(dt);
+            if(tmp!=null)ret=new JMDate(new Date(tmp.getTime()),showDateError);
             if(ret==null)return null;
             return ret;
         } catch (SQLException ex) {

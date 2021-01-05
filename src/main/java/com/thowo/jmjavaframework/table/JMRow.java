@@ -109,7 +109,12 @@ public class JMRow {
         for(JMCell cell:this.cells){
             if(!cell.excludedFromUpdate()){
                 f+=cell.getFieldName()+",";
-                v+=cell.getQueryPrefix()+cell.getDBValue()+cell.getQuerySuffix()+",";
+                if(cell.getDBValue()==null){
+                    v+="NULL,";
+                }else{
+                    v+=cell.getQueryPrefix()+cell.getDBValue()+cell.getQuerySuffix()+",";
+                }
+                
             }
         }
         if(f.lastIndexOf(",")<0)return "";
@@ -117,6 +122,7 @@ public class JMRow {
         f=f.substring(0, f.lastIndexOf(","));
         v=v.substring(0, v.lastIndexOf(","));
         ret+=t+"("+f+") VALUES("+v+")";
+        //JMFunctions.trace(ret);
         return ret;
     }
     public String getDeleteSQL(){

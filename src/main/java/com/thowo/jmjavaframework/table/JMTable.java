@@ -118,11 +118,12 @@ public class JMTable {
                     JMCell cell=this.currentRow.addCell(dc,hidden);
                     dc.setCell(cell);
                     dc.refreshInterfaces(style,null,true,false);
+                    
                 }
                 this.gotoRow(this.currentRow, true);
             }while(rs.next());
             this.firstRow(true);
-            if(empty)this.deleteAddedRow();
+            if(empty)this.deleteAddedRow("init");
         }
     }
     private JMResultSet getResultSet(String query, int dbType){
@@ -137,8 +138,21 @@ public class JMTable {
     public JMResultSetStyle getStyle(){
         return this.style;
     }
+    
+    
     public void refresh(){
         if(this.query.equals(""))return;
+        if(this.currentRow==null)return;
+        List<String> keys=this.getKeyValues();
+        
+        List<List<JMInputInterface>> inputs=new ArrayList();
+        if(this.currentRow!=null){
+            for(JMDataContainer dc:this.currentRow.getDataContainers()){
+                inputs.add(dc.getInterfaces());
+            }
+        }
+        
+        
         if(this.interfaces!=null){
             for(JMFormInterface fi:this.interfaces){
                 fi.actionBeforeRefresh(this.currentRow);
@@ -148,7 +162,7 @@ public class JMTable {
         JMRow r=this.firstRow;
         while(r!=null){
             this.currentRow=r;
-            deleted.add(this.deleteAddedRow());
+            deleted.add(this.deleteAddedRow("refresh"));
             r=r.getNext();
         }
         this.currentRow=null;
@@ -160,6 +174,25 @@ public class JMTable {
         
         JMResultSet rs=this.getResultSet(this.query, this.dbType);
         this.setProp(rs, this.style);
+        
+        
+        this.currentRow=this.findByKeys(keys);
+        if(this.currentRow==null)this.currentRow=this.firstRow;
+        
+        if(inputs.size()>0 && this.currentRow!=null){
+            List<JMDataContainer> dcs=this.currentRow.getDataContainers();
+            for(int i=0;i<dcs.size();i++){
+                //JMDataContainer dc=dcs.get(i);
+                //dc.setInterfaces(inputs.get(i), true);
+                List<JMInputInterface> iis=inputs.get(i);
+                if(iis!=null){
+                    for(JMInputInterface ii:iis){
+                        this.setFormInterface(ii, i, true);
+                    }
+                }
+                
+            }
+        }
         
         if(this.interfaces!=null){
             for(JMFormInterface fi:this.interfaces){
@@ -322,12 +355,13 @@ public class JMTable {
         }
     }
     public void cancelEdit(String message,int YesConfirm){
+        JMRow canceledRow=this.currentRow;
         boolean proceed=false;
         if(this.adding){
             //ADDING
             if(JMFunctions.confirmBoxYN(JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_CONFIRM), message, JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_YES), JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_NO), true)==YesConfirm){
                 //USER CONFIRM YES
-                this.deleteAddedRow();
+                this.deleteAddedRow(null);
                 this.edited=null;
                 proceed=true;
             }
@@ -363,7 +397,7 @@ public class JMTable {
         }
         if(this.interfaces!=null){
             for(JMFormInterface fi:this.interfaces){
-                fi.actionAfterCanceled(this.currentRow,proceed);
+                fi.actionAfterCanceled(this.currentRow,proceed,canceledRow);
             }
         }
         
@@ -444,6 +478,16 @@ public class JMTable {
         }while(this.nextRow(false)!=null);
         this.currentRow=b;
     }
+    public void unsetFormInterface(JMInputInterface component, int column){
+        JMRow b=this.currentRow;
+        this.firstRow(false);
+        //if(this.currentRow==null)return;
+        do{
+            List<JMCell> cells=this.currentRow.getCells();
+            cells.get(column).getDataContainer().removeInterface(component);
+        }while(this.nextRow(false)!=null);
+        this.currentRow=b;
+    }
     public JMRow findByKeys(List<String> keyValues){
         if(this.currentRow==null)return null;
         if(this.keyCols==null)return null;
@@ -510,8 +554,8 @@ public class JMTable {
     }
     public List<String> getKeyValues(){
         List<String> ret=new ArrayList();
-        for(JMCell cell:this.currentRow.getCells()){
-            ret.add(cell.getValueString());
+        for(int i =0;i<this.keyCols.size();i++){
+            ret.add(this.currentRow.getCells().get(this.keyCols.get(i)).getDBValue());
         }
         return ret;
     }
@@ -576,7 +620,8 @@ public class JMTable {
         }while(this.nextRow(false)!=null);
         this.currentRow=tmp;
     }
-    private JMRow deleteAddedRow(){
+    
+    private JMRow deleteAddedRow(String extra){
         JMRow delete=this.currentRow;
         //if(delete==null)return null;
         JMRow p=this.currentRow.getPrev();
@@ -598,15 +643,16 @@ public class JMTable {
             this.firstRow=null;
             this.lastRow=null;
         }
+        
         if(this.interfaces!=null){
             for(JMFormInterface fi:this.interfaces){
-                fi.actionAfterDeleted(delete,true);
+                fi.actionAfterDeleted(delete,true,extra);
             }
         }
         this.gotoRow(this.currentRow, true);
         return delete;
     }
-    public void deleteRow(JMRow row,String message,int YesConfirm){
+    public void deleteRow(JMRow row,String message,int YesConfirm, String extra){
         boolean deleted=false;
         //if(this.currentRow==null)return;
         if(JMFunctions.confirmBoxYN(JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_CONFIRM), message, JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_YES), JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_NO), true)==YesConfirm){
@@ -638,7 +684,7 @@ public class JMTable {
         if(this.currentRow!=null)this.currentRow.displayInterface(true);
         if(this.interfaces!=null){
             for(JMFormInterface fi:this.interfaces){
-                fi.actionAfterDeleted(row,deleted);
+                fi.actionAfterDeleted(row,deleted,extra);
             }
         }
         this.gotoRow(this.currentRow, true);
@@ -667,6 +713,11 @@ public class JMTable {
     public void addInterface(JMFormInterface component){
         if(this.interfaces==null)this.interfaces=new ArrayList();
         this.interfaces.add(component);
+        
+    }
+    public void removeInterface(JMFormInterface component){
+        if(this.interfaces==null)return;
+        this.interfaces.remove(component);
         
     }
     public List<String> getLabelTitles(){

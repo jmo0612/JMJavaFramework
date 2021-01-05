@@ -13,7 +13,7 @@ import com.thowo.jmjavaframework.table.JMRow;
  */
 public interface JMFormInterface {
     void actionAfterAdded(JMRow rowAdded);
-    void actionAfterDeleted(JMRow row, boolean deleted);
+    void actionAfterDeleted(JMRow row, boolean deleted, String extra);
     void actionAfterSaved(String updateQuery,boolean saved);
     void actionAfterEdited(JMRow rowEdited);
     void actionAfterPrinted(JMRow rowPrinted);
@@ -25,7 +25,7 @@ public interface JMFormInterface {
     void actionAfterMovedFirst(JMRow firstRow);
     void actionAfterMovedLast(JMRow lastRow);
     void actionAfterMovedtoRecord(JMRow currentRow);
-    void actionAfterCanceled(JMRow rowCanceled, boolean canceled);
+    void actionAfterCanceled(JMRow newCurrentRow, boolean canceled, JMRow canceledRow);
     void actionBeforeFilter(String filter);
     void actionAfterFiltered(String filter);
 }

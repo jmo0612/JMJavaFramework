@@ -38,6 +38,7 @@ public class JMDataContainer {
     private Object valBU;
     private String valStringBU;
     private String valDBBU;
+    private boolean allowNull=false;
     
 
     public static JMDataContainer create(Object valueObject,int colIndex, String dbFieldName){
@@ -70,6 +71,7 @@ public class JMDataContainer {
         this.error=false;
         String formatType=style.getFormat(this.colIndex)+"|";
         Object[] params=style.getParams(this.colIndex);
+        this.allowNull=style.getAllowNull(this.colIndex);
         
         if(formatType.contains(JMResultSetStyle.FORMAT_IMAGE+"|"))this.dataDisplay=DATA_IMAGE;
         if(formatType.contains(JMResultSetStyle.DATA_TYPE_STRING+"|")){
@@ -166,30 +168,57 @@ public class JMDataContainer {
                 this.setValueAsBoolean((Boolean) this.val,display);
             }
         }else if(formatType.contains(JMResultSetStyle.DATA_TYPE_DATE+"|")){
-            this.align=ALIGN_RIGHT;
-            JMDate dt=null;
-            if(newValue!=null)try {
-                dt=JMDate.create(newValue);
-            } catch (ParseException ex) {
-                if(defaultValue){
-                    dt=new JMDate();
+            if(newValue!=null){
+                JMDate tmp=null;
+                if(newValue.equals("")){
+                    Date nullDate=null;
+                    tmp=new JMDate(nullDate);
                 }else{
-                    this.showError(JMFunctions.getMessege(JMConstMessage.MSG_ELSE+JMConstMessage.MSG_ELSE_DATE_INVALID));
-                    this.error=true;
-                    this.val=null;
-                    this.valString=newValue;
-                    this.setValToInterfaces();
-                    return;
+                    try {
+                        tmp=JMDate.create(newValue);
+                    } catch (ParseException ex) {
+                        if(defaultValue){
+                            tmp=new JMDate();
+                        }else{
+                            this.showError(JMFunctions.getMessege(JMConstMessage.MSG_ELSE+JMConstMessage.MSG_ELSE_DATE_INVALID));
+                            this.error=true;
+                            this.val=null;
+                            this.valString=newValue;
+                            this.setValToInterfaces();
+                            return;
+                        }
+                    }
                 }
+                this.val=tmp;
             }
-            JMDate dVal=dt;
-            if(dt==null)dVal=(JMDate) this.val;
+            
+            JMDate dVal=null;
+            if(this.val!=null){
+                try {
+                    dVal=(JMDate) this.val;
+                } catch (ClassCastException ex) {
+                    
+                }
+            }else{
+                Date nullDate=null;
+                dVal=new JMDate(nullDate);
+            }
+            
             if(formatType.contains(JMResultSetStyle.FORMAT_DATE_TIME+"|")){
                 //DATETIME
-                
+
                 this.valString=dVal.dateTimeIndo();
                 this.val=dVal;
-                this.valDB=dVal.dateTimeDB();
+                if(dVal.getDate()==null){
+                    if(this.allowNull){
+                        this.valDB=null;
+                    }else{
+                        this.valDB="";
+                    }
+                }else{
+                    this.valDB=dVal.dateTimeDB();
+                }
+                
                 this.setValueAsJMDateTime(dVal,display);
                 if(formatType.contains(JMResultSetStyle.FORMAT_DATE_12+"|")){
                     //12
@@ -211,13 +240,24 @@ public class JMDataContainer {
                 //DATE
                 this.valString=dVal.dateIndo();
                 this.val=dVal;
-                this.valDB=dVal.dateDB();
+                if(dVal.getDate()==null){
+                    if(this.allowNull){
+                        this.valDB=null;
+                    }else{
+                        this.valDB="";
+                    }
+                }else{
+                    this.valDB=dVal.dateDB();
+                }
+                
                 if(formatType.contains(JMResultSetStyle.FORMAT_DATE_DB+"|")){
                     this.setValueAsJMDate(dVal,display);
                 }else{
                     this.setValueAsJMDate(dVal,!formatType.contains(JMResultSetStyle.FORMAT_DATE_SHORT+"|"),display);
                 }
             }
+            
+            this.align=ALIGN_RIGHT;
         }else{
             this.val=newValue;
             this.valString=String.valueOf(this.val);
@@ -454,6 +494,10 @@ public class JMDataContainer {
         this.interfaces.add(component);
         this.refreshInterfaces(this.cell.getRow().getTable().getStyle(),null,true,defaultValue);
     }
+    public void removeInterface(JMInputInterface component){
+        if(this.interfaces==null)return;
+        this.interfaces.remove(component);
+    }
     public void setcolIndex(int colIndex){
         this.colIndex=colIndex;
     }
@@ -488,7 +532,12 @@ public class JMDataContainer {
         //JMFunctions.trace(this.txt+"="+this.txtBU);
         //JMFunctions.trace(this.valString+"="+this.valStringBU);
         //JMFunctions.trace(this.valDB+"="+this.valDBBU);
-        return this.val!=this.valBU || !this.txt.equals(this.txtBU) || !this.valString.equals(this.valStringBU) || !this.valDB.equals(this.valDBBU);
+        //return true;
+        if(this.valDB==null){
+            return this.val!=this.valBU || !this.txt.equals(this.txtBU) || !this.valString.equals(this.valStringBU) || this.valDB!=this.valDBBU;
+        }else{
+            return this.val!=this.valBU || !this.txt.equals(this.txtBU) || !this.valString.equals(this.valStringBU) || !this.valDB.equals(this.valDBBU);
+        }
     }
     public boolean isInterfaceRegistered(JMInputInterface ii){
         if(this.interfaces==null)return false;
@@ -500,4 +549,5 @@ public class JMDataContainer {
     public boolean isError(){
         return this.error;
     }
+    
 }

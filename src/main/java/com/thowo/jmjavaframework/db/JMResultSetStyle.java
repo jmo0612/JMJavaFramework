@@ -65,6 +65,7 @@ public class JMResultSetStyle {
     List<Boolean> hiddens=new ArrayList();
     List<String> labelTitles=new ArrayList();
     List<String> fieldNames=new ArrayList();
+    List<Boolean> allowNulls=new ArrayList();
 
     public JMResultSetStyle setFormat(int column,String JMResultSetStyleConstant, Object[] params){
         String tmp=this.formatTypes.get(column);
@@ -89,6 +90,13 @@ public class JMResultSetStyle {
     public JMResultSetStyle setLabel(String columnName,String title){
         return this.setLabel(this.getIndexOf(columnName), title);
     }
+    public JMResultSetStyle setAllowNull(int column,boolean allowNull){
+        this.allowNulls.set(column, allowNull);
+        return this;
+    }
+    public JMResultSetStyle setAllowNull(String columnName,boolean allowNull){
+        return this.setAllowNull(this.getIndexOf(columnName), allowNull);
+    }
     
     public static JMResultSetStyle create(JMResultSet rs){
         return new JMResultSetStyle(rs);
@@ -103,12 +111,14 @@ public class JMResultSetStyle {
             List<Boolean> hiddens=new ArrayList();
             List<String> labelTitles=new ArrayList();
             List<String> fieldNames=new ArrayList();
+            List<Boolean> allowNulls=new ArrayList();
             try {
                 for(int i=0;i<rs.getSQLResultSet().getMetaData().getColumnCount();i++){
                     hiddens.add(false);
                     listParams.add(null);
                     fieldNames.add(rs.getSQLResultSet().getMetaData().getColumnName(i+1));
                     labelTitles.add(rs.getSQLResultSet().getMetaData().getColumnName(i+1));
+                    allowNulls.add(false);
                     //JMFunctions.trace("**** "+rs.getMetaData().getColumnType(i+1)+"->"+java.sql.Types.LONGVARCHAR);
                     if(rs.getSQLResultSet().getMetaData().getColumnType(i+1)==java.sql.Types.BIT || rs.getSQLResultSet().getMetaData().getColumnType(i+1)==java.sql.Types.BOOLEAN){
                         formatTypes.add(JMResultSetStyle.DATA_TYPE_BOOLEAN);
@@ -143,6 +153,7 @@ public class JMResultSetStyle {
                 this.hiddens=hiddens;
                 this.labelTitles=labelTitles;
                 this.listParams=listParams;
+                this.allowNulls=allowNulls;
             } catch (SQLException ex) {
                 Logger.getLogger(JMResultSetStyle.class.getName()).log(Level.SEVERE, null, ex);
                 JMFunctions.trace(ex.getMessage());
@@ -170,6 +181,12 @@ public class JMResultSetStyle {
     }
     public int getColCount(){
         return this.fieldNames.size();
+    }
+    public Boolean getAllowNull(int columnIndex){
+        return this.allowNulls.get(columnIndex);
+    }
+    public Boolean getAllowNull(String fieldName){
+        return this.allowNulls.get(this.getIndexOf(fieldName));
     }
     public String getFormat(int columnIndex){
         return this.formatTypes.get(columnIndex);
