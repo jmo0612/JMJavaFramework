@@ -9,7 +9,8 @@ package com.thowo.jmjavaframework;
  *
  * @author jimi
  */
-public interface JMFilterListener {
-    String getFilterText();
-    void setFilterAction(Runnable action);
+public interface JMPanelInterface {
+    void setOpaque(boolean opaque);
+    void addComponent(Object component, Object... params);
+    void clear();
 }

@@ -3,13 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.thowo.jmjavaframework;
+package com.thowo.jmjavaframework.form;
 
 /**
  *
  * @author jimi
  */
-public interface JMFilterListener {
-    String getFilterText();
-    void setFilterAction(Runnable action);
+public interface JMLocaleInterface {
+    String getLabel(String label);
+    String getFieldLabel(String fieldName);
+    String getFieldPrompt(String fieldName);
 }

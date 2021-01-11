@@ -20,7 +20,7 @@ public class JMDataContainer {
     public static final int ALIGN_CENTER=1;
     public static final int ALIGN_RIGHT=2;
     
-    private List<JMInputInterface> interfaces;
+    private List<JMFieldInterface> interfaces;
     private JMCell cell;
     private String txt;
     private Object val;
@@ -44,10 +44,10 @@ public class JMDataContainer {
     public static JMDataContainer create(Object valueObject,int colIndex, String dbFieldName){
         return new JMDataContainer(null, String.valueOf(valueObject), valueObject, "", "", dbFieldName, colIndex, null);
     }
-    public JMDataContainer(List<JMInputInterface> interfaces,String valueString,Object valueObject,String errMsg,String hint,String dbFieldName, int colIndex,JMCell cell){
+    public JMDataContainer(List<JMFieldInterface> interfaces,String valueString,Object valueObject,String errMsg,String hint,String dbFieldName, int colIndex,JMCell cell){
         this.setProp(interfaces,valueString,valueObject,errMsg,hint,dbFieldName,colIndex,cell);
     }
-    private void setProp(List<JMInputInterface> interfaces,String valueString,Object valueObject,String errMsg,String hint,String dbFieldName, int colIndex,JMCell cell){
+    private void setProp(List<JMFieldInterface> interfaces,String valueString,Object valueObject,String errMsg,String hint,String dbFieldName, int colIndex,JMCell cell){
         this.txt=valueString;
         this.val=valueObject;
         this.errMsg=errMsg;
@@ -57,10 +57,10 @@ public class JMDataContainer {
         this.cell=cell;
         this.setInterfaces(interfaces,true);
     }
-    public void setInterfaces(List<JMInputInterface> components,boolean defaultValue){
+    public void setInterfaces(List<JMFieldInterface> components,boolean defaultValue){
         this.interfaces=components;
         if(components!=null){
-            for(JMInputInterface ii:this.interfaces){
+            for(JMFieldInterface ii:this.interfaces){
                 ii.setDataContainer(this);
                 ii.displayText(this.txt, this.align);
             }
@@ -273,7 +273,7 @@ public class JMDataContainer {
     }
     private void displayToInterfaces(){
         if(this.interfaces==null)return;
-        for(JMInputInterface i:this.interfaces){
+        for(JMFieldInterface i:this.interfaces){
             if(i!=null){
                 i.displayText(this.txt, this.align);
             }
@@ -281,7 +281,7 @@ public class JMDataContainer {
     }
     private void setValToInterfaces(){
         if(this.interfaces==null)return;
-        for(JMInputInterface i:this.interfaces){
+        for(JMFieldInterface i:this.interfaces){
             if(i!=null){
                 i.setValueObject(this.val);
                 i.setValueString(this.valString);
@@ -290,7 +290,7 @@ public class JMDataContainer {
     }
     private void showError(String errMsg){
         if(this.interfaces==null)return;
-        for(JMInputInterface i:this.interfaces){
+        for(JMFieldInterface i:this.interfaces){
             if(i!=null){
                 i.displayError(errMsg);
             }
@@ -298,7 +298,7 @@ public class JMDataContainer {
     }
     public void hideInterfaces(Boolean hidden){
         if(this.interfaces==null)return;
-        for(JMInputInterface i:this.interfaces){
+        for(JMFieldInterface i:this.interfaces){
             if(i!=null){
                 i.setHidden(hidden);
             }
@@ -458,7 +458,7 @@ public class JMDataContainer {
     public JMCell getCell(){
         return this.cell;
     }
-    public List<JMInputInterface> getInterfaces(){
+    public List<JMFieldInterface> getInterfaces(){
         return this.interfaces;
     }
     public String getFieldName(){
@@ -487,14 +487,14 @@ public class JMDataContainer {
     }
     
     
-    public void addInterface(JMInputInterface component,boolean defaultValue){
+    public void addInterface(JMFieldInterface component,boolean defaultValue){
         component.setDataContainer(this);
         component.displayText(this.txt, this.align);
         if(this.interfaces==null)this.interfaces=new ArrayList();
         this.interfaces.add(component);
         this.refreshInterfaces(this.cell.getRow().getTable().getStyle(),null,true,defaultValue);
     }
-    public void removeInterface(JMInputInterface component){
+    public void removeInterface(JMFieldInterface component){
         if(this.interfaces==null)return;
         this.interfaces.remove(component);
     }
@@ -539,9 +539,9 @@ public class JMDataContainer {
             return this.val!=this.valBU || !this.txt.equals(this.txtBU) || !this.valString.equals(this.valStringBU) || !this.valDB.equals(this.valDBBU);
         }
     }
-    public boolean isInterfaceRegistered(JMInputInterface ii){
+    public boolean isInterfaceRegistered(JMFieldInterface ii){
         if(this.interfaces==null)return false;
-        for(JMInputInterface i:this.interfaces){
+        for(JMFieldInterface i:this.interfaces){
             if(i==ii)return true;
         }
         return false;

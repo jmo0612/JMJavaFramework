@@ -7,8 +7,8 @@ package com.thowo.jmjavaframework.table;
 
 import com.thowo.jmjavaframework.JMDataContainer;
 import com.thowo.jmjavaframework.JMDate;
-import com.thowo.jmjavaframework.JMFormInterface;
-import com.thowo.jmjavaframework.JMInputInterface;
+import com.thowo.jmjavaframework.JMTableInterface;
+import com.thowo.jmjavaframework.JMFieldInterface;
 import com.thowo.jmjavaframework.JMFunctions;
 import com.thowo.jmjavaframework.db.JMResultSet;
 import com.thowo.jmjavaframework.db.JMResultSetStyle;
@@ -18,6 +18,7 @@ import java.sql.Types;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,6 +30,11 @@ import java.util.logging.Logger;
 public class JMTable {
     public static final int DBTYPE_MYSQL=0;
     public static final int DBTYPE_SQLITE=1;
+    
+    public static final int YES_OPTION=0;
+    public static final int NO_OPTION=1;
+    public static final int CANCEL_OPTION=2;
+    
     //INTEGER SIZE OF ROWS ONLY
     //AUTOMATIC FIRST ROW
     private List<Integer> keyCols=new ArrayList();
@@ -38,7 +44,7 @@ public class JMTable {
     private JMRow lastRow;
     private String name;
     private JMResultSetStyle style;
-    private List<JMFormInterface> interfaces;
+    private List<JMTableInterface> interfaces;
     private List<String> labelTitles;
     private JMRow edited=null;
     private boolean adding=false;
@@ -138,14 +144,13 @@ public class JMTable {
     public JMResultSetStyle getStyle(){
         return this.style;
     }
-    
-    
-    public void refresh(){
+    public void requery(String query){
+        this.query=query;
         if(this.query.equals(""))return;
-        if(this.currentRow==null)return;
-        List<String> keys=this.getKeyValues();
+        List<String> keys=null;
+        if(this.currentRow!=null)keys=this.getKeyValues();
         
-        List<List<JMInputInterface>> inputs=new ArrayList();
+        List<List<JMFieldInterface>> inputs=new ArrayList();
         if(this.currentRow!=null){
             for(JMDataContainer dc:this.currentRow.getDataContainers()){
                 inputs.add(dc.getInterfaces());
@@ -154,7 +159,70 @@ public class JMTable {
         
         
         if(this.interfaces!=null){
-            for(JMFormInterface fi:this.interfaces){
+            for(JMTableInterface fi:this.interfaces){
+                fi.actionBeforeRefresh(this.currentRow);
+            }
+        }
+        List<JMRow> deleted=new ArrayList();
+        JMRow r=this.firstRow;
+        while(r!=null){
+            this.currentRow=r;
+            deleted.add(this.deleteAddedRow("refresh"));
+            r=r.getNext();
+        }
+        this.currentRow=null;
+        this.firstRow=null;
+        this.lastRow=null;
+        for(JMRow d:deleted){
+            d=null;
+        }
+        
+        JMResultSet rs=this.getResultSet(this.query, this.dbType);
+        this.setProp(rs, this.style);
+        
+        
+        if(keys!=null)this.currentRow=this.findByKeys(keys);
+        if(this.currentRow==null)this.currentRow=this.firstRow;
+        
+        if(inputs.size()>0 && this.currentRow!=null){
+            List<JMDataContainer> dcs=this.currentRow.getDataContainers();
+            for(int i=0;i<dcs.size();i++){
+                //JMDataContainer dc=dcs.get(i);
+                //dc.setInterfaces(inputs.get(i), true);
+                List<JMFieldInterface> iis=inputs.get(i);
+                if(iis!=null){
+                    for(JMFieldInterface ii:iis){
+                        this.setFormInterface(ii, i, true);
+                    }
+                }
+                
+            }
+        }
+        
+        if(this.interfaces!=null){
+            for(JMTableInterface fi:this.interfaces){
+                fi.actionAfterRefreshed(this.currentRow);
+            }
+        }
+        this.gotoRow(this.currentRow, true);
+        //JMFunctions.trace("REFRESHED");
+    }
+    
+    public void refresh(){
+        if(this.query.equals(""))return;
+        if(this.currentRow==null)return;
+        List<String> keys=this.getKeyValues();
+        
+        List<List<JMFieldInterface>> inputs=new ArrayList();
+        if(this.currentRow!=null){
+            for(JMDataContainer dc:this.currentRow.getDataContainers()){
+                inputs.add(dc.getInterfaces());
+            }
+        }
+        
+        
+        if(this.interfaces!=null){
+            for(JMTableInterface fi:this.interfaces){
                 fi.actionBeforeRefresh(this.currentRow);
             }
         }
@@ -184,9 +252,9 @@ public class JMTable {
             for(int i=0;i<dcs.size();i++){
                 //JMDataContainer dc=dcs.get(i);
                 //dc.setInterfaces(inputs.get(i), true);
-                List<JMInputInterface> iis=inputs.get(i);
+                List<JMFieldInterface> iis=inputs.get(i);
                 if(iis!=null){
-                    for(JMInputInterface ii:iis){
+                    for(JMFieldInterface ii:iis){
                         this.setFormInterface(ii, i, true);
                     }
                 }
@@ -195,7 +263,7 @@ public class JMTable {
         }
         
         if(this.interfaces!=null){
-            for(JMFormInterface fi:this.interfaces){
+            for(JMTableInterface fi:this.interfaces){
                 fi.actionAfterRefreshed(this.currentRow);
             }
         }
@@ -204,13 +272,13 @@ public class JMTable {
     public void filter(String filter){
         //NOTHING TO DO WITH THE DATAS;
         if(this.interfaces!=null){
-            for(JMFormInterface fi:this.interfaces){
+            for(JMTableInterface fi:this.interfaces){
                 fi.actionBeforeFilter(filter);
             }
         }
         this.filter=filter;
         if(this.interfaces!=null){
-            for(JMFormInterface fi:this.interfaces){
+            for(JMTableInterface fi:this.interfaces){
                 fi.actionAfterFiltered(filter);
             }
         }
@@ -235,7 +303,7 @@ public class JMTable {
             if(this.currentRow!=null){
                 this.currentRow.displayInterface(true);
                 if(this.interfaces!=null){
-                    for(JMFormInterface fi:this.interfaces){
+                    for(JMTableInterface fi:this.interfaces){
                         fi.actionAfterMovedFirst(this.currentRow);
                     }
                 }
@@ -250,7 +318,7 @@ public class JMTable {
         if(updateContainer){
             if(this.currentRow!=null)this.currentRow.displayInterface(true);
             if(this.interfaces!=null){
-                for(JMFormInterface fi:this.interfaces){
+                for(JMTableInterface fi:this.interfaces){
                     fi.actionAfterMovedNext(ret);
                 }
             }
@@ -264,7 +332,7 @@ public class JMTable {
         if(updateContainer){
             if(this.currentRow!=null)this.currentRow.displayInterface(true);
             if(this.interfaces!=null){
-                for(JMFormInterface fi:this.interfaces){
+                for(JMTableInterface fi:this.interfaces){
                     fi.actionAfterMovedNext(ret);
                 }
             }
@@ -277,7 +345,7 @@ public class JMTable {
             if(this.currentRow!=null){
                 this.currentRow.displayInterface(true);
                 if(this.interfaces!=null){
-                    for(JMFormInterface fi:this.interfaces){
+                    for(JMTableInterface fi:this.interfaces){
                         fi.actionAfterMovedFirst(this.currentRow);
                     }
                 }
@@ -297,7 +365,7 @@ public class JMTable {
         if(updateContainer){
             if(this.currentRow!=null)this.currentRow.displayInterface(true);
             if(this.interfaces!=null){
-                for(JMFormInterface fi:this.interfaces){
+                for(JMTableInterface fi:this.interfaces){
                     fi.actionAfterMovedtoRecord(this.currentRow);
                 }
             }
@@ -323,7 +391,7 @@ public class JMTable {
         if(updateContainer){
             if(this.currentRow!=null)this.currentRow.displayInterface(true);
             if(this.interfaces!=null){
-                for(JMFormInterface fi:this.interfaces){
+                for(JMTableInterface fi:this.interfaces){
                     fi.actionAfterMovedtoRecord(this.currentRow);
                 }
             }
@@ -335,7 +403,7 @@ public class JMTable {
         if(updateContainer){
             if(this.currentRow!=null)this.currentRow.displayInterface(true);
             if(this.interfaces!=null){
-                for(JMFormInterface fi:this.interfaces){
+                for(JMTableInterface fi:this.interfaces){
                     fi.actionAfterMovedtoRecord(this.currentRow);
                 }
             }
@@ -349,7 +417,7 @@ public class JMTable {
         this.edited=this.currentRow;
         this.adding=false;
         if(this.interfaces!=null){
-            for(JMFormInterface fi:this.interfaces){
+            for(JMTableInterface fi:this.interfaces){
                 fi.actionAfterEdited(this.currentRow);
             }
         }
@@ -396,7 +464,7 @@ public class JMTable {
             }
         }
         if(this.interfaces!=null){
-            for(JMFormInterface fi:this.interfaces){
+            for(JMTableInterface fi:this.interfaces){
                 fi.actionAfterCanceled(this.currentRow,proceed,canceledRow);
             }
         }
@@ -405,7 +473,7 @@ public class JMTable {
     }
     public void viewRow(){
         if(this.interfaces!=null){
-            for(JMFormInterface fi:this.interfaces){
+            for(JMTableInterface fi:this.interfaces){
                 fi.actionAfterViewed(this.currentRow);
             }
         }
@@ -415,7 +483,7 @@ public class JMTable {
         if(this.isEmpty())return;
         if(this.currentRow==null)return;
         if(this.interfaces!=null){
-            for(JMFormInterface fi:this.interfaces){
+            for(JMTableInterface fi:this.interfaces){
                 fi.actionAfterPrinted(this.currentRow);
             }
         }
@@ -450,7 +518,7 @@ public class JMTable {
         }
         
         if(this.interfaces!=null){
-            for(JMFormInterface fi:this.interfaces){
+            for(JMTableInterface fi:this.interfaces){
                 fi.actionAfterSaved(this.currentRow.getUpdateSQL(),saved);
             }
         }
@@ -468,7 +536,7 @@ public class JMTable {
         }
         return data;
     }
-    public void setFormInterface(JMInputInterface component, int column, boolean defaultValue){
+    public void setFormInterface(JMFieldInterface component, int column, boolean defaultValue){
         JMRow b=this.currentRow;
         this.firstRow(false);
         //if(this.currentRow==null)return;
@@ -478,7 +546,7 @@ public class JMTable {
         }while(this.nextRow(false)!=null);
         this.currentRow=b;
     }
-    public void unsetFormInterface(JMInputInterface component, int column){
+    public void unsetFormInterface(JMFieldInterface component, int column){
         JMRow b=this.currentRow;
         this.firstRow(false);
         //if(this.currentRow==null)return;
@@ -580,6 +648,7 @@ public class JMTable {
         return ret;
     }
     public JMRow addNewRow(){
+        //JMFunctions.traceAndShow("ADD NEW ROW");
         JMRow ret=this.addRow(false);
         //if(ret==null)return null;
         ret.setTable(this);
@@ -603,7 +672,7 @@ public class JMTable {
         //this.edited=ret;
         this.adding=true;
         if(this.interfaces!=null){
-            for(JMFormInterface fi:this.interfaces){
+            for(JMTableInterface fi:this.interfaces){
                 fi.actionAfterAdded(this.currentRow);
             }
         }
@@ -645,7 +714,7 @@ public class JMTable {
         }
         
         if(this.interfaces!=null){
-            for(JMFormInterface fi:this.interfaces){
+            for(JMTableInterface fi:this.interfaces){
                 fi.actionAfterDeleted(delete,true,extra);
             }
         }
@@ -683,7 +752,7 @@ public class JMTable {
         
         if(this.currentRow!=null)this.currentRow.displayInterface(true);
         if(this.interfaces!=null){
-            for(JMFormInterface fi:this.interfaces){
+            for(JMTableInterface fi:this.interfaces){
                 fi.actionAfterDeleted(row,deleted,extra);
             }
         }
@@ -710,14 +779,22 @@ public class JMTable {
     public void setKeyColumns(List<Integer> keyColumns){
         this.keyCols=keyColumns;
     }
-    public void addInterface(JMFormInterface component){
+    public void addInterface(JMTableInterface component){
         if(this.interfaces==null)this.interfaces=new ArrayList();
+        //JMFunctions.trace("ADD: "+component.toString());
         this.interfaces.add(component);
         
     }
-    public void removeInterface(JMFormInterface component){
+    public void removeInterface(JMTableInterface component){
         if(this.interfaces==null)return;
-        this.interfaces.remove(component);
+        List<JMTableInterface> ni=new ArrayList();
+        for(JMTableInterface ti:this.interfaces){
+            if(!ti.equals(component)){
+                ni.add(ti);
+            }
+        }
+        this.interfaces=ni;
+        //this.interfaces.remove(component);
         
     }
     public List<String> getLabelTitles(){

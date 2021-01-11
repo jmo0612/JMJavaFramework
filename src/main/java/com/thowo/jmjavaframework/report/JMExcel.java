@@ -5,8 +5,11 @@
  */
 package com.thowo.jmjavaframework.report;
 
+import com.thowo.jmjavaframework.JMDataContainer;
 import com.thowo.jmjavaframework.JMFormatCollection;
 import com.thowo.jmjavaframework.JMFunctions;
+import com.thowo.jmjavaframework.db.JMResultSetStyle;
+import com.thowo.jmjavaframework.table.JMCell;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -21,6 +24,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 
 /**
  *
@@ -33,6 +39,37 @@ public class JMExcel {
     Row row;
     Iterator<Cell> cellIterator;
     Cell cell;
+    
+    
+    public static void setCellValue(XSSFCell xlsCell, JMCell tblCell){
+        if(tblCell.getFormatType().contains(JMResultSetStyle.DATA_TYPE_BOOLEAN + "|")){
+            xlsCell.setCellValue(tblCell.getValueBoolean());
+        }else if(tblCell.getFormatType().contains(JMResultSetStyle.DATA_TYPE_DATE + "|")){
+            xlsCell.setCellValue(tblCell.getValueDate().getDate());
+        }else if(tblCell.getFormatType().contains(JMResultSetStyle.DATA_TYPE_DOUBLE + "|")){
+            xlsCell.setCellValue(tblCell.getValueDouble());
+        }else if(tblCell.getFormatType().contains(JMResultSetStyle.DATA_TYPE_INTEGER + "|")){
+            xlsCell.setCellValue(tblCell.getValueInteger());
+        }else{
+            xlsCell.setCellValue(tblCell.getDBValue());
+        }
+    }
+    public static void shiftRows(XSSFSheet sheet, int startRow, int endRow, int n){
+        shiftRows(sheet,startRow,endRow,n,false,false);
+    }
+    public static void shiftRows(XSSFSheet sheet, int startRow, int endRow, int n, boolean copyRowHeight, boolean resetOriginalRowHeight){
+        sheet.shiftRows(startRow, endRow, n, copyRowHeight, resetOriginalRowHeight);
+        for (int r = sheet.getFirstRowNum(); r < sheet.getLastRowNum() + 1; r++) {
+            XSSFRow row = sheet.getRow(r); 
+            if (row != null) {
+                long rRef = row.getCTRow().getR();
+                for (Cell cell : row) {
+                    String cRef = ((XSSFCell)cell).getCTCell().getR();
+                    ((XSSFCell)cell).getCTCell().setR(cRef.replaceAll("[0-9]", "") + rRef);
+                }
+            }
+        }
+    }
     
     public static JMExcel create(String xls){
         return new JMExcel(xls);

@@ -4,6 +4,7 @@ package com.thowo.jmjavaframework;
 import com.thowo.jmjavaframework.db.JMConnection;
 import com.thowo.jmjavaframework.lang.JMLanguage;
 import com.thowo.jmjavaframework.lang.JMMessage;
+import com.thowo.jmjavaframework.report.JMExcel;
 import com.thowo.jmjavaframework.table.JMCell;
 import com.thowo.jmjavaframework.table.JMRow;
 import com.thowo.jmjavaframework.table.JMTable;
@@ -36,6 +37,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellCopyPolicy;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -43,7 +45,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -150,6 +154,48 @@ public class JMFunctions {
             Logger.getLogger(JMFunctions.class.getName()).log(Level.SEVERE, null, ex);
             JMFunctions.traceAndShow(ex.getMessage());
         }
+    }
+    
+    public static void writeTableToExistingExcel(String source, String sheetName, List<Integer> xlsColumns, List<Integer> sortedXlsColumnsNoRepetition, int startRow, JMTable table, List<Integer> excluded, String dest){
+        File src=new File(source);
+        if(!JMFunctions.fileExist(src))return;
+        if(table==null)return;
+        if(table.isEmpty())return;
+        if(excluded==null)excluded=table.getExcludedCols();
+        if(xlsColumns==null)xlsColumns=new ArrayList();
+        if(sortedXlsColumnsNoRepetition==null)sortedXlsColumnsNoRepetition=new ArrayList();
+        try {
+            FileInputStream fis = new FileInputStream(src);
+            XSSFWorkbook workbook = new XSSFWorkbook(fis);
+            XSSFSheet sheet = workbook.getSheet(sheetName);
+            int wTmp=startRow;
+            table.firstRow(false);
+            do{
+                JMExcel.shiftRows(sheet, wTmp, sheet.getLastRowNum(), 1);
+                wTmp++;
+                sheet.copyRows(wTmp, wTmp, wTmp-1, new CellCopyPolicy());
+                List<JMCell> dbCells=table.getCurrentRow().getCells();
+                int wXlsCol=0;
+                for(Integer i=0;i<dbCells.size();i++){
+                    if(!excluded.contains(i)){
+                        XSSFRow row = sheet.getRow(wTmp-1);
+                        XSSFCell cell=row.getCell(xlsColumns.get(wXlsCol++));
+                        JMExcel.setCellValue(cell, dbCells.get(i));
+                    }
+                }
+            }while(table.nextRow(false)!=null);
+            JMExcel.shiftRows(sheet, wTmp+1, sheet.getLastRowNum(), -1);
+            
+            
+            FileOutputStream out = new FileOutputStream(dest);
+            workbook.write(out);
+            out.close();
+        } catch (IOException ex) {
+            JMFunctions.trace(ex.getMessage());
+        } catch (EncryptedDocumentException ex) {
+            JMFunctions.trace(ex.getMessage());
+        }
+        
     }
     
     public static void writeTableToExcel(JMTable table, String dest, List<Integer> excluded){
@@ -646,6 +692,13 @@ public class JMFunctions {
     }
     public static String validDBValue(String value){
         return validDBValue(value,"");
+    }
+    public static List<Integer> getListIntegerFrom(Integer... intValues){
+        List<Integer> ret=new ArrayList();
+        for(Integer i:intValues){
+            ret.add(i);
+        }
+        return ret;
     }
 
 }

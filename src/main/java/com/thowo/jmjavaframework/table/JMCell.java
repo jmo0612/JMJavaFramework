@@ -6,6 +6,8 @@
 package com.thowo.jmjavaframework.table;
 
 import com.thowo.jmjavaframework.JMDataContainer;
+import com.thowo.jmjavaframework.JMDate;
+import com.thowo.jmjavaframework.db.JMResultSetStyle;
 
 /**
  *
@@ -66,6 +68,9 @@ public class JMCell {
     public String getText(){
         return this.data.getText();
     }
+    public JMDate getValueDate(){
+        return (JMDate)this.data.getValue();
+    }
     public String getValueString(){
         return String.valueOf(this.data.getValue());
     }
@@ -116,5 +121,10 @@ public class JMCell {
     }
     public boolean excludedFromUpdate(){
         return this.excludeFromUpdate;
+    }
+    public String getFormatType(){
+        int ind=this.data.getColIndex();
+        JMResultSetStyle style=this.row.getTable().getStyle();
+        return style.getFormat(ind);
     }
 }

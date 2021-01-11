@@ -11,7 +11,7 @@ import com.thowo.jmjavaframework.table.JMRow;
  *
  * @author jimi
  */
-public interface JMFormInterface {
+public interface JMTableInterface {
     void actionAfterAdded(JMRow rowAdded);
     void actionAfterDeleted(JMRow row, boolean deleted, String extra);
     void actionAfterSaved(String updateQuery,boolean saved);
