@@ -558,4 +558,363 @@ public class JMFormatCollection {
     public static Integer doubleToInt(Double value){
         return JMFormatCollection.doubleToInt(value, 0);
     }
+    
+    private static String kata(int nomor){
+        if(nomor>9)return "";
+        String[] k=new String[]{"", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan"};
+        return k[nomor];
+    }
+    private static String kata(char nomor){
+        return kata(Integer.valueOf(String.valueOf(nomor)));
+    }
+    public static String terbilang(Double angka){
+        DecimalFormat df = new DecimalFormat("#.##");
+        String nDbl=df.format(angka);
+        return terbilang(nDbl);
+    }
+    public static String terbilang(Integer angka){
+        //DecimalFormat df = new DecimalFormat("#.##");
+        //String nDbl=df.format(angka);
+        return terbilang(String.valueOf(angka));
+    }
+    private static String terbilang(String angka){
+        //Long num=Math.round(Math.floor(Math.abs(angka)));
+        //String nInt=String.valueOf(num);
+        
+        String[] seps=JMFormatCollection.strToArray(angka, "\\.");
+        
+        char des1='\0';
+        char des2='\0';
+        if(seps.length>1){
+            try{
+                des1=angka.charAt(seps[0].length()+1);
+                des2=angka.charAt(seps[0].length()+2);
+            }catch(java.lang.StringIndexOutOfBoundsException ex){
+                
+            }
+        }
+        String koma="";
+        if(des2=='\0'){
+            if(des1=='\0' || des1=='0'){
+                koma="";
+            }else{
+                koma=" koma "+ kata(des1);
+            }
+        }else if(des2=='0'){
+            if(des1 == '0'){
+                koma="";
+            }else if(des1=='1'){
+                koma=" koma sepuluh";
+            }else{
+                koma = " koma " + kata(des1) + " puluh";
+            }
+        }else{
+            if(des1=='0'){
+                koma = " koma nol " + kata(des2);
+            }else if(des1=='1'){
+                if(des2=='1'){
+                    koma = " koma sebelas";
+                }else{
+                    koma = " koma " + kata(des2) + " belas";
+                }
+            }else{
+                koma = " koma " + kata(des1) + " puluh " + kata(des2);
+            }
+        }
+        char no1 = '\0';
+        char no2 = '\0';
+        char no3 = '\0';
+        char no4 = '\0';
+        char no5 = '\0';
+        char no6 = '\0';
+        char no7 = '\0';
+        char no8 = '\0';
+        char no9 = '\0';
+        char no10 = '\0';
+        char no11 = '\0';
+        char no12 = '\0';
+        char no13 = '\0';
+        char no14 = '\0';
+        char no15 = '\0';
+        
+        try{
+            no1 = seps[0].charAt(seps[0].length()-1);
+            //JMFunctions.trace(no1+"");
+            no2 = seps[0].charAt(seps[0].length()-2);
+            //JMFunctions.trace(no2+"");
+            no3 = seps[0].charAt(seps[0].length()-3);
+            //JMFunctions.trace(no3+"");
+            no4 = seps[0].charAt(seps[0].length()-4);
+            no5 = seps[0].charAt(seps[0].length()-5);
+            no6 = seps[0].charAt(seps[0].length()-6);
+            no7 = seps[0].charAt(seps[0].length()-7);
+            no8 = seps[0].charAt(seps[0].length()-8);
+            no9 = seps[0].charAt(seps[0].length()-9);
+            no10 = seps[0].charAt(seps[0].length()-10);
+            no11 = seps[0].charAt(seps[0].length()-11);
+            no12 = seps[0].charAt(seps[0].length()-12);
+            no13 = seps[0].charAt(seps[0].length()-13);
+            no14 = seps[0].charAt(seps[0].length()-14);
+            no15 = seps[0].charAt(seps[0].length()-15);
+        }catch(java.lang.StringIndexOutOfBoundsException ex){
+
+        }
+        
+        
+        String nomor1 = "";
+        String nomor2 = "";
+        String nomor3 = "";
+        String nomor4 = "";
+        String nomor5 = "";
+        String nomor6 = "";
+        String nomor7 = "";
+        String nomor8 = "";
+        String nomor9 = "";
+        String nomor10 = "";
+        String nomor11 = "";
+        String nomor12 = "";
+        String nomor13 = "";
+        String nomor14 = "";
+        String nomor15 = "";
+        
+        //Satuan
+        if(seps[0].length() >= 1){
+            if(seps[0].length() == 1 && no1 == '1'){
+                nomor1 = "satu";
+            }else if(seps[0].length() == 1 && no1 == '0'){
+                nomor1 = "Nol";
+            }else if(no2 == '1'){
+                if(no1 == '1'){
+                    nomor1 = "sebelas";
+                }else if(no1 == '0'){
+                    nomor1 = "sepuluh";
+                }else{
+                    nomor1 = kata(no1) + " belas";
+                }
+            }else{
+                nomor1 = kata(no1);
+            }
+        }else{
+            nomor1 = "";
+        }
+
+        //Puluhan
+        if(seps[0].length() >= 2){
+            if(no2 == '1' || no2 == '0'){
+                nomor2 = "";
+            }else{
+                nomor2 = kata(no2) + " puluh ";
+            }
+        }else{
+            nomor2 = "";
+        }
+        //Ratusan
+        if(seps[0].length() >= 3){
+            if(no3 == '1'){
+                nomor3 = "seratus ";
+            }else if(no3 == '0'){
+                nomor3 = "";
+            }else{
+                nomor3 = kata(no3) + " ratus ";
+            }
+        }else{
+            nomor3 = "";
+        }
+        //Ribuan
+        if(seps[0].length() >= 4){
+            if(no6 == '0' && no5 == '0' && no4 == '0'){
+                nomor4 = "";
+            }else if((no4 == '1' && seps[0].length() == 4) || (no6 == '0' && no5 == '0' && no4 == '1')){
+                nomor4 = "seribu ";
+            }else if(no5 == '1'){
+                if(no4 == '1'){
+                    nomor4 = "sebelas ribu ";
+                }else if(no4 == '0'){
+                    nomor4 = "sepuluh ribu ";
+                }else{
+                    nomor4 = kata(no4) + " belas ribu ";
+                }
+            }else{
+                nomor4 = kata(no4) + " ribu ";
+            }
+        }else{
+            nomor4 = "";
+        }
+        //Puluhan ribu
+        if(seps[0].length() >= 5){
+            if(no5 == '1' || no5 == '0'){
+                nomor5 = "";
+            }else{
+                nomor5 = kata(no5) + " puluh ";
+            }
+        }else{
+            nomor5 = "";
+        }
+        //Ratusan Ribu
+        if(seps[0].length() >= 6){
+            if(no6 == '1'){
+                nomor6 = "seratus ";
+            }else if(no6 == '0'){
+                nomor6 = "";
+            }else{
+                nomor6 = kata(no6) + " ratus ";
+            }
+        }else{
+            nomor6 = "";
+        }
+        //Jutaan
+        if(seps[0].length() >= 7){
+            if(no9 == '0' && no8 == '0' && no7 == '0'){
+                nomor7 = "";
+            }else if(no7 == '1' && seps[0].length() == 7){
+                nomor7 = "satu juta ";
+            }else if(no8 == '1'){
+                if(no7 == '1'){
+                    nomor7 = "sebelas juta ";
+                }else if(no7 == '0'){
+                    nomor7 = "sepuluh juta ";
+                }else{
+                    nomor7 = kata(no7) + " belas juta ";
+                }
+            }else{
+                nomor7 = kata(no7) + " juta ";
+            }
+        }else{
+            nomor7 = "";
+        }
+        //Puluhan juta
+        if(seps[0].length() >= 8){
+            if(no8 == '1' || no8 == '0'){
+                nomor8 = "";
+            }else{
+                nomor8 = kata(no8) + " puluh ";
+            }
+        }else{
+            nomor8 = "";
+        }
+        //Ratusan juta
+        if(seps[0].length() >= 9){
+            if(no9 == '1'){
+                nomor9 = "seratus ";
+            }else if(no9 == '0'){
+                nomor9 = "";
+            }else{
+                nomor9 = kata(no9) + " ratus ";
+            }
+        }else{
+            nomor9 = "";
+        }
+        //Milyar
+        if(seps[0].length() >= 10){
+            if(no12 == '0' && no11 == '0' && no10 == '0'){
+                nomor10 = "";
+            }else if(no10 == '1' && seps[0].length() == 10){
+                nomor10 = "satu milyar ";
+            }else if(no11 == '1'){
+                if(no10 == '1'){
+                    nomor10 = "sebelas milyar ";
+                }else if(no10 == '0'){
+                    nomor10 = "sepuluh milyar ";
+                }else{
+                    nomor10 = kata(no10) + " belas milyar ";
+                }
+            }else{
+                nomor10 = kata(no10) + " milyar ";
+            }
+        }else{
+            nomor10 = "";
+        }
+        //Puluhan Milyar
+        if(seps[0].length() >= 11){
+            if(no11 == '1' || no11 == '0'){
+                nomor11 = "";
+            }else{
+                nomor11 = kata(no11) + " puluh ";
+            }
+        }else{
+            nomor11 = "";
+        }
+        //Ratusan Milyar
+        if(seps[0].length() >= 12){
+            if(no12 == '1'){
+                nomor12 = "seratus ";
+            }else if(no12 == '0'){
+                nomor12 = "";
+            }else{
+                nomor12 = kata(no12) + " ratus ";
+            }
+        }else{
+            nomor12 = "";
+        }
+        //Triliun
+        if(seps[0].length() >= 13){
+            if(no15 == '0' && no14 == '0' && no13 == '0'){
+                nomor13 = "";
+            }else if(no13 == '1' && seps[0].length() == 13){
+                nomor13 = "satu triliun ";
+            }else if(no14 == '1'){
+                if(no13 == '1'){
+                    nomor13 = "sebelas triliun ";
+                }else if(no13 == '0'){
+                    nomor13 = "sepuluh triliun ";
+                }else{
+                    nomor13 = kata(no13) + " belas triliun ";
+                }
+            }else{
+                nomor13 = kata(no13) + " triliun ";
+            }
+        }else{
+            nomor13 = "";
+        }
+        //Puluhan triliun
+        if(seps[0].length() >= 14){
+            if(no14 == '1' || no14 == '0'){
+                nomor14 = "";
+            }else{
+                nomor14 = kata(no14) + " puluh ";
+            }
+        }else{
+            nomor14 = "";
+        }
+        //Ratusan triliun
+        if(seps[0].length() >= 15){
+            if(no15 == '1'){
+                nomor15 = "seratus ";
+            }else if(no15 == '0'){
+                nomor15 = "";
+            }else{
+                nomor15 = kata(no15) + " ratus ";
+            }
+        }else{
+            nomor15 = "";
+        }
+
+        String bilang="";
+        if(seps[0].length() > 15){
+            bilang = "Digit Angka Terlalu Banyak";
+        }else{
+            if(angka==null || angka.equals("")){
+                bilang = "";
+            }else if(Double.valueOf(angka) < 0){
+                String tmp=nomor15 + nomor14 + nomor13 + nomor12 + nomor11 + nomor10 + nomor9 + nomor8 + nomor7 + nomor6 + nomor5 + nomor4 + nomor3 + nomor2 + nomor1 + koma;
+                bilang = "minus " + tmp.trim();
+            }else{
+                String tmp=nomor15 + nomor14 + nomor13 + nomor12 + nomor11 + nomor10 + nomor9 + nomor8 + nomor7 + nomor6 + nomor5 + nomor4 + nomor3 + nomor2 + nomor1 + koma;
+                bilang = tmp.trim();
+            }
+        }
+        return bilang.replace("  ", " ");
+    }
+    
+    public static String toUpperFirstLetters(String str){  
+        if(str.equals(""))return str;
+        String words[]=str.split("\\s");  
+        String capitalizeWord="";  
+        for(String w:words){  
+            String first=w.substring(0,1);  
+            String afterfirst=w.substring(1);  
+            capitalizeWord+=first.toUpperCase()+afterfirst+" ";  
+        }  
+        return capitalizeWord.trim();  
+    }
 }

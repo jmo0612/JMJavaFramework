@@ -2,6 +2,7 @@ package com.thowo.jmjavaframework;
 
 
 import com.thowo.jmjavaframework.db.JMConnection;
+import com.thowo.jmjavaframework.form.JMFormTableList;
 import com.thowo.jmjavaframework.lang.JMLanguage;
 import com.thowo.jmjavaframework.lang.JMMessage;
 import com.thowo.jmjavaframework.report.JMExcel;
@@ -47,6 +48,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -156,46 +158,83 @@ public class JMFunctions {
         }
     }
     
-    public static void writeTableToExistingExcel(String source, String sheetName, List<Integer> xlsColumns, List<Integer> sortedXlsColumnsNoRepetition, int startRow, JMTable table, List<Integer> excluded, String dest){
-        File src=new File(source);
-        if(!JMFunctions.fileExist(src))return;
-        if(table==null)return;
-        if(table.isEmpty())return;
-        if(excluded==null)excluded=table.getExcludedCols();
-        if(xlsColumns==null)xlsColumns=new ArrayList();
-        if(sortedXlsColumnsNoRepetition==null)sortedXlsColumnsNoRepetition=new ArrayList();
+    public static boolean writeTableToExistingExcel(int CONST_JMExcel_RPT_MODE, String sourceFilePath, String destFilePath, JMFormTableList table, boolean all){
+        File src=new File(sourceFilePath);
+        if(!JMFunctions.fileExist(src))return false;
         try {
             FileInputStream fis = new FileInputStream(src);
             XSSFWorkbook workbook = new XSSFWorkbook(fis);
-            XSSFSheet sheet = workbook.getSheet(sheetName);
-            int wTmp=startRow;
-            table.firstRow(false);
-            do{
-                JMExcel.shiftRows(sheet, wTmp, sheet.getLastRowNum(), 1);
-                wTmp++;
-                sheet.copyRows(wTmp, wTmp, wTmp-1, new CellCopyPolicy());
-                List<JMCell> dbCells=table.getCurrentRow().getCells();
-                int wXlsCol=0;
-                for(Integer i=0;i<dbCells.size();i++){
-                    if(!excluded.contains(i)){
-                        XSSFRow row = sheet.getRow(wTmp-1);
-                        XSSFCell cell=row.getCell(xlsColumns.get(wXlsCol++));
-                        JMExcel.setCellValue(cell, dbCells.get(i));
+            XSSFSheet sheet;
+            if(CONST_JMExcel_RPT_MODE==JMExcel.RPT_MODE_MASTER){
+                JMTable tblMaster=table.getDbObject();
+                if(tblMaster.isEmpty())return false;
+
+                JMRow buRow=tblMaster.getCurrentRow();
+                do{
+                    List<JMCell> tblCells=tblMaster.getCurrentRow().getCells();
+                    sheet=JMExcel.cloneSheet(workbook, 0, tblCells.get(table.getRptXlsSheetNameFromColIndex()).getDBValue());
+                    String sheetName=sheet.getSheetName();
+                    List<Object> cData=table.getRptXlsCustomData();
+                    if(!cData.isEmpty()){
+                        workbook=JMExcel.writeListTo(workbook, sheet.getSheetName(), cData);
                     }
+                    
+                    workbook=JMExcel.writeRowTo(workbook, sheetName, tblMaster.getCurrentRow(), table.getRptXlsExcluded());
+                    sheet.getFooter().setRight(sheetName+"-&P(&N)");
+                }while(tblMaster.nextRow(false)!=null && all);
+                workbook.removeSheetAt(0);
+                tblMaster.gotoRow(buRow, false);
+            }else if(CONST_JMExcel_RPT_MODE==JMExcel.RPT_MODE_MASTER_DETAIL){
+                JMTable tblMaster=table.getDbObject();
+                if(tblMaster.isEmpty())return false;
+
+                JMRow buRow=tblMaster.getCurrentRow();
+                do{
+                    List<JMCell> tblCells=tblMaster.getCurrentRow().getCells();
+                    sheet=JMExcel.cloneSheet(workbook, 0, tblCells.get(table.getRptXlsSheetNameFromColIndex()).getDBValue());
+                    String sheetName=sheet.getSheetName();
+                    List<Object> cData=table.getRptXlsCustomData();
+                    if(!cData.isEmpty()){
+                        workbook=JMExcel.writeListTo(workbook, sheet.getSheetName(), cData);
+                    }
+                    
+                    workbook=JMExcel.writeRowTo(workbook, sheetName, tblMaster.getCurrentRow(), table.getRptXlsExcluded());
+                    table.refreshDetail();
+                    JMFormTableList det=table.getDetailTable();
+                    workbook=JMExcel.writeTableTo(workbook, sheet.getSheetName(), det);
+                    sheet.getFooter().setRight(sheetName+"-&P(&N)");
+                }while(tblMaster.nextRow(false)!=null && all);
+                workbook.removeSheetAt(0);
+                tblMaster.gotoRow(buRow, false);
+            }else{
+                sheet=workbook.getSheetAt(0);
+                List<Object> cData=table.getRptXlsCustomData();
+                if(!cData.isEmpty()){
+                    workbook=JMExcel.writeListTo(workbook, sheet.getSheetName(), cData);
                 }
-            }while(table.nextRow(false)!=null);
-            JMExcel.shiftRows(sheet, wTmp+1, sheet.getLastRowNum(), -1);
+                workbook=JMExcel.writeTableTo(workbook, sheet.getSheetName(), table);
+                sheet.getFooter().setRight(sheet.getSheetName()+"-&P(&N)");
+            }
+            /*
+            try{
+                XSSFFormulaEvaluator.evaluateAllFormulaCells(workbook);
+            }catch(java.lang.NoClassDefFoundError ex){
             
+            }
+            */
+            XSSFFormulaEvaluator.evaluateAllFormulaCells(workbook);
             
-            FileOutputStream out = new FileOutputStream(dest);
+            FileOutputStream out = new FileOutputStream(destFilePath);
             workbook.write(out);
             out.close();
+            return true;
+        } catch (FileNotFoundException ex) {
+            JMFunctions.trace(ex.getMessage());
+            return false;
         } catch (IOException ex) {
             JMFunctions.trace(ex.getMessage());
-        } catch (EncryptedDocumentException ex) {
-            JMFunctions.trace(ex.getMessage());
+            return false;
         }
-        
     }
     
     public static void writeTableToExcel(JMTable table, String dest, List<Integer> excluded){

@@ -61,7 +61,66 @@ public class JMFormTableList implements JMTableInterface {
     private JMFormActionsWrapperInterface formActionsWrapper;
     private boolean editing=false;
     
+    private Integer rptXlsSheetNameFromColIndex=0;
+    private List<Integer> rptXlsExcluded=new ArrayList();
+    private List<Object> rptXlsCustomData=new ArrayList();
+    private List<Integer> rptXlsColumnsNoRepetition=new ArrayList();
     
+    
+    public void refreshDetail(){
+        JMFormTableList det=this.detailTable;
+        if(det==null)return;
+        String query=det.getQueryTemplate();
+        if(query==null)return;
+        if(this.dbObject.getCurrentRow()==null)return;
+        List<JMCell> cells=this.dbObject.getCurrentRow().getCells();
+        for(int i=0;i<cells.size();i++){
+            String rpl=cells.get(i).getDBValue();
+            if(rpl!=null)query=query.replace("["+i+"]", rpl);
+        }
+        //JMFunctions.trace(query);
+        det.requery(query);
+    }
+    public Integer getRptXlsSheetNameFromColIndex(){
+        return this.rptXlsSheetNameFromColIndex;
+    }
+    public List<Integer> getRptXlsExcluded(){
+        return this.rptXlsExcluded;
+    }
+    public List<Object> getRptXlsCustomData(){
+        return this.rptXlsCustomData;
+    }
+    public List<Integer> getRptXlsColumnsNoRepetition(){
+        return this.rptXlsColumnsNoRepetition;
+    }
+    public JMFormTableList setRptXlsSheetNameFromColIndex(Integer rptXlsSheetNameFromColIndex){
+        this.rptXlsSheetNameFromColIndex=rptXlsSheetNameFromColIndex;
+        return this;
+    }
+    public JMFormTableList setRptXlsExcluded(Integer... rptXlsExcluded){
+        if(rptXlsExcluded==null)return this;
+        this.rptXlsExcluded=new ArrayList();
+        for(Integer tmp:rptXlsExcluded){
+            this.rptXlsExcluded.add(tmp);
+        }
+        return this;
+    }
+    public JMFormTableList setRptXlsCustomData(Object... rptXlsCustomData){
+        if(rptXlsCustomData==null)return this;
+        this.rptXlsCustomData=new ArrayList();
+        for(Object tmp:rptXlsCustomData){
+            this.rptXlsCustomData.add(tmp);
+        }
+        return this;
+    }
+    public JMFormTableList setRptXlsColumnsNoRepetition(Integer... rptXlsColumnsNoRepetition){
+        if(rptXlsColumnsNoRepetition==null)return this;
+        this.rptXlsColumnsNoRepetition=new ArrayList();
+        for(Integer tmp:rptXlsColumnsNoRepetition){
+            this.rptXlsColumnsNoRepetition.add(tmp);
+        }
+        return this;
+    }
     public boolean isEditing(){
         return this.editing;
     }

@@ -126,6 +126,10 @@ public class JMDate {
         c.setTime(this.dt);
         return c.get(Calendar.DAY_OF_WEEK);
     }
+    public String getDayOfWeekString(){
+        if(this.dt==null)return "";
+        return JMFunctions.getMessege(JMConstMessage.MSG_DATE+JMConstMessage.MSG_DATE_DAY+JMConstMessage.MSG_DATE_TYPE_COMPLETE+JMFormatCollection.leadingZero(this.getDayOfWeek(), 3));
+    }
     public int getYearFull(){
         if(this.dt==null)return -1;
         Calendar c=Calendar.getInstance();
@@ -137,6 +141,10 @@ public class JMDate {
         Calendar c=Calendar.getInstance();
         c.setTime(this.dt);
         return c.get(Calendar.MONTH)+1;
+    }
+    public String getDayOfMonthString(){
+        if(this.dt==null)return "";
+        return JMFunctions.getMessege(JMConstMessage.MSG_DATE+JMConstMessage.MSG_DATE_MONTH+JMConstMessage.MSG_DATE_TYPE_COMPLETE+JMFormatCollection.leadingZero(this.getMonth(), 3));
     }
     public String getYearShort(){
         if(this.dt==null)return "";
