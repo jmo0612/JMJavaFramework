@@ -461,4 +461,13 @@ public class JMDate {
 
         return tmpDate;
     }
+    
+    public JMDate addSeconds(int add){
+        if(this.dt==null)return this;
+        Calendar c = Calendar.getInstance();
+        c.setTime(this.dt);
+        c.add(Calendar.SECOND, add);
+        this.dt=c.getTime();
+        return this;
+    }
 }
