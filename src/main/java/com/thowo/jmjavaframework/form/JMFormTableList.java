@@ -79,7 +79,7 @@ public class JMFormTableList implements JMTableInterface {
             if(rpl!=null)query=query.replace("["+i+"]", rpl);
         }
         //JMFunctions.trace(query);
-        det.requery(query);
+        det.requery(query,true);
     }
     public Integer getRptXlsSheetNameFromColIndex(){
         return this.rptXlsSheetNameFromColIndex;
@@ -326,21 +326,25 @@ public class JMFormTableList implements JMTableInterface {
     
     private void setEditing(boolean editing){
         this.editing=editing;
-        if(this.hasDetail)this.detailTable.lockAccess();
+        //if(this.hasDetail)this.detailTable.lockAccess();
     }
     
     private void lockAccess(){
+        //SEMENTARA
+        /*
         boolean access=true;
         if(this.masterTable!=null)access=this.masterTable.isEditing();
+        //JMFunctions.trace(access+"");
         this.btnGroup.getBtnAdd().setVisible(this.isEditable && access);
         this.btnGroup.getBtnDelete().setVisible(this.isEditable && access);
         this.btnGroup.getBtnEdit().setVisible(this.isEditable && access);
         this.btnGroup.getBtnSave().setVisible(this.isEditable && access);
         this.btnGroup.getBtnCancel().setVisible(this.isEditable && access);
         this.btnGroup.getBtnPrint().setVisible(this.isEditable && access);
+*/
     }
     public void pack(){
-        this.dbObject.refresh();
+        this.dbObject.refresh(false);
         this.list.init(this.dbObject);
     }
     
@@ -551,8 +555,8 @@ public class JMFormTableList implements JMTableInterface {
             }
         });
     }
-    public void requery(String query){
-        this.dbObject.requery(query);
+    public void requery(String query,boolean refresh){
+        this.dbObject.requery(query,refresh);
     }
     
     private List<String> getDependencyMasterColValues(){
@@ -570,7 +574,7 @@ public class JMFormTableList implements JMTableInterface {
     public void actionAfterAdded(JMRow rowAdded) {
         //JMFunctions.traceAndShow("ADDED");
         this.selectedRow=rowAdded;
-        this.dbNewRecWrapper.newDefaultRow(this.tableName,rowAdded,this.getDependencyMasterColValues());
+        this.dbNewRecWrapper.newDefaultRow(this.tableName,rowAdded,this.getDependencyMasterColValues(),this.myUniqueId);
         this.backupDetail();
         this.setEditing(true);
     }

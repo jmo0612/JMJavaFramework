@@ -16,6 +16,7 @@ import com.thowo.jmjavaframework.table.JMCell;
 import com.thowo.jmjavaframework.table.JMDBListInterface;
 import com.thowo.jmjavaframework.table.JMRow;
 import com.thowo.jmjavaframework.table.JMTable;
+import java.util.ArrayList;
 import java.util.List;
 /**
  *
@@ -34,6 +35,8 @@ public class JMFormTableInput implements JMTableInterface {
     private JMRow row;
     private boolean editMode=false;
     private boolean formClosing=false;
+    
+    //private List<String> buKeyVals;
     
     
     public static JMFormTableInput create(JMFormTableList tableList,boolean editing,boolean adding){
@@ -83,6 +86,8 @@ public class JMFormTableInput implements JMTableInterface {
     
     
     private void lockAccess(){
+        //SEMENTARA
+        /*
         boolean access=true;
         if(this.tableList.getMasterTable()!=null)access=this.tableList.getMasterTable().isEditing();
         this.btnGroup.getBtnAdd().setVisible(this.isEditable && access);
@@ -91,6 +96,7 @@ public class JMFormTableInput implements JMTableInterface {
         this.btnGroup.getBtnSave().setVisible(this.isEditable && access);
         this.btnGroup.getBtnCancel().setVisible(this.isEditable && access);
         this.btnGroup.getBtnPrint().setVisible(this.isEditable && access);
+*/
     }
     
     private void setEditMode(boolean editMode){
@@ -133,7 +139,7 @@ public class JMFormTableInput implements JMTableInterface {
                     if(rpl!=null)query=query.replace("["+i+"]", rpl);
                 }
                 //JMFunctions.trace(query);
-                lookup.requery(query);
+                lookup.requery(query,true);
             }
         }
     }
@@ -149,7 +155,7 @@ public class JMFormTableInput implements JMTableInterface {
             if(rpl!=null)query=query.replace("["+i+"]", rpl);
         }
         //JMFunctions.trace(query);
-        det.requery(query);
+        det.requery(query,true);
         this.refreshLookups();
     }
     
@@ -157,20 +163,26 @@ public class JMFormTableInput implements JMTableInterface {
     public void actionAfterAdded(JMRow rowAdded) {
         this.row=rowAdded;
         this.setEditMode(true);
+        JMFunctions.trace("ADDED");
         this.refreshDetail();
+        
     }
 
     @Override
     public void actionAfterDeleted(JMRow rowDeleted, boolean deleted, String extra) {
         this.setEditMode(false);
         this.row=this.table.getCurrentRow();
-        this.refreshDetail();
+        if(deleted && extra==null){
+            JMFunctions.trace("DELETED");
+            this.refreshDetail();
+        }
     }
 
     @Override
     public void actionAfterSaved(String updateQuery,boolean saved) {
         this.setEditMode(!saved);
         this.btnGroup.stateNav();
+        JMFunctions.trace("SAVED");
         this.refreshDetail();
     }
 
@@ -178,6 +190,7 @@ public class JMFormTableInput implements JMTableInterface {
     public void actionAfterEdited(JMRow rowEdited) {
         this.row=rowEdited;
         this.setEditMode(true);
+        JMFunctions.trace("EDITED");
         this.refreshDetail();
     }
 
@@ -190,8 +203,10 @@ public class JMFormTableInput implements JMTableInterface {
     @Override
     public void actionAfterRefreshed(JMRow rowRefreshed) {
         this.row=rowRefreshed;
+        //JMFunctions.trace("REFRESHED: "+this.row.getCells().get(0).getDBValue());
         this.setEditMode(false);
-        this.refreshDetail();
+        //JMFunctions.trace("REFRESHED");
+        //this.refreshDetail();
     }
 
     @Override
@@ -204,6 +219,7 @@ public class JMFormTableInput implements JMTableInterface {
     public void actionAfterMovedNext(JMRow nextRow) {
         this.row=nextRow;
         //this.setEditMode(false);
+        JMFunctions.trace("NEXT");
         this.refreshDetail();
     }
 
@@ -211,6 +227,7 @@ public class JMFormTableInput implements JMTableInterface {
     public void actionAfterMovedPrev(JMRow prevRow) {
         this.row=prevRow;
         //this.setEditMode(false);
+        JMFunctions.trace("PREV");
         this.refreshDetail();
     }
 
@@ -218,6 +235,7 @@ public class JMFormTableInput implements JMTableInterface {
     public void actionAfterMovedFirst(JMRow firstRow) {
         this.row=firstRow;
         //this.setEditMode(false);
+        JMFunctions.trace("FIRST");
         this.refreshDetail();
     }
 
@@ -225,6 +243,7 @@ public class JMFormTableInput implements JMTableInterface {
     public void actionAfterMovedLast(JMRow lastRow) {
         this.row=lastRow;
         //this.setEditMode(false);
+        JMFunctions.trace("LAST");
         this.refreshDetail();
     }
 
@@ -232,6 +251,7 @@ public class JMFormTableInput implements JMTableInterface {
     public void actionAfterMovedtoRecord(JMRow currentRow) {
         this.row=currentRow;
         //this.setEditMode(false);
+        JMFunctions.trace("MOVE REC");
         this.refreshDetail();
     }
 
@@ -247,12 +267,14 @@ public class JMFormTableInput implements JMTableInterface {
             this.setEditMode(!canceled);
             if(canceled)this.row=newCurrentRow;
         }
+        JMFunctions.trace("CANCELED");
         this.refreshDetail();
     }
 
     @Override
     public void actionBeforeRefresh(JMRow rowRefreshed) {
-        
+        //JMFunctions.trace("REFRESHED: "+rowRefreshed.getCells().get(0).getDBValue());
+        //this.buKeyVals=this.table.getKeyValues();
     }
 
     @Override

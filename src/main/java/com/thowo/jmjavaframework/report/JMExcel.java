@@ -69,9 +69,19 @@ public class JMExcel {
     Iterator<Cell> cellIterator;
     Cell cell;
     
+    public static void adjustRowHeights(XSSFSheet sheet){
+        Iterator<Row> rowIterator = sheet.rowIterator();
+        while (rowIterator.hasNext()) {
+            Row row = rowIterator.next();
+            JMFunctions.trace(row.getHeight()+"");
+            row.setHeight((short)-1);
+        }
+    }
     
     public static XSSFSheet cloneSheet(XSSFWorkbook workbook, int sheetNumber, String sheetName){
         XSSFSheet ret=null;
+        XSSFSheet ori=workbook.getSheetAt(sheetNumber);
+        if(ori==null)return null;
         if(workbook==null)return null;
         while(ret==null && !sheetName.equals("")){
             sheetName=JMExcel.newValidSheetName(workbook, sheetName);
@@ -92,6 +102,17 @@ public class JMExcel {
                 if(m>=0)pArea=pArea.substring(m+1);
                 workbook.setPrintArea(workbook.getSheetIndex(ret), pArea);
             }
+        }
+        if(ret!=null){
+            //ret.getPrintSetup().setLandscape(ori.getPrintSetup().getLandscape());
+            //ret.getPrintSetup().setPaperSize(ori.getPrintSetup().getPaperSize());
+            ret.getPrintSetup().setOrientation(ori.getPrintSetup().getOrientation());
+            
+            //ret.setFitToPage(ori.getFitToPage());
+            //ret.getPrintSetup().setFitWidth(ori.getPrintSetup().getFitWidth());
+            //ret.getPrintSetup().setFitHeight(ori.getPrintSetup().getFitHeight());
+            
+            
         }
         return ret;
     }
@@ -155,6 +176,7 @@ public class JMExcel {
                     String cellValue = dataFormatter.formatCellValue(cell);
                     String tmpVal=removeExtraFormat(cellValue);
                     if(tmpVal.equals(value))ret.add((XSSFCell) cell);
+                    //row.setHeight((short)50);
                 }
             }
         }
@@ -250,9 +272,11 @@ public class JMExcel {
                 List<XSSFCell> cells=findByValueString(sheet, XLS_FIELD_CODE_MASTER_DB+i);
                 for(XSSFCell cell:cells){
                     JMExcel.setCellValue(cell, dbCells.get(i),cell.getStringCellValue());
+                    
                 }
             }
         }
+        
         return workbook;
     }
     private static List<Integer> getColIndicesOfFieldNo(Integer fieldNo, List<Integer> lFields, List<Integer> lCols){
@@ -483,5 +507,6 @@ public class JMExcel {
         if(this.cell==null)return -1;
         return this.cell.getColumnIndex();
     }
+    
     
 }

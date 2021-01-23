@@ -470,4 +470,12 @@ public class JMDate {
         this.dt=c.getTime();
         return this;
     }
+    
+    public String getMonthString(){
+        String ret="";
+        if(this.dt!=null){
+            ret=JMFunctions.getMessege(JMConstMessage.MSG_DATE+JMConstMessage.MSG_DATE_MONTH+JMConstMessage.MSG_DATE_TYPE_COMPLETE+JMFormatCollection.leadingZero(this.getMonth(), 3));
+        }
+        return ret;
+    }
 }

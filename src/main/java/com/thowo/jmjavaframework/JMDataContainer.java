@@ -496,7 +496,11 @@ public class JMDataContainer {
     }
     public void removeInterface(JMFieldInterface component){
         if(this.interfaces==null)return;
-        this.interfaces.remove(component);
+        List<JMFieldInterface> n=new ArrayList();
+        for(JMFieldInterface f:this.interfaces){
+            if(f!=component)n.add(f);
+        }
+        this.interfaces=n;
     }
     public void setcolIndex(int colIndex){
         this.colIndex=colIndex;

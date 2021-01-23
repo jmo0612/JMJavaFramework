@@ -13,5 +13,5 @@ import java.util.List;
  * @author jimi
  */
 public interface JMDBNewRecordInterface {
-    JMRow newDefaultRow(String tableName,JMRow newRow, List<String> params);
+    JMRow newDefaultRow(String tableName,JMRow newRow, List<String> params, String id);
 }

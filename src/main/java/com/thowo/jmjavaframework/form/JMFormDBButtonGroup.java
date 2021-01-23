@@ -208,7 +208,7 @@ public class JMFormDBButtonGroup implements JMTableInterface {
         
     }
     public void btnRefreshClick(){
-        JMFormDBButtonGroup.this.table.refresh();
+        JMFormDBButtonGroup.this.table.refresh(true);
     }
     public void btnViewClick(){
         JMFormDBButtonGroup.this.table.viewRow();

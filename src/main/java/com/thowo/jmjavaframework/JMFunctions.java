@@ -203,6 +203,8 @@ public class JMFunctions {
                     JMFormTableList det=table.getDetailTable();
                     workbook=JMExcel.writeTableTo(workbook, sheet.getSheetName(), det);
                     sheet.getFooter().setRight(sheetName+"-&P(&N)");
+                    //JMFunctions.trace("LASO");
+                    //JMExcel.adjustRowHeights(sheet);
                 }while(tblMaster.nextRow(false)!=null && all);
                 workbook.removeSheetAt(0);
                 tblMaster.gotoRow(buRow, false);

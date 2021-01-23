@@ -73,6 +73,7 @@ public class JMTable {
         this.setProp(rs, style);
     }
     private void setProp(JMResultSet rs, JMResultSetStyle style){
+        //JMFunctions.trace("SET PROP");
         this.style=style;
         List<Boolean> colsVisibility=style.getVisibles();
         List<String> colsFormat=style.getFormats();
@@ -94,6 +95,7 @@ public class JMTable {
                     this.firstRow=this.currentRow;
                     first=false;
                 }
+                //JMFunctions.trace("before for");
                 for(int j=0;j<colsFormat.size();j++){
                     String dt="";
                     Boolean hidden=false;
@@ -126,10 +128,11 @@ public class JMTable {
                     dc.refreshInterfaces(style,null,true,false);
                     
                 }
-                this.gotoRow(this.currentRow, true);
+                //JMFunctions.trace("setprop: "+rs.getString(0));
+                this.gotoRow(this.currentRow, false);
             }while(rs.next());
-            this.firstRow(true);
-            if(empty)this.deleteAddedRow("init");
+            this.firstRow(false);
+            if(empty)this.deleteAddedRow(false,"init");
         }
     }
     private JMResultSet getResultSet(String query, int dbType){
@@ -144,7 +147,7 @@ public class JMTable {
     public JMResultSetStyle getStyle(){
         return this.style;
     }
-    public void requery(String query){
+    public void requery(String query,boolean updateContainer){
         this.query=query;
         if(this.query.equals(""))return;
         List<String> keys=null;
@@ -157,17 +160,18 @@ public class JMTable {
             }
         }
         
-        
-        if(this.interfaces!=null){
-            for(JMTableInterface fi:this.interfaces){
-                fi.actionBeforeRefresh(this.currentRow);
+        if(updateContainer){
+            if(this.interfaces!=null){
+                for(JMTableInterface fi:this.interfaces){
+                    fi.actionBeforeRefresh(this.currentRow);
+                }
             }
         }
         List<JMRow> deleted=new ArrayList();
         JMRow r=this.firstRow;
         while(r!=null){
             this.currentRow=r;
-            deleted.add(this.deleteAddedRow("refresh"));
+            deleted.add(this.deleteAddedRow(false,"refresh"));
             r=r.getNext();
         }
         this.currentRow=null;
@@ -198,17 +202,20 @@ public class JMTable {
                 
             }
         }
-        
-        if(this.interfaces!=null){
-            for(JMTableInterface fi:this.interfaces){
-                fi.actionAfterRefreshed(this.currentRow);
+        if(updateContainer){
+            if(this.interfaces!=null){
+                for(JMTableInterface fi:this.interfaces){
+                    fi.actionAfterRefreshed(this.currentRow);
+                }
             }
         }
-        this.gotoRow(this.currentRow, true);
+        
+        this.gotoRow(this.currentRow, updateContainer);
         //JMFunctions.trace("REFRESHED");
     }
     
-    public void refresh(){
+    public void refresh(boolean updateContainer){
+        //JMFunctions.trace("Enter refresh module");
         if(this.query.equals(""))return;
         if(this.currentRow==null)return;
         List<String> keys=this.getKeyValues();
@@ -220,29 +227,35 @@ public class JMTable {
             }
         }
         
-        
-        if(this.interfaces!=null){
-            for(JMTableInterface fi:this.interfaces){
-                fi.actionBeforeRefresh(this.currentRow);
+        if(updateContainer){
+            if(this.interfaces!=null){
+                for(JMTableInterface fi:this.interfaces){
+                    fi.actionBeforeRefresh(this.currentRow);
+                }
             }
         }
+        
+        //JMFunctions.trace("After before refresh");
         List<JMRow> deleted=new ArrayList();
         JMRow r=this.firstRow;
         while(r!=null){
             this.currentRow=r;
-            deleted.add(this.deleteAddedRow("refresh"));
+            //JMFunctions.trace(r.getCells().get(0).getDBValue());
+            deleted.add(this.deleteAddedRow(false,"refresh"));
             r=r.getNext();
         }
+        //JMFunctions.trace("After delete added row");
         this.currentRow=null;
         this.firstRow=null;
         this.lastRow=null;
         for(JMRow d:deleted){
             d=null;
         }
-        
+        //JMFunctions.trace("After null");
         JMResultSet rs=this.getResultSet(this.query, this.dbType);
+        //JMFunctions.trace("After RS");
         this.setProp(rs, this.style);
-        
+        //JMFunctions.trace("After setProp");
         
         this.currentRow=this.findByKeys(keys);
         if(this.currentRow==null)this.currentRow=this.firstRow;
@@ -261,13 +274,17 @@ public class JMTable {
                 
             }
         }
+        //JMFunctions.trace("After setFormInterface");
         
-        if(this.interfaces!=null){
-            for(JMTableInterface fi:this.interfaces){
-                fi.actionAfterRefreshed(this.currentRow);
+        if(updateContainer){
+            if(this.interfaces!=null){
+                for(JMTableInterface fi:this.interfaces){
+                    fi.actionAfterRefreshed(this.currentRow);
+                }
             }
         }
-        this.gotoRow(this.currentRow, true);
+        
+        this.gotoRow(this.currentRow, updateContainer);
     }
     public void filter(String filter){
         //NOTHING TO DO WITH THE DATAS;
@@ -346,7 +363,7 @@ public class JMTable {
                 this.currentRow.displayInterface(true);
                 if(this.interfaces!=null){
                     for(JMTableInterface fi:this.interfaces){
-                        fi.actionAfterMovedFirst(this.currentRow);
+                        fi.actionAfterMovedLast(this.currentRow);
                     }
                 }
             }
@@ -429,7 +446,7 @@ public class JMTable {
             //ADDING
             if(JMFunctions.confirmBoxYN(JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_CONFIRM), message, JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_YES), JMFunctions.getMessege(JMConstMessage.MSG_UI+JMConstMessage.MSG_UI_NO), true)==YesConfirm){
                 //USER CONFIRM YES
-                this.deleteAddedRow(null);
+                this.deleteAddedRow(true,null);
                 this.edited=null;
                 proceed=true;
             }
@@ -537,6 +554,7 @@ public class JMTable {
         return data;
     }
     public void setFormInterface(JMFieldInterface component, int column, boolean defaultValue){
+        this.unsetFormInterface(component, column);
         JMRow b=this.currentRow;
         this.firstRow(false);
         //if(this.currentRow==null)return;
@@ -630,8 +648,8 @@ public class JMTable {
     private JMRow addRow(){
         return this.addRow(false);
     }
-    private JMRow addRow(Boolean hidden){
-        this.lastRow(true);
+    private JMRow addRow(boolean updateContainer){
+        this.lastRow(updateContainer);
         Integer r=-1;
         if(this.lastRow!=null)r=this.lastRow.getRowNum();
         if(r==Integer.MAX_VALUE)return null;
@@ -690,7 +708,8 @@ public class JMTable {
         this.currentRow=tmp;
     }
     
-    private JMRow deleteAddedRow(String extra){
+    private JMRow deleteAddedRow(boolean updateContainer,String extra){
+        //JMFunctions.trace("Enter delete module");
         JMRow delete=this.currentRow;
         //if(delete==null)return null;
         JMRow p=this.currentRow.getPrev();
@@ -712,13 +731,16 @@ public class JMTable {
             this.firstRow=null;
             this.lastRow=null;
         }
-        
-        if(this.interfaces!=null){
-            for(JMTableInterface fi:this.interfaces){
-                fi.actionAfterDeleted(delete,true,extra);
+        //JMFunctions.trace("After deleted");
+        if(updateContainer){
+            if(this.interfaces!=null){
+                for(JMTableInterface fi:this.interfaces){
+                    fi.actionAfterDeleted(delete,true,extra);
+                }
             }
         }
-        this.gotoRow(this.currentRow, true);
+        //JMFunctions.trace("After setAction");
+        this.gotoRow(this.currentRow, updateContainer);
         return delete;
     }
     public void deleteRow(JMRow row,String message,int YesConfirm, String extra){
