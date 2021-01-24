@@ -46,6 +46,7 @@ public class JMFormTableList implements JMTableInterface {
     private JMRow selectedRow=null;
     private JMFormTableList detailTable;
     private JMFormTableList masterTable;
+    private JMFormTableList masterLookup;
     private List<JMFormTableList> lookupTables;
     //private JMFormDBButtonGroup btnGroup3;
     private JMFormInterface form;
@@ -67,6 +68,18 @@ public class JMFormTableList implements JMTableInterface {
     private List<Integer> rptXlsColumnsNoRepetition=new ArrayList();
     
     
+    private void refreshLookup(JMFormTableList lookup){
+        String query=lookup.getQueryTemplate();
+        if(query!=null){
+            List<JMCell> cells=this.selectedRow.getCells();
+            for(int i=0;i<cells.size();i++){
+                String rpl=cells.get(i).getDBValue();
+                if(rpl!=null)query=query.replace("["+i+"]", rpl);
+            }
+            //JMFunctions.trace(query);
+            lookup.requery(query,true);
+        }
+    }
     public void refreshDetail(){
         JMFormTableList det=this.detailTable;
         if(det==null)return;
@@ -141,6 +154,7 @@ public class JMFormTableList implements JMTableInterface {
     }
     public void addLookupTable(JMFormTableList tableList){
         if(this.lookupTables==null)this.lookupTables=new ArrayList();
+        tableList.masterLookup=this;
         this.lookupTables.add(tableList);
     }
     public Runnable getFilterAction(){
@@ -249,6 +263,7 @@ public class JMFormTableList implements JMTableInterface {
         
         //Object[] boolImg={JMFunctions.getResourcePath("img/true.png", this.getClass()).getPath(),JMFunctions.getResourcePath("img/false.png", this.getClass()).getPath()};
         
+        JMFunctions.trace("HAHAHAH \n"+this.queryView+"\n\n\n\n\n");
         this.dbObject=JMTable.create(this.queryView,JMTable.DBTYPE_MYSQL);
         
         List<String> f=this.dbObject.getStyle().getFieldNames();
@@ -321,6 +336,7 @@ public class JMFormTableList implements JMTableInterface {
     }
     
     public void show(){
+        if(this.masterLookup!=null)this.masterLookup.refreshLookup(this);
         this.form.load();
     }
     
@@ -488,8 +504,20 @@ public class JMFormTableList implements JMTableInterface {
     }
     
     private void backupDetail(){
-        if(!this.hasDetail)return;
-        this.detailBackup=JMTable.create(this.detailTable.queryView, JMTable.DBTYPE_MYSQL);
+        JMFormTableList det=this.detailTable;
+        if(det==null)return;
+        String query=det.getQueryTemplate();
+        if(query==null)return;
+        if(this.dbObject.getCurrentRow()==null)return;
+        List<JMCell> cells=this.dbObject.getCurrentRow().getCells();
+        for(int i=0;i<cells.size();i++){
+            String rpl=cells.get(i).getDBValue();
+            if(rpl!=null)query=query.replace("["+i+"]", rpl);
+        }
+        
+        
+        JMFunctions.trace("BACKED UP : \n"+query);
+        this.detailBackup=JMTable.create(query, JMTable.DBTYPE_MYSQL);
         this.detailBackup.setName(this.detailTable.tableName);
         List<Integer> excluded=this.detailTable.dbObject.getExcludedCols();
         this.detailBackup.excludeColumnsFromUpdate(excluded);
@@ -497,19 +525,23 @@ public class JMFormTableList implements JMTableInterface {
     
     private void deleteDetails(JMRow row){
         if(!this.hasDetail)return;
+        JMFunctions.trace("HAS DETAIL");
         if(this.delDependencyMasterColIndices!=null && this.delDependencyDetailColIndices!=null){
             String qDel="";
             List<String> fields=this.detailTable.dbObject.getStyle().getFieldNames();
             for(int i=0;i<this.delDependencyMasterColIndices.length;i++){
-                String tmp=fields.get(i)+"='"+row.getCells().get(i).getDBValue()+"'";
+                String tmp=fields.get(this.delDependencyDetailColIndices[i])+"='"+row.getCells().get(this.delDependencyMasterColIndices[i]).getDBValue()+"'";
                 if(qDel.equals("")){
                     qDel=tmp;
                 }else{
                     qDel+=" AND "+tmp;
                 }
             }
+            JMFunctions.trace("\n\ndelete from "+this.detailTable.tableName+" where ("+qDel+")\n\n");
             JMFunctions.getCurrentConnection().queryUpdateMySQL("delete from "+this.detailTable.tableName+" where ("+qDel+")", false);
+            JMFunctions.trace("DETAIL DELETED");
         }
+        JMFunctions.trace("EXIT DELETE DETAIL");
     }
     
     private void restoreDetail(JMRow canceledRow){
@@ -521,6 +553,7 @@ public class JMFormTableList implements JMTableInterface {
         if(!this.detailBackup.isEmpty()){
             this.detailBackup.firstRow(false);
             do{
+                JMFunctions.trace("PPPPP    \n"+this.detailBackup.getCurrentRow().getUpdateSQL());
                 JMFunctions.getCurrentConnection().queryUpdateMySQL(this.detailBackup.getCurrentRow().getUpdateSQL(), false);
             }while(this.detailBackup.nextRow(false)!=null);
         }
