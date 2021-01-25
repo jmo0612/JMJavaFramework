@@ -158,9 +158,17 @@ public class JMFunctions {
         }
     }
     
-    public static boolean writeTableToExistingExcel(int CONST_JMExcel_RPT_MODE, String sourceFilePath, String destFilePath, JMFormTableList table, boolean all){
-        File src=new File(sourceFilePath);
-        if(!JMFunctions.fileExist(src))return false;
+    
+    public static boolean writeTableToExistingExcel(int CONST_JMExcel_RPT_MODE, String sourceResId, String destFilePath, JMFormTableList table, boolean all){
+        InputStream cpResource = ClassLoader.getSystemClassLoader().getResourceAsStream(sourceResId);
+        File src=null;
+        try {
+            src = File.createTempFile("file", "temp");
+            FileUtils.copyInputStreamToFile(cpResource, src); 
+        } catch (IOException ex) {
+            JMFunctions.errorMessage("NDA ADA FILE : ");
+            return false;
+        }
         try {
             FileInputStream fis = new FileInputStream(src);
             XSSFWorkbook workbook = new XSSFWorkbook(fis);
@@ -229,12 +237,15 @@ public class JMFunctions {
             FileOutputStream out = new FileOutputStream(destFilePath);
             workbook.write(out);
             out.close();
+            src.delete();
             return true;
         } catch (FileNotFoundException ex) {
             JMFunctions.trace(ex.getMessage());
+            src.delete();
             return false;
         } catch (IOException ex) {
             JMFunctions.trace(ex.getMessage());
+            src.delete();
             return false;
         }
     }
@@ -673,16 +684,17 @@ public class JMFunctions {
     }
 
     public static URL getResourcePath(String resId, Class<?> CLASS) {
-        JMFunctions.trace("JIMI "+resId);
+        //JMFunctions.trace("JIMI "+resId);
         return CLASS.getClassLoader().getResource(resId);
     }
     public static URL getResourcePath(String resId){
         return ClassLoader.getSystemClassLoader().getResource(resId);
     }
+
     public static File resourceToCache(String resId, Class<?> CLASS){
         File ret=null;
         URL tes=JMFunctions.getResourcePath(resId, CLASS);
-        JMFunctions.trace("JIMI "+tes.toString());
+        //JMFunctions.trace("JIMI "+tes.toString());
         ret=new File(JMFunctions.getCacheDir()+"/"+resId);
         try {
             FileUtils.copyURLToFile(tes, ret);
