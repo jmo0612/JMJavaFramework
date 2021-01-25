@@ -180,7 +180,7 @@ public class JMFunctions {
                     }
                     
                     workbook=JMExcel.writeRowTo(workbook, sheetName, tblMaster.getCurrentRow(), table.getRptXlsExcluded());
-                    sheet.getFooter().setRight(sheetName+"-&P(&N)");
+                    sheet.getFooter().setRight("&A-&P");
                 }while(tblMaster.nextRow(false)!=null && all);
                 workbook.removeSheetAt(0);
                 tblMaster.gotoRow(buRow, false);
@@ -202,7 +202,7 @@ public class JMFunctions {
                     table.refreshDetail();
                     JMFormTableList det=table.getDetailTable();
                     workbook=JMExcel.writeTableTo(workbook, sheet.getSheetName(), det);
-                    sheet.getFooter().setRight(sheetName+"-&P(&N)");
+                    sheet.getFooter().setRight("&A-&P");
                     //JMFunctions.trace("LASO");
                     //JMExcel.adjustRowHeights(sheet);
                 }while(tblMaster.nextRow(false)!=null && all);
@@ -215,7 +215,7 @@ public class JMFunctions {
                     workbook=JMExcel.writeListTo(workbook, sheet.getSheetName(), cData);
                 }
                 workbook=JMExcel.writeTableTo(workbook, sheet.getSheetName(), table);
-                sheet.getFooter().setRight(sheet.getSheetName()+"-&P(&N)");
+                sheet.getFooter().setRight("&A-&P");
             }
             /*
             try{

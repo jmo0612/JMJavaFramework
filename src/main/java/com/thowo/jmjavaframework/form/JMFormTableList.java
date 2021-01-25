@@ -84,6 +84,7 @@ public class JMFormTableList implements JMTableInterface {
         JMFormTableList det=this.detailTable;
         if(det==null)return;
         String query=det.getQueryTemplate();
+        //JMFunctions.trace("QUERY TMP:\n\n"+query);
         if(query==null)return;
         if(this.dbObject.getCurrentRow()==null)return;
         List<JMCell> cells=this.dbObject.getCurrentRow().getCells();
@@ -91,7 +92,7 @@ public class JMFormTableList implements JMTableInterface {
             String rpl=cells.get(i).getDBValue();
             if(rpl!=null)query=query.replace("["+i+"]", rpl);
         }
-        //JMFunctions.trace(query);
+        //JMFunctions.trace("REFRESH DETAIL QUERY:\n\n"+query);
         det.requery(query,true);
     }
     public Integer getRptXlsSheetNameFromColIndex(){
@@ -263,7 +264,7 @@ public class JMFormTableList implements JMTableInterface {
         
         //Object[] boolImg={JMFunctions.getResourcePath("img/true.png", this.getClass()).getPath(),JMFunctions.getResourcePath("img/false.png", this.getClass()).getPath()};
         
-        JMFunctions.trace("HAHAHAH \n"+this.queryView+"\n\n\n\n\n");
+        //JMFunctions.trace("HAHAHAH \n"+this.queryView+"\n\n\n\n\n");
         this.dbObject=JMTable.create(this.queryView,JMTable.DBTYPE_MYSQL);
         
         List<String> f=this.dbObject.getStyle().getFieldNames();

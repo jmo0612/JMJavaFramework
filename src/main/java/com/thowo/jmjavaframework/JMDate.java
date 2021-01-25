@@ -285,6 +285,14 @@ public class JMDate {
         }
         return ret;
     }
+    public String dateFullWithoutWeekday(){
+        String ret="";
+        if(this.dt!=null){
+            ret=JMFormatCollection.leadingZero(this.getDayOfMonth(), 2)+" "+JMFunctions.getMessege(JMConstMessage.MSG_DATE+JMConstMessage.MSG_DATE_MONTH+JMConstMessage.MSG_DATE_TYPE_COMPLETE+JMFormatCollection.leadingZero(this.getMonth(), 3));
+            ret+=" "+this.getYearFull();
+        }
+        return ret;
+    }
     
     public String dateShort(){
         String ret="";
@@ -303,10 +311,26 @@ public class JMDate {
         }
         return ret;
     }
+    public String dateTimeFull24WithoutWeekday(){
+        String ret="";
+        if(this.dt!=null){
+            ret=this.dateFullWithoutWeekday();
+            ret+=" "+this.getHMS24();
+        }
+        return ret;
+    }
     public String dateTimeFull12(){
         String ret="";
         if(this.dt!=null){
             ret=this.dateFull();
+            ret+=" "+this.getHMS12()+" "+this.getAmPmComplete();
+        }
+        return ret;
+    }
+    public String dateTimeFull12WithoutWeekday(){
+        String ret="";
+        if(this.dt!=null){
+            ret=this.dateFullWithoutWeekday();
             ret+=" "+this.getHMS12()+" "+this.getAmPmComplete();
         }
         return ret;

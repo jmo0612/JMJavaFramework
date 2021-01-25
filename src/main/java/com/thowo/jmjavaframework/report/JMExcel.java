@@ -105,9 +105,9 @@ public class JMExcel {
         }
         if(ret!=null){
             //ret.getPrintSetup().setLandscape(ori.getPrintSetup().getLandscape());
-            //ret.getPrintSetup().setPaperSize(ori.getPrintSetup().getPaperSize());
+            ret.getPrintSetup().setPaperSize(ori.getPrintSetup().getPaperSize());
             ret.getPrintSetup().setOrientation(ori.getPrintSetup().getOrientation());
-            
+            ret.setRepeatingRows(ori.getRepeatingRows());
             //ret.setFitToPage(ori.getFitToPage());
             //ret.getPrintSetup().setFitWidth(ori.getPrintSetup().getFitWidth());
             //ret.getPrintSetup().setFitHeight(ori.getPrintSetup().getFitHeight());
