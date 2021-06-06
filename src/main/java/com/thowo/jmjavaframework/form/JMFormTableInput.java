@@ -86,6 +86,21 @@ public class JMFormTableInput implements JMTableInterface {
     
     
     private void lockAccess(){
+        if(!this.btnGroup.getBtnAdd().isLocked())this.btnGroup.getBtnAdd().setLocked(!(this.isEditable && this.tableList.canAdd()));
+        if(!this.btnGroup.getBtnDelete().isLocked())this.btnGroup.getBtnDelete().setLocked(!(this.isEditable && this.tableList.canDelete()));
+        if(!this.btnGroup.getBtnEdit().isLocked())this.btnGroup.getBtnEdit().setLocked(!(this.isEditable && this.tableList.canEdit()));
+        //this.btnGroup.getBtnSave().setLocked(!(this.isEditable));
+        //this.btnGroup.getBtnCancel().setLocked(!(this.isEditable));
+        if(!this.btnGroup.getBtnView().isLocked())this.btnGroup.getBtnView().setVisible(false);// always false on input form, only occur on table form
+        if(!this.btnGroup.getBtnRefresh().isLocked())this.btnGroup.getBtnRefresh().setLocked(!(this.tableList.canRefresh()));
+        if(!this.btnGroup.getBtnPrint().isLocked())this.btnGroup.getBtnPrint().setLocked(!(this.tableList.canPrint()));
+        if(!this.btnGroup.getBtnFirst().isLocked())this.btnGroup.getBtnFirst().setLocked(!(this.tableList.canFirst()));
+        if(!this.btnGroup.getBtnPrev().isLocked())this.btnGroup.getBtnPrev().setLocked(!(this.tableList.canPrev()));
+        if(!this.btnGroup.getBtnNext().isLocked())this.btnGroup.getBtnNext().setLocked(!(this.tableList.canNext()));
+        if(!this.btnGroup.getBtnLast().isLocked())this.btnGroup.getBtnLast().setLocked(!(this.tableList.canLast()));
+        //TODO LOCK GOTO 
+        
+        
         //SEMENTARA
         /*
         boolean access=true;
@@ -105,7 +120,7 @@ public class JMFormTableInput implements JMTableInterface {
             JMFieldInterface f=this.fields.get(i);
             f.setEditMode(editMode,this.row,i);
         }
-        
+        this.lockAccess();
     }
     
     public JMRow getCurrentRow(){

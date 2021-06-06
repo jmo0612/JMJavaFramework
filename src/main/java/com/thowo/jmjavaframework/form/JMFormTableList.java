@@ -38,10 +38,21 @@ public class JMFormTableList implements JMTableInterface {
     private final JMLocaleInterface fieldProp;
     private final List<JMFieldInterface> fields;
     private final boolean isLookup;
-    private final boolean isEditable;
+    private final boolean isEditable;    
     private final JMComponentWrapperInterface componentWrapper;
     private final JMDBNewRecordInterface dbNewRecWrapper;
     
+    private boolean allowAdd=true;
+    private boolean allowDelete=true;
+    private boolean allowEdit=true;
+    private boolean allowView=true;
+    private boolean allowRefresh=true;
+    private boolean allowPrint=true;
+    private boolean allowFirst=true;
+    private boolean allowPrev=true;
+    private boolean allowNext=true;
+    private boolean allowLast=true;
+    private boolean allowGoto=true;
     
     private JMRow selectedRow=null;
     private JMFormTableList detailTable;
@@ -343,22 +354,57 @@ public class JMFormTableList implements JMTableInterface {
     
     private void setEditing(boolean editing){
         this.editing=editing;
-        //if(this.hasDetail)this.detailTable.lockAccess();
+        this.lockAccess();
+        if(this.hasDetail)this.detailTable.lockAccess();
+        
     }
+    
     
     private void lockAccess(){
         //SEMENTARA
+        if(this.btnGroup==null)return;
+        if(!this.btnGroup.getBtnAdd().isLocked())this.btnGroup.getBtnAdd().setLocked(!(this.isEditable && this.allowAdd));
+        if(!this.btnGroup.getBtnDelete().isLocked())this.btnGroup.getBtnDelete().setLocked(!(this.isEditable && this.allowDelete));
+        if(!this.btnGroup.getBtnEdit().isLocked())this.btnGroup.getBtnEdit().setLocked(!(this.isEditable && this.allowEdit));
+        //this.btnGroup.getBtnSave().setLocked(!(this.isEditable));
+        //this.btnGroup.getBtnCancel().setLocked(!(this.isEditable));
+        if(!this.btnGroup.getBtnPrint().isLocked())this.btnGroup.getBtnPrint().setLocked(!(this.allowPrint));
+        if(!this.btnGroup.getBtnRefresh().isLocked())this.btnGroup.getBtnRefresh().setLocked(!(this.allowRefresh));
+        if(!this.btnGroup.getBtnFirst().isLocked())this.btnGroup.getBtnFirst().setLocked(!(this.allowFirst));
+        if(!this.btnGroup.getBtnPrev().isLocked())this.btnGroup.getBtnPrev().setLocked(!(this.allowPrev));
+        if(!this.btnGroup.getBtnNext().isLocked())this.btnGroup.getBtnNext().setLocked(!(this.allowNext));
+        if(!this.btnGroup.getBtnLast().isLocked())this.btnGroup.getBtnLast().setLocked(!(this.allowLast));
+        //TODO LOCK GOTO 
+        
+        
+        
+        if(this.getMasterTable()==null)return;
+        if(!this.btnGroup.getBtnAdd().isLocked())this.btnGroup.getBtnAdd().setLocked(!(this.isEditable && this.allowAdd && this.getMasterTable().editing));
+        if(!this.btnGroup.getBtnDelete().isLocked())this.btnGroup.getBtnDelete().setLocked(!(this.isEditable && this.allowDelete && this.getMasterTable().editing));
+        if(!this.btnGroup.getBtnEdit().isLocked())this.btnGroup.getBtnEdit().setLocked(!(this.isEditable && this.allowEdit && this.getMasterTable().editing));
+        //this.btnGroup.getBtnSave().setLocked(!(this.isEditable));
+        //this.btnGroup.getBtnCancel().setLocked(!(this.isEditable));
+        if(!this.btnGroup.getBtnPrint().isLocked())this.btnGroup.getBtnPrint().setLocked(!(this.allowPrint));
+        if(!this.btnGroup.getBtnRefresh().isLocked())this.btnGroup.getBtnRefresh().setLocked(!(this.allowRefresh));
+        if(!this.btnGroup.getBtnFirst().isLocked())this.btnGroup.getBtnFirst().setLocked(!(this.allowFirst));
+        if(!this.btnGroup.getBtnPrev().isLocked())this.btnGroup.getBtnPrev().setLocked(!(this.allowPrev));
+        if(!this.btnGroup.getBtnNext().isLocked())this.btnGroup.getBtnNext().setLocked(!(this.allowNext));
+        if(!this.btnGroup.getBtnLast().isLocked())this.btnGroup.getBtnLast().setLocked(!(this.allowLast));
+        //TODO LOCK GOTO 
+
+
         /*
-        boolean access=true;
-        if(this.masterTable!=null)access=this.masterTable.isEditing();
-        //JMFunctions.trace(access+"");
-        this.btnGroup.getBtnAdd().setVisible(this.isEditable && access);
-        this.btnGroup.getBtnDelete().setVisible(this.isEditable && access);
-        this.btnGroup.getBtnEdit().setVisible(this.isEditable && access);
-        this.btnGroup.getBtnSave().setVisible(this.isEditable && access);
-        this.btnGroup.getBtnCancel().setVisible(this.isEditable && access);
-        this.btnGroup.getBtnPrint().setVisible(this.isEditable && access);
-*/
+        //JMFunctions.trace(this.isEditable+""+this.getMasterTable().editing);
+        //this.btnGroup.getBtnAdd().setLocked(false);
+        this.btnGroup.getBtnAdd().setLocked(!(this.isEditable && this.getMasterTable().editing && this.allowAdd));
+        this.btnGroup.getBtnDelete().setLocked(!(this.isEditable && this.getMasterTable().editing && this.allowDelete));
+        this.btnGroup.getBtnEdit().setLocked(!(this.isEditable && this.getMasterTable().editing && this.allowE));
+        //this.btnGroup.getBtnSave().setLocked((this.isEditable && this.getMasterTable().editing));
+        //this.btnGroup.getBtnCancel().setLocked((this.isEditable && this.getMasterTable().editing));
+        this.btnGroup.getBtnPrint().setLocked(!(this.isEditable && masterEditing));
+
+
+        */
     }
     public void pack(){
         this.dbObject.refresh(false);
@@ -403,6 +449,87 @@ public class JMFormTableList implements JMTableInterface {
         }
         return this;
     }
+    
+    
+    public JMFormTableList setAllowAdd(boolean allowAdd){
+        this.allowAdd=allowAdd;
+        return this;
+    }
+    public boolean canAdd(){
+        return this.allowAdd;
+    }
+    public JMFormTableList setAllowDelete(boolean allowDelete){
+        this.allowDelete=allowDelete;
+        return this;
+    }
+    public boolean canDelete(){
+        return this.allowDelete;
+    }
+    public JMFormTableList setAllowEdit(boolean allowEdit){
+        this.allowEdit=allowEdit;
+        return this;
+    }
+    public boolean canEdit(){
+        return this.allowEdit;
+    }
+    public JMFormTableList setAllowView(boolean allowView){
+        this.allowView=allowView;
+        return this;
+    }
+    public boolean canView(){
+        return this.allowView;
+    }
+    public JMFormTableList setAllowRefresh(boolean allowRefresh){
+        this.allowRefresh=allowRefresh;
+        return this;
+    }
+    public boolean canRefresh(){
+        return this.allowRefresh;
+    }
+    public JMFormTableList setAllowPrint(boolean allowPrint){
+        this.allowPrint=allowPrint;
+        return this;
+    }
+    public boolean canPrint(){
+        return this.allowPrint;
+    }
+    public JMFormTableList setAllowFirst(boolean allowFirst){
+        this.allowFirst=allowFirst;
+        return this;
+    }
+    public boolean canFirst(){
+        return this.allowFirst;
+    }
+    public JMFormTableList setAllowPrev(boolean allowPrev){
+        this.allowPrev=allowPrev;
+        return this;
+    }
+    public boolean canPrev(){
+        return this.allowPrev;
+    }
+    public JMFormTableList setAllowNext(boolean allowNext){
+        this.allowNext=allowNext;
+        return this;
+    }
+    public boolean canNext(){
+        return this.allowNext;
+    }
+    public JMFormTableList setAllowLast(boolean allowLast){
+        this.allowLast=allowLast;
+        return this;
+    }
+    public boolean canLast(){
+        return this.allowLast;
+    }
+    public JMFormTableList setAllowGoto(boolean allowGoto){
+        this.allowGoto=allowGoto;
+        return this;
+    }
+    public boolean canGoto(){
+        return this.allowGoto;
+    }
+    
+    
     public JMFormTableList setBoolImage(Object[] boolImage, int col){
         this.dbObject.getStyle().addFormat(col, JMResultSetStyle.FORMAT_IMAGE, boolImage);
         //this.dbObject.refresh();
@@ -663,35 +790,35 @@ public class JMFormTableList implements JMTableInterface {
     public void actionAfterMovedNext(JMRow nextRow) {
         this.selectedRow=nextRow;
         this.detailBackup=null;
-        this.setEditing(false);
+        this.setEditing(this.editing);
     }
 
     @Override
     public void actionAfterMovedPrev(JMRow prevRow) {
         this.selectedRow=prevRow;
         this.detailBackup=null;
-        this.setEditing(false);
+        this.setEditing(this.editing);
     }
 
     @Override
     public void actionAfterMovedFirst(JMRow firstRow) {
         this.selectedRow=firstRow;
         this.detailBackup=null;
-        this.setEditing(false);
+        this.setEditing(this.editing);
     }
 
     @Override
     public void actionAfterMovedLast(JMRow lastRow) {
         this.selectedRow=lastRow;
         this.detailBackup=null;
-        this.setEditing(false);
+        this.setEditing(this.editing);
     }
 
     @Override
     public void actionAfterMovedtoRecord(JMRow currentRow) {
         this.selectedRow=currentRow;
         this.detailBackup=null;
-        this.setEditing(false);
+        this.setEditing(this.editing);
     }
 
     @Override

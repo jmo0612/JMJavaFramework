@@ -753,5 +753,12 @@ public class JMFunctions {
         }
         return ret;
     }
+    public static List<Integer> listIntegerOf(Integer... obj){
+        List<Integer> ret= new ArrayList();
+        for(Integer o:obj){
+            ret.add(o);
+        }
+        return ret;
+    }
 
 }
